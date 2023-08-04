@@ -36,10 +36,10 @@ PRAGMA_DISABLE_DEPRECATION_WARNINGS
 AMarioKartPawn::AMarioKartPawn()
 {
 	// Car mesh
-	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CarMesh(TEXT("/Game/Vehicle/Sedan/Sedan_SkelMesh.Sedan_SkelMesh"));
+	static ConstructorHelpers::FObjectFinder<USkeletalMesh> CarMesh(TEXT("/Game/VehicleReference/Vehicle/Sedan/Sedan_SkelMesh"));
 	GetMesh()->SetSkeletalMesh(CarMesh.Object);
 
-	static ConstructorHelpers::FClassFinder<UObject> AnimBPClass(TEXT("/Game/Vehicle/Sedan/Sedan_AnimBP"));
+	static ConstructorHelpers::FClassFinder<UObject> AnimBPClass(TEXT("/Game/VehicleReference/Vehicle/Sedan/Sedan_AnimBP"));
 	GetMesh()->SetAnimInstanceClass(AnimBPClass.Class);
 	
 	// Simulation
