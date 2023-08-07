@@ -10,6 +10,8 @@ class AMarioKartGameMode : public AGameModeBase
 
 public:
 	AMarioKartGameMode();
+
+
 };
 
 

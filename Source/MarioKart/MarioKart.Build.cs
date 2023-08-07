@@ -8,8 +8,10 @@ public class MarioKart : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "PhysXVehicles", "HeadMountedDisplay" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "PhysXVehicles", "UMG" });
 
 		PublicDefinitions.Add("HMD_MODULE_INCLUDED=1");
+
+		PrivateDependencyModuleNames.AddRange(new string[] {  });
 	}
 }

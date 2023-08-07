@@ -14,4 +14,5 @@ class MARIOKART_API UKartInstance : public UGameInstance
 {
 	GENERATED_BODY()
 	
+
 };
