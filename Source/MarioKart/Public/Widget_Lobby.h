@@ -10,31 +10,27 @@ class MARIOKART_API UWidget_Lobby : public UUserWidget
 	GENERATED_BODY()
 
 protected:
-		virtual void NativeConstruct() override;
+	virtual void NativePreConstruct() override;
+	virtual void NativeConstruct() override;
+
 public:
- //   SLATE_BEGIN_ARGS(UWidget_Lobby) {}
-
-	//SLATE_ARGUMENT(TWeakObjectPtr<class AMenuHUD>, OwningHUD)
-
-	//SLATE_END_ARGS()
-
-	//void Construct(const FArguments& InArgs);
-
-	//TWeakObjectPtr<class AMenuHUD> OwningHUD;
-
-	//virtual bool SupportsKeyboardFocus() const override { return true; };
-
-	
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
+		class UWidgetSwitcher* WS_Intro;
 
 	// Index 0 : Select Button to Check PlayerCount
-	/*UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
-		class UWidgetSwitcher* WS_Intro;*/
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
-		class UButton* Button_SinglePlay;
+		class UButton* Button_PressStartAtIntro;
+
+	FName LevelSingle = FName(TEXT("1_Lobby_Single"));
+	FName LevelMulti = FName(TEXT("2_Lobby_Multi"));
+
+	// Index 1 : Play SinglePlay or Multiplay
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
-		class UButton* Button_Check;
-	//UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
-	//	class UButton* Button_MultiPlay;
+		class UButton* Button_PressSinglePlay;
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
+		class UButton* Button_PressMultiPlay;
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
+		class UImage* IMG_NextMenu;
 
 	//// Index 1 : Select Button to Widget Interact
 	//UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = MenuSystem)
@@ -52,12 +48,23 @@ public:
 	//UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu1st)
 	//	class UButton* Button_VS_Race_LocalNetwork;
 
-	UFUNCTION(BlueprintCallable)
-	void ClickedSinglePlay();
+	// Animation Bind by C++
+	UPROPERTY(VisibleAnywhere, Transient, meta = (BindWidgetAnim), Category = Menu)
+		class UWidgetAnimation* Intro2Menu;
+
+	UPROPERTY(VisibleAnywhere, Transient, meta = (BindWidgetAnim), Category = Menu)
+		class UWidgetAnimation* MainMenuStart;
+
+	UPROPERTY(VisibleAnywhere, Transient, meta = (BindWidgetAnim), Category = Menu)
+		class UWidgetAnimation* Menu2RaceType;
 
 	UFUNCTION()
-	void ClickedCheck();
+		void OnClickedPressIntro2Menu();
 
-	
+	UFUNCTION()
+		void OnClickedPressMenu2Single();
+
+	UFUNCTION()
+		void OnClickedPressMenu2Multi();
 	
 };

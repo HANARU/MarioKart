@@ -2,21 +2,70 @@
 #include "Components/WidgetSwitcher.h"
 #include "Components/Button.h"
 #include "Components/InputComponent.h"
+#include "Components/Image.h"
+#include "Kismet/GameplayStatics.h"
+
+void UWidget_Lobby::NativePreConstruct()
+{
+	Super::NativePreConstruct();
+
+	IMG_NextMenu->SetVisibility(ESlateVisibility::Hidden);
+	IMG_NextMenu->SetRenderOpacity(0);
+}
 
 void UWidget_Lobby::NativeConstruct()
 {
-	Button_Check->OnClicked.AddDynamic(this, &UWidget_Lobby::ClickedCheck);
+	Super::NativeConstruct();
 
+	Button_PressStartAtIntro->OnClicked.AddDynamic(this, &UWidget_Lobby::OnClickedPressIntro2Menu);
+	Button_PressSinglePlay->OnClicked.AddDynamic(this, &UWidget_Lobby::OnClickedPressMenu2Single);
+	Button_PressMultiPlay->OnClicked.AddDynamic(this, &UWidget_Lobby::OnClickedPressMenu2Multi);
 }
 
-void UWidget_Lobby::ClickedSinglePlay()
+void UWidget_Lobby::OnClickedPressIntro2Menu()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Check"));
+	if (Intro2Menu != nullptr)
+	{
+		PlayAnimationForward(Intro2Menu);
+
+		FTimerHandle DelayHandle;
+		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([&]()
+			{
+				WS_Intro->SetActiveWidgetIndex(1);
+				PlayAnimationForward(MainMenuStart);
+			}
+		), 1.5f, false);
+	}
 }
 
-void UWidget_Lobby::ClickedCheck()
+void UWidget_Lobby::OnClickedPressMenu2Single()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("Check"));
+	if (Menu2RaceType != nullptr)
+	{
+		IMG_NextMenu->SetVisibility(ESlateVisibility::Visible);
+		PlayAnimationForward(Menu2RaceType);
+		FTimerHandle DelayHandle;
+		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([&]()
+			{
+				UGameplayStatics::OpenLevel(this, LevelSingle);
+				//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Single"));
+			}
+		), 4, false);
+	}
 }
 
-
+void UWidget_Lobby::OnClickedPressMenu2Multi()
+{
+	if (Menu2RaceType != nullptr)
+	{
+		IMG_NextMenu->SetVisibility(ESlateVisibility::Visible);
+		PlayAnimationForward(Menu2RaceType);
+		FTimerHandle DelayHandle;
+		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([&]()
+			{
+				UGameplayStatics::OpenLevel(this, LevelMulti);
+				//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Multi"));
+			}
+		), 4, false);
+	}
+}
