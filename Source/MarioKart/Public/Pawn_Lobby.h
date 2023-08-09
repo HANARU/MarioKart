@@ -12,10 +12,6 @@ class MARIOKART_API APawn_Lobby : public APawn
 public:
 	APawn_Lobby();
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
-		TSubclassOf<class UWidget_Lobby> LobbyWidget;
-	class UWidget_Lobby* Widget_Lobby;
-
 protected:
 	virtual void BeginPlay() override;
 

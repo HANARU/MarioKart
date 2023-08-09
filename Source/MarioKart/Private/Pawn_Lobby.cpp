@@ -13,15 +13,6 @@ void APawn_Lobby::BeginPlay()
 	Super::BeginPlay();
 	APlayerController* PlayerController = Cast<APlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
 	PlayerController->SetShowMouseCursor(true);
-
-	if (GetController() != nullptr && GetController()->IsLocalPlayerController())
-	{
-		Widget_Lobby = CreateWidget<UWidget_Lobby>(GetWorld(), LobbyWidget);
-		if (Widget_Lobby != nullptr)
-		{
-			Widget_Lobby->AddToViewport();
-		}
-	}
 }
 
 void APawn_Lobby::Tick(float DeltaTime)

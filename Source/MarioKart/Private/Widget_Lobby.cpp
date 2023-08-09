@@ -8,9 +8,6 @@
 void UWidget_Lobby::NativePreConstruct()
 {
 	Super::NativePreConstruct();
-
-	IMG_NextMenu->SetVisibility(ESlateVisibility::Hidden);
-	IMG_NextMenu->SetRenderOpacity(0);
 }
 
 void UWidget_Lobby::NativeConstruct()
@@ -20,6 +17,16 @@ void UWidget_Lobby::NativeConstruct()
 	Button_PressStartAtIntro->OnClicked.AddDynamic(this, &UWidget_Lobby::OnClickedPressIntro2Menu);
 	Button_PressSinglePlay->OnClicked.AddDynamic(this, &UWidget_Lobby::OnClickedPressMenu2Single);
 	Button_PressMultiPlay->OnClicked.AddDynamic(this, &UWidget_Lobby::OnClickedPressMenu2Multi);
+
+	PlayAnimationForward(IntroInit);
+
+	FTimerHandle DelayHandle;
+	GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([&]()
+		{
+			IMG_InitFade->SetVisibility(ESlateVisibility::Hidden);
+		}
+	), 1, false);
+	
 }
 
 void UWidget_Lobby::OnClickedPressIntro2Menu()
