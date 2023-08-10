@@ -9,9 +9,6 @@
 #define ChoosePlayer 1
 #define NoticeMap 2
 
-void UWidget_SinglePlay::NativePreConstruct()
-{
-}
 
 void UWidget_SinglePlay::NativeConstruct()
 {

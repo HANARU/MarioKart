@@ -10,7 +10,6 @@ class MARIOKART_API UWidget_SinglePlay : public UUserWidget
 	GENERATED_BODY()
 
 protected:
-	virtual void NativePreConstruct() override;
 	virtual void NativeConstruct() override;
 
 public:

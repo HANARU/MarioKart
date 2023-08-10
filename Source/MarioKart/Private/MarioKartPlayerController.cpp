@@ -14,7 +14,6 @@ AMarioKartPlayerController::AMarioKartPlayerController()
 
 void AMarioKartPlayerController::BeginPlay()
 {
-	me = Cast<AKartCharacter>(GetOwner());
 }
 
 void AMarioKartPlayerController::Tick(float DeltaTime)
@@ -25,20 +24,20 @@ void AMarioKartPlayerController::Tick(float DeltaTime)
 	if (bisMovingback)
 	{
 		// 후진할 때 이동
-		me->AddMovementInput(Direction(), currentSpeed);
+		//me->AddMovementInput(Direction(), currentSpeed);
 	}
 	else
 	{
 		if (!bisAcc)
 		{
 			// 가속키 누르지 않았을 때 서서히 감속
-			me->AddMovementInput(Direction(), currentSpeed);
+			//me->AddMovementInput(Direction(), currentSpeed);
 		}
 		else
 		{
 			if (!bisJump)
 			{
-				me->AddMovementInput(Direction(), currentSpeed);
+				//me->AddMovementInput(Direction(), currentSpeed);
 			}
 			else
 			{
@@ -52,17 +51,17 @@ void AMarioKartPlayerController::Tick(float DeltaTime)
 					bisAcc = true;
 
 					// 플레이어 이동 속도 2000 으로 늘어남
-					me->GetCharacterMovement()->MaxWalkSpeed = 2000.0f;
+					//me->GetCharacterMovement()->MaxWalkSpeed = 2000.0f;
 
 					// 드리프트 시간 동안 앞으로 빠르게 전진
-					me->AddMovementInput(Direction(), currentSpeed);
+					//me->AddMovementInput(Direction(), currentSpeed);
 
 					if (driftTime > 3.0)
 					{
 						bisJump = false;
 						bisAcc = false;
-						me->GetCharacterMovement()->MaxWalkSpeed = 1000.0f;
-						me->AddMovementInput(Direction(), currentSpeed);
+						//me->GetCharacterMovement()->MaxWalkSpeed = 1000.0f;
+						//me->AddMovementInput(Direction(), currentSpeed);
 						driftTime = 0.0f;
 					}
 					
@@ -138,7 +137,7 @@ void AMarioKartPlayerController::Horizontal(float value)
 					{
 						// 기본 회전으로 돌아옴
 						AddYawInput(FMath::Lerp(0.0f, horizontalValue, 0.3f));
-						UCharacterMovementComponent* playerMovement = me->GetCharacterMovement();
+						UCharacterMovementComponent* playerMovement = nullptr;//me->GetCharacterMovement();
 						
 						// 플레이어 이동 속도 초기화
 						if (playerMovement)
@@ -197,7 +196,7 @@ FVector AMarioKartPlayerController::Direction()
 {
 	// 캐릭터의 getworldrotation은 
 	// ACharacter 클래스가 상속한 APawn 클래스의 멤버 함수인 GetActorRotation을 사용
-	FRotator worldRotation = me->GetActorRotation();
+	FRotator worldRotation = FRotator::ZeroRotator;//me->GetActorRotation();
 
 	// 주행 방향 구하기
 	FVector crossVector = UKismetMathLibrary::Cross_VectorVector(UKismetMathLibrary::GetRightVector(GetControlRotation()), UKismetMathLibrary::GetUpVector(worldRotation));

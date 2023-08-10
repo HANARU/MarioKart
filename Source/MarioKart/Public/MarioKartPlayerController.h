@@ -4,7 +4,6 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
-#include "KartCharacter.h"
 #include "MarioKartPlayerController.generated.h"
 
 /**
@@ -65,8 +64,8 @@ public:
 	bool bisDrift = false;
 
 	// 플레이어 캐릭터
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
-	AKartCharacter* me;
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	//AKartCharacter* me;
 
 
 	// 전진 함수
