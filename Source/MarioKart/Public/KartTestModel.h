@@ -33,6 +33,10 @@ public:
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Value)
 	float HorizontalValue;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = UI)
+		TSubclassOf<class UWidget_Player> Widget_Player;
+	class UWidget_Player* PlayerWidget;
+
 
 public:
 	void Horizontal(float Value);

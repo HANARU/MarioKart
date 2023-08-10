@@ -3,6 +3,7 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Widget_Player.h"
 
 AKartTestModel::AKartTestModel()
 {
@@ -31,6 +32,15 @@ AKartTestModel::AKartTestModel()
 void AKartTestModel::BeginPlay()
 {
 	Super::BeginPlay();
+
+	if (GetController() != nullptr && GetController()->IsLocalPlayerController())
+	{
+		PlayerWidget = CreateWidget<UWidget_Player>(GetWorld(), Widget_Player);
+		if (PlayerWidget != nullptr)
+		{
+			PlayerWidget->AddToViewport();
+		}
+	}
 	
 }
 
