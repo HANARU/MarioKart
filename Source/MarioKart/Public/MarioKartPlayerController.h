@@ -26,7 +26,7 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	// input 바인딩 함수
-	virtual void SetupInputBinding(class UInputComponent* PlayerInputComponent);
+	void SetupInputComponent() override;
 
 
 public:
@@ -55,29 +55,27 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	bool bisMovingback = false;
 
-	// 점프키 확인(드리프트 때 사용)
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
-	bool bisJump = false;
-
-	// 드리프트 키 확인
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
-	bool bisDrift = false;
-
 	// 플레이어 캐릭터
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
-	//AKartCharacter* me;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	class AKartPlayer* me;
 
 
 	// 전진 함수
+	UFUNCTION()
 	void Acc();
 
+	UFUNCTION()
+	void Acc_released();
+
 	// 후진 함수
+	UFUNCTION()
 	void MoveBack();
 
-	// 점프키 함수
-	void Jump();
+	UFUNCTION()
+	void MoveBack_released();
 
 	// 좌우 이동 함수
+	UFUNCTION()
 	void Horizontal(float value);
 
 	// 상하이동(전진, 후진) 함수

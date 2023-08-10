@@ -2,8 +2,11 @@
 
 
 #include "MarioKartPlayerController.h"
+#include "KartPlayer.h"
 #include "Kismet/KismetMathLibrary.h"
 #include "Kismet/KismetSystemLibrary.h"
+#include "Kismet/KismetStringLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 AMarioKartPlayerController::AMarioKartPlayerController()
@@ -14,6 +17,10 @@ AMarioKartPlayerController::AMarioKartPlayerController()
 
 void AMarioKartPlayerController::BeginPlay()
 {
+	me = Cast<AKartPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(),0));
+	
+	FString NameString = UKismetStringLibrary::Conv_ObjectToString(me);
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, NameString);
 }
 
 void AMarioKartPlayerController::Tick(float DeltaTime)
@@ -21,91 +28,74 @@ void AMarioKartPlayerController::Tick(float DeltaTime)
 	// 전진, 후진 주행 (가속, 속도)
 	MoveVertical();
 
-	if (bisMovingback)
+	if (bisMovingback == true)
 	{
 		// 후진할 때 이동
-		//me->AddMovementInput(Direction(), currentSpeed);
+		me->AddMovementInput(Direction(), currentSpeed);
 	}
 	else
 	{
-		if (!bisAcc)
+		if (bisAcc == false)
 		{
 			// 가속키 누르지 않았을 때 서서히 감속
-			//me->AddMovementInput(Direction(), currentSpeed);
+			me->AddMovementInput(Direction(), currentSpeed);
+
 		}
 		else
 		{
-			if (!bisJump)
-			{
-				//me->AddMovementInput(Direction(), currentSpeed);
-			}
-			else
-			{
-				// 드리프트 시간 누적
-				driftTime+=DeltaTime;
-				
-				if (driftTime > 1.0)
-				{
-					// 드리프트 
-					bisJump = true;
-					bisAcc = true;
-
-					// 플레이어 이동 속도 2000 으로 늘어남
-					//me->GetCharacterMovement()->MaxWalkSpeed = 2000.0f;
-
-					// 드리프트 시간 동안 앞으로 빠르게 전진
-					//me->AddMovementInput(Direction(), currentSpeed);
-
-					if (driftTime > 3.0)
-					{
-						bisJump = false;
-						bisAcc = false;
-						//me->GetCharacterMovement()->MaxWalkSpeed = 1000.0f;
-						//me->AddMovementInput(Direction(), currentSpeed);
-						driftTime = 0.0f;
-					}
-					
-				}
-			}
+			// 전진할 때 이동
+			me->AddMovementInput(Direction(), currentSpeed);
 		}
+
+
 	}
-
-
-
+	
 }
 
-void AMarioKartPlayerController::SetupInputBinding(class UInputComponent* PlayerInputComponent)
+void AMarioKartPlayerController::SetupInputComponent()
 {
 	//입력 함수 바인딩
+	Super::SetupInputComponent();
 
 	// 좌우 입력
-	PlayerInputComponent->BindAxis(TEXT("Horizontal"), this, &AMarioKartPlayerController::Horizontal);
+	InputComponent->BindAxis(TEXT("Horizontal"), this, &AMarioKartPlayerController::Horizontal);
 
 	// 가속키 입력
-	PlayerInputComponent->BindAction(TEXT("Acc"), IE_Pressed, this, &AMarioKartPlayerController::Acc);
+	InputComponent->BindAction(TEXT("Acc"), IE_Pressed, this, &AMarioKartPlayerController::Acc);
+	InputComponent->BindAction(TEXT("Acc"), IE_Released, this, &AMarioKartPlayerController::Acc_released);
 
 	// 후진키 입력
-	PlayerInputComponent->BindAction(TEXT("MoveBack"), IE_Pressed, this, &AMarioKartPlayerController::MoveBack);
+	InputComponent->BindAction(TEXT("MoveBack"), IE_Pressed, this, &AMarioKartPlayerController::MoveBack);
+	InputComponent->BindAction(TEXT("MoveBack"), IE_Released, this, &AMarioKartPlayerController::MoveBack_released);
 
-	// 점프키 입력
-	PlayerInputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &AMarioKartPlayerController::Jump);
 }
 
 void AMarioKartPlayerController::Acc()
 {
 	bisAcc = true;
+	UE_LOG(LogTemp, Warning, TEXT("Acc: %d"), bisAcc ? true : false);
+}
+
+void AMarioKartPlayerController::Acc_released()
+{
+	bisAcc = false;
+	UE_LOG(LogTemp, Warning, TEXT("Acc_released: %d"), bisAcc ? true : false);
+
 }
 
 void AMarioKartPlayerController::MoveBack()
 {
 	bisMovingback = true;
-
+	UE_LOG(LogTemp, Warning, TEXT("MoveBack: %d"), bisAcc ? true : false);
 }
 
-void AMarioKartPlayerController::Jump()
+void AMarioKartPlayerController::MoveBack_released()
 {
-	bisJump = true;
+	bisMovingback = false;
+	UE_LOG(LogTemp, Warning, TEXT("MoveBack_released: %d"), bisAcc ? true : false);
 }
+
+
 
 void AMarioKartPlayerController::Horizontal(float value)
 {
@@ -113,55 +103,23 @@ void AMarioKartPlayerController::Horizontal(float value)
 	horizontalValue = value;
 	
 	// 좌우 입력 들어왔을 때(회전)
-	if (horizontalValue != 0)
+	if (FMath::Abs(horizontalValue) != 0.0f)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("horizontal rotation"));
+
 		// 후진 회전
-		if (bisMovingback)
+		if (bisMovingback == true)
 		{
-			AddYawInput(FMath::Lerp(horizontalValue, 0.0f, 0.3f));
+			float movigbackValue = FMath::Lerp(horizontalValue, 0.0f, 0.3f);
+			AddYawInput(movigbackValue);
+			UE_LOG(LogTemp, Warning, TEXT("movigbackValue : %.2f"), movigbackValue);
+
 		}
-		else
+		
+		if(bisAcc == true)
 		{
 			// 전진 회전
-			if (bisAcc)
-			{
-				// 드리프트(점프 키 입력)
-				if (bisJump)
-				{
-					// 드리프트 발동 중
-					// 회전율(Alpha) 더 높게 설정
-					AddYawInput(FMath::Lerp(0.0f, horizontalValue, 0.7f));
-
-					// 드리프트 시간 끝나고
-					if (driftTime > 3.0f)
-					{
-						// 기본 회전으로 돌아옴
-						AddYawInput(FMath::Lerp(0.0f, horizontalValue, 0.3f));
-						UCharacterMovementComponent* playerMovement = nullptr;//me->GetCharacterMovement();
-						
-						// 플레이어 이동 속도 초기화
-						if (playerMovement)
-						{
-							playerMovement->MaxWalkSpeed = 1000.0f;
-						}
-
-						// 드리프트 시간 초기화
-						driftTime = 0.0f; 
-
-					}
-					else // 드리프트 발동 회전
-					{
-						AddYawInput(FMath::Lerp(0.0f, 0.5f, 0.01f));
-						
-					}
-
-				}
-				else // 드리프트 해제(점프키 땠을 때)
-				{
-					AddYawInput(FMath::Lerp(0.0f, horizontalValue, 0.3f));
-
-				}
-			}
+			AddYawInput(FMath::Lerp(0.0f, horizontalValue, 0.3f));
 		}
 	}
 
@@ -169,9 +127,9 @@ void AMarioKartPlayerController::Horizontal(float value)
 
 void AMarioKartPlayerController::MoveVertical()
 {
-	if (bisAcc || bisMovingback)
+	if (bisAcc == true || bisMovingback == true)
 	{
-		if (bisAcc)
+		if (bisAcc == true)
 		{
 			// 전진 가속
 			currentSpeed = FMath::Lerp(currentSpeed, maxSpeed, GetWorld()->GetDeltaSeconds() * 1.5);
@@ -180,13 +138,14 @@ void AMarioKartPlayerController::MoveVertical()
 		else
 		{
 			// 후진 가속
-			currentSpeed = FMath::Lerp(currentSpeed, maxSpeed * -0.5f, GetWorld()->GetDeltaSeconds());
+			currentSpeed = FMath::Lerp(currentSpeed, maxSpeed * -1.8f, GetWorld()->GetDeltaSeconds());
 		}
 	}
 	else
 	{
 		// 속도 0으로 조정
 		currentSpeed = FMath::Lerp(currentSpeed, 0.0f, GetWorld()->GetDeltaSeconds() * 3.0f);
+
 	}
 
 }
@@ -194,13 +153,16 @@ void AMarioKartPlayerController::MoveVertical()
 // 이동 방향 벡터 반환 함수
 FVector AMarioKartPlayerController::Direction()
 {
-	// 캐릭터의 getworldrotation은 
+	// 캐릭터의 getworldrotation
 	// ACharacter 클래스가 상속한 APawn 클래스의 멤버 함수인 GetActorRotation을 사용
-	FRotator worldRotation = FRotator::ZeroRotator;//me->GetActorRotation();
+	FRotator worldRotation = me->GetActorRotation();
+	//FRotator::ZeroRotator;
 
 	// 주행 방향 구하기
 	FVector crossVector = UKismetMathLibrary::Cross_VectorVector(UKismetMathLibrary::GetRightVector(GetControlRotation()), UKismetMathLibrary::GetUpVector(worldRotation));
 	FVector returnDirection = UKismetMathLibrary::Normal(crossVector, 0.0001);
+
+	UE_LOG(LogTemp, Warning, TEXT("Direction %s"), *returnDirection.ToString());
 
 	return returnDirection;
 }
