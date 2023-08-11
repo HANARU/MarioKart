@@ -12,11 +12,11 @@
 AMarioKartPlayerController::AMarioKartPlayerController()
 {
 	PrimaryActorTick.bCanEverTick = true; 
-
 }
 
 void AMarioKartPlayerController::BeginPlay()
 {
+	// 플레이어 캐릭터 불러오기
 	me = Cast<AKartPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(),0));
 	
 	FString NameString = UKismetStringLibrary::Conv_ObjectToString(me);
@@ -197,10 +197,7 @@ void AMarioKartPlayerController::Horizontal(float value)
 					// 전진 회전
 					AddYawInput(FMath::Lerp(0.0f, horizontalValue, 0.3f));
 				}
-		}
-		
-		
-			
+			}
 		}
 	}
 

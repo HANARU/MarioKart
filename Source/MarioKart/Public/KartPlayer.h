@@ -21,8 +21,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Test)
 	float Testfloat;
 
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class USceneComponent* kartSceneComp;*/
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
-	class USceneComponent* kartbaseComp;
+	class USceneComponent* kartbaseSceneComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class UStaticMeshComponent* kartmeshComp;
