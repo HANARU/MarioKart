@@ -47,4 +47,5 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	{
 		kartmeshComp->SetStaticMesh(TempMesh.Object);
 	}
+
 }

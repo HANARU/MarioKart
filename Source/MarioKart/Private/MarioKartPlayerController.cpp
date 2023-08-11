@@ -40,7 +40,8 @@ void AMarioKartPlayerController::Tick(float DeltaTime)
 			if (bisJump == false)
 			{
 				// 전진할 때 이동
-				me->AddMovementInput(Direction(), currentSpeed);
+   				me->AddMovementInput(Direction(), currentSpeed);
+				UE_LOG(LogTemp, Warning, TEXT("currentSpeed : %.2f"), currentSpeed);
 			}
 			else
 			{
@@ -212,6 +213,7 @@ void AMarioKartPlayerController::MoveVertical()
 			// 전진 가속
 			currentSpeed = FMath::Lerp(currentSpeed, maxSpeed, GetWorld()->GetDeltaSeconds() * 1.5);
 
+
 		}
 		else
 		{
@@ -244,5 +246,3 @@ FVector AMarioKartPlayerController::Direction()
 
 	return returnDirection;
 }
-
-

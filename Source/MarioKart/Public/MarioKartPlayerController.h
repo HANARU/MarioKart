@@ -100,5 +100,4 @@ public:
 	// 이동 방향 벡터 반환 함수
 	UFUNCTION()
 	FVector Direction();
-
 };
