@@ -29,6 +29,8 @@ public:
 	// Index 1 : Select Player Character in UI
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
 		class UButton* Button_Mario;
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
+		class UButton* Button_Luige;
 
 	// Index 2 : Select Map Only MushRoom Race
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
@@ -46,6 +48,10 @@ public:
 	UPROPERTY(VisibleAnywhere, Transient, meta = (BindWidgetAnim), Category = Menu)
 		class UWidgetAnimation* FadeIn;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Preview)
+		class AOverlayActor* OverlayActor;
+
+
 	int32 ActivatedWidget = 0;
 
 
@@ -56,8 +62,17 @@ public:
 		void OnClick_AccessHighlighted();
 	UFUNCTION()
 		void OnClick_Press_VS_Race();
+
 	UFUNCTION()
 		void OnClick_Press_Mario();
+	UFUNCTION()
+		void OnHover_Mario();
+
+	UFUNCTION()
+		void OnClick_Press_Luige();
+	UFUNCTION()
+		void OnHover_Luige();
+
 	UFUNCTION()
 		void OnClick_Press_MushRoomMap();
 

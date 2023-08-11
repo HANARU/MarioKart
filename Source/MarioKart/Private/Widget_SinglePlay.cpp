@@ -3,6 +3,7 @@
 #include "Components/Button.h"
 #include "Components/InputComponent.h"
 #include "Components/Image.h"
+#include "OverlayActor.h"
 #include "Kismet/GameplayStatics.h"
 
 #define SelectGame 0
@@ -27,6 +28,8 @@ void UWidget_SinglePlay::NativeConstruct()
 		}
 	), 1.f, false);
 	
+	OverlayActor = Cast<AOverlayActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AOverlayActor::StaticClass()));
+
 }
 
 void UWidget_SinglePlay::OnClick_Back2BeforeMenu()
@@ -88,7 +91,25 @@ void UWidget_SinglePlay::OnClick_Press_Mario()
 	WS_MainMenu->SetActiveWidgetIndex(ActivatedWidget);
 }
 
+void UWidget_SinglePlay::OnHover_Mario()
+{
+	OverlayActor->KartNumber = 0;
+	OverlayActor->PlayerNumber = 0;
+}
+
 void UWidget_SinglePlay::OnClick_Press_MushRoomMap()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Game Ready!!"));
+}
+
+void UWidget_SinglePlay::OnClick_Press_Luige()
+{
+	OverlayActor->KartNumber = 0;
+	OverlayActor->PlayerNumber = 1;
+}
+
+void UWidget_SinglePlay::OnHover_Luige()
+{
+	ActivatedWidget = 2;
+	WS_MainMenu->SetActiveWidgetIndex(ActivatedWidget);
 }

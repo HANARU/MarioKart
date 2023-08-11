@@ -55,6 +55,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	bool bisMovingback = false;
 
+	// 점프키 확인(드리프트 때 사용)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	bool bisJump = false;
+
+	// 드리프트 확인
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	bool bisDrift = false;
+
 	// 플레이어 캐릭터
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	class AKartPlayer* me;
@@ -74,6 +82,13 @@ public:
 	UFUNCTION()
 	void MoveBack_released();
 
+	// 점프키 함수
+	UFUNCTION()
+	void Jump();
+
+	UFUNCTION()
+	void Jump_released();
+
 	// 좌우 이동 함수
 	UFUNCTION()
 	void Horizontal(float value);
@@ -85,5 +100,4 @@ public:
 	// 이동 방향 벡터 반환 함수
 	UFUNCTION()
 	FVector Direction();
-
 };

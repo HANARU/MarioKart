@@ -17,18 +17,23 @@ class MARIOKART_API AKartPlayer : public ANinjaCharacter
 public:
 	AKartPlayer(const FObjectInitializer& ObjectInitializer);
 
+//protected:
+//	virtual void SetPointGravityDirection(const FVector& NewGravityPoint) override;
+
 public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Test)
 	float Testfloat;
 
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class USceneComponent* kartSceneComp;*/
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
-	class USceneComponent* kartbaseComp;
+	class USceneComponent* kartbaseSceneComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class UStaticMeshComponent* kartmeshComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class UCameraComponent* kartCamComp;
-
 	
 };
