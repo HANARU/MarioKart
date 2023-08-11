@@ -8,6 +8,7 @@
 #include "Kismet/KismetStringLibrary.h"
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include <DrawDebugHelpers.h>
 
 AMarioKartPlayerController::AMarioKartPlayerController()
 {
@@ -39,6 +40,10 @@ void AMarioKartPlayerController::Tick(float DeltaTime)
 		{
 			if (bisJump == false)
 			{
+				FVector Dir = Direction();
+
+				if(bTestDebug)
+					return;
 				// 전진할 때 이동
    				me->AddMovementInput(Direction(), currentSpeed);
 				UE_LOG(LogTemp, Warning, TEXT("currentSpeed : %.2f"), currentSpeed);
@@ -107,6 +112,13 @@ void AMarioKartPlayerController::SetupInputComponent()
 	// 드리프트 (점프키 입력)
 	InputComponent->BindAction(TEXT("Jump"), IE_Pressed, this, &AMarioKartPlayerController::Jump);
 	InputComponent->BindAction(TEXT("Jump"), IE_Released, this, &AMarioKartPlayerController::Jump_released);
+
+	// Direction 함수 디버그
+	InputComponent->BindAction(TEXT("TestDebug"), IE_Pressed, this, &AMarioKartPlayerController::TestDebug);
+
+	// 아이템 키 입력
+	InputComponent->BindAction(TEXT("Item"), IE_Pressed, this, &AMarioKartPlayerController::Item);
+
 
 }
 
@@ -232,17 +244,31 @@ void AMarioKartPlayerController::MoveVertical()
 
 // 이동 방향 벡터 반환 함수
 FVector AMarioKartPlayerController::Direction()
-{
-	// 캐릭터의 getworldrotation
-	// ACharacter 클래스가 상속한 APawn 클래스의 멤버 함수인 GetActorRotation을 사용
-	FRotator worldRotation = me->GetActorRotation();
-	//FRotator::ZeroRotator;
-
+{	
 	// 주행 방향 구하기
-	FVector crossVector = UKismetMathLibrary::Cross_VectorVector(UKismetMathLibrary::GetRightVector(GetControlRotation()), UKismetMathLibrary::GetUpVector(worldRotation));
-	FVector returnDirection = UKismetMathLibrary::Normal(crossVector, 0.0001);
+	FVector returnDirection = me->GetActorForwardVector();
 
 	UE_LOG(LogTemp, Warning, TEXT("Direction %s"), *returnDirection.ToString());
-
 	return returnDirection;
+}
+
+void AMarioKartPlayerController::Item()
+{
+	//if (GetWorldTimerManager().IsTimerActive(itemDelay))
+	//{
+	//	return;
+	//}
+
+	//// 부스터 아이템 사용
+	//me->GetCharacterMovement()->MaxWalkSpeed = 4000.0f;
+
+	//GetWorldTimerManager().SetTimer(itemDelay, FTimerDelegate::CreateLambda([&]() {bInDelay = !bInDelay;}));
+
+
+}
+
+
+void AMarioKartPlayerController::TestDebug()
+{
+	bTestDebug = !bTestDebug;
 }

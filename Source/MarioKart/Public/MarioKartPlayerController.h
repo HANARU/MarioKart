@@ -67,6 +67,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	class AKartPlayer* me;
 
+private:
+	FTimerHandle itemDelay;
+
 
 	// 전진 함수
 	UFUNCTION()
@@ -100,4 +103,11 @@ public:
 	// 이동 방향 벡터 반환 함수
 	UFUNCTION()
 	FVector Direction();
+
+	// 아이템 사용 함수
+	UFUNCTION()
+	void Item();
+
+	bool bTestDebug = false;
+	void TestDebug();
 };
