@@ -12,14 +12,14 @@
 
 AMarioKartPlayerController::AMarioKartPlayerController()
 {
-	PrimaryActorTick.bCanEverTick = true; 
+	PrimaryActorTick.bCanEverTick = true;
 }
 
 void AMarioKartPlayerController::BeginPlay()
 {
 	// 플레이어 캐릭터 불러오기
-	me = Cast<AKartPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(),0));
-	
+	me = Cast<AKartPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
 	FString NameString = UKismetStringLibrary::Conv_ObjectToString(me);
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, NameString);
 }
@@ -38,59 +38,48 @@ void AMarioKartPlayerController::Tick(float DeltaTime)
 	{
 		if (bisAcc == true)
 		{
-			if (bisJump == false)
-			{
-				FVector Dir = Direction();
-
-				if(bTestDebug)
-					return;
-				// 전진할 때 이동
-   				me->AddMovementInput(Direction(), currentSpeed);
-				UE_LOG(LogTemp, Warning, TEXT("currentSpeed : %.2f"), currentSpeed);
-			}
-			else
+			if (bisJump == true)
 			{
 				// 드리프트 시작
 				// 드리프트 시간 누적
 				driftTime += DeltaTime;
 				me->AddMovementInput(Direction(), currentSpeed);
+				UE_LOG(LogTemp, Warning, TEXT("driftTime : %.2f"), driftTime);
+				UE_LOG(LogTemp, Warning, TEXT("Jump: %d"), bisJump ? true : false);
 
-				if (driftTime > 1.0)
+				// 드리프트가 3초이상 지속됐을 때
+				if (driftTime >= 3.0f)
 				{
-					// 드리프트 
-					/*bisJump = true;
-					bisAcc = true;*/
+					FString NumberString = FString::Printf(TEXT("driftTime: %.2f"), driftTime);
+					GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, NumberString);
+					FString DriftString = FString::Printf(TEXT("drift 3"));
+					GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, DriftString);
+					// 3단 드리프트 무조건 발동
+					DriftActivate(3.0f);
+					UE_LOG(LogTemp, Warning, TEXT("Jump: %d"), bisJump ? true : false);
 
-					// 플레이어 이동 속도 2000 으로 늘어남
-					me->GetCharacterMovement()->MaxWalkSpeed = 2000.0f;
-
-					// 드리프트 시간 동안 앞으로 빠르게 전진
-					me->AddMovementInput(Direction(), currentSpeed);
-					UE_LOG(LogTemp, Warning, TEXT("driftTime: %.2f"), driftTime);
-
-
-					if (driftTime > 3.0)
-					{
-						// 드리프트 끝
-						/*bisJump = false;
-						bisAcc = false;*/
-						me->GetCharacterMovement()->MaxWalkSpeed = 1000.0f;
-						me->AddMovementInput(Direction(), currentSpeed);
-						UE_LOG(LogTemp, Warning, TEXT("driftTime END"));
-						UE_LOG(LogTemp, Warning, TEXT("driftTime: %.2f"), driftTime);
-						driftTime = 0.0f;
-					}
+					// 드리프트 시간 리셋
+					driftTime = 0.0f;
 				}
+			}
+			else
+			{
+				FVector Dir = Direction();
 
+				if (bTestDebug)
+					return;
+				// 전진 주행 이동
+				me->AddMovementInput(Direction(), currentSpeed);
+				//UE_LOG(LogTemp, Warning, TEXT("currentSpeed : %.2f"), currentSpeed);
 			}
 		}
 		else
 		{
 			// 가속키 누르지 않았을 때 서서히 감속
 			me->AddMovementInput(Direction(), currentSpeed);
-		}		
+		}
 	}
-	
+
 }
 
 void AMarioKartPlayerController::SetupInputComponent()
@@ -117,7 +106,7 @@ void AMarioKartPlayerController::SetupInputComponent()
 	InputComponent->BindAction(TEXT("TestDebug"), IE_Pressed, this, &AMarioKartPlayerController::TestDebug);
 
 	// 아이템 키 입력
-	InputComponent->BindAction(TEXT("Item"), IE_Pressed, this, &AMarioKartPlayerController::Item);
+	InputComponent->BindAction(TEXT("ItemUse"), IE_Pressed, this, &AMarioKartPlayerController::ItemUse);
 
 
 }
@@ -138,33 +127,68 @@ void AMarioKartPlayerController::Acc_released()
 void AMarioKartPlayerController::MoveBack()
 {
 	bisMovingback = true;
-	UE_LOG(LogTemp, Warning, TEXT("MoveBack: %d"), bisAcc ? true : false);
+	UE_LOG(LogTemp, Warning, TEXT("MoveBack: %d"), bisMovingback ? true : false);
 }
 
 void AMarioKartPlayerController::MoveBack_released()
 {
 	bisMovingback = false;
-	UE_LOG(LogTemp, Warning, TEXT("MoveBack_released: %d"), bisAcc ? true : false);
+	UE_LOG(LogTemp, Warning, TEXT("MoveBack_released: %d"), bisMovingback ? true : false);
 }
 
 
 void AMarioKartPlayerController::Jump()
 {
 	bisJump = true;
-	UE_LOG(LogTemp, Warning, TEXT("Jump: %d"), bisAcc ? true : false);
+	UE_LOG(LogTemp, Warning, TEXT("Jump: %d"), bisJump ? true : false);
 }
 
 void AMarioKartPlayerController::Jump_released()
 {
 	bisJump = false;
-	UE_LOG(LogTemp, Warning, TEXT("Jump_released: %d"), bisAcc ? true : false);
+
+	
+	if (driftTime >= 2.0f)
+	{
+		FString NumberString = FString::Printf(TEXT("driftTime: %.2f"), driftTime);
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, NumberString);
+		FString DriftString = FString::Printf(TEXT("drift 2"));
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, DriftString);
+		// 드리프트가 2초이상 지속됐을 때
+		// 2단 드리프트
+		DriftActivate(2.0f);
+
+		// 드리프트 해제
+		driftTime = 0.0f;
+	}
+	else if (driftTime >= 1.0f)
+	{
+		FString NumberString = FString::Printf(TEXT("driftTime: %.2f"), driftTime);
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, NumberString);
+		FString DriftString = FString::Printf(TEXT("drift 1"));
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, DriftString);
+		// 1단 드리프트
+		DriftActivate(1.0f);
+
+		// 드리프트 해제
+		driftTime = 0.0f;
+
+	}
+	else
+	{
+		driftTime = 0.0f;
+	}
+	
+	UE_LOG(LogTemp, Warning, TEXT("Jump_released: %d"), bisJump ? true : false);
+	UE_LOG(LogTemp, Warning, TEXT("driftTime: %.2f"), driftTime);
+	UE_LOG(LogTemp, Warning, TEXT("DriftOff"));
 }
 
 void AMarioKartPlayerController::Horizontal(float value)
 {
 	// 좌우 입력값
 	horizontalValue = value;
-	
+
 	// 좌우 입력 들어왔을 때(회전)
 	if (FMath::Abs(horizontalValue) != 0.0f)
 	{
@@ -186,24 +210,6 @@ void AMarioKartPlayerController::Horizontal(float value)
 					float driftValue = FMath::Lerp(0.0f, horizontalValue, 0.7f);
 					AddYawInput(driftValue);
 					UE_LOG(LogTemp, Warning, TEXT("driftValue : %.2f"), driftValue)
-
-						if (driftTime > 3.0f)
-						{
-							// 드리프트 시간 끝
-							// 기본 회전으로 돌아옴
-							AddYawInput(FMath::Lerp(0.0f, horizontalValue, 0.3f));
-							UCharacterMovementComponent* playerMovement = me->GetCharacterMovement();
-
-							// 플레이어 이동 속도 초기화
-							if (playerMovement != nullptr)
-							{
-								playerMovement->MaxWalkSpeed = 1000.0f;
-							}
-
-							// 드리프트 시간 초기화
-							driftTime = 0.0f;
-
-						}
 				}
 				else
 				{
@@ -244,26 +250,55 @@ void AMarioKartPlayerController::MoveVertical()
 
 // 이동 방향 벡터 반환 함수
 FVector AMarioKartPlayerController::Direction()
-{	
+{
 	// 주행 방향 구하기
 	FVector returnDirection = me->GetActorForwardVector();
 
-	UE_LOG(LogTemp, Warning, TEXT("Direction %s"), *returnDirection.ToString());
+	//UE_LOG(LogTemp, Warning, TEXT("Direction %s"), *returnDirection.ToString());
 	return returnDirection;
 }
 
-void AMarioKartPlayerController::Item()
+void AMarioKartPlayerController::DriftActivate(float dashActiveTime)
 {
-	//if (GetWorldTimerManager().IsTimerActive(itemDelay))
-	//{
-	//	return;
-	//}
+	// 플레이어 이동 속도 2000 으로 늘어남
+	me->GetCharacterMovement()->MaxWalkSpeed = 2000.0f;
 
-	//// 부스터 아이템 사용
-	//me->GetCharacterMovement()->MaxWalkSpeed = 4000.0f;
+	// 드리프트 시간 동안 앞으로 빠르게 전진
+	me->AddMovementInput(Direction(), currentSpeed);
 
-	//GetWorldTimerManager().SetTimer(itemDelay, FTimerDelegate::CreateLambda([&]() {bInDelay = !bInDelay;}));
+	UE_LOG(LogTemp, Warning, TEXT("driftTime: %.2f"), driftTime);
+	UE_LOG(LogTemp, Warning, TEXT("DriftActivate: %.2f"), dashActiveTime);
 
+	// 드리프트 지속 dashActiveTime초(타이머 사용)
+	GetWorldTimerManager().SetTimer(itemDelay, FTimerDelegate::CreateLambda([&]() {
+		me->GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+		}), dashActiveTime, false);
+
+	// 드리프트 해제
+	driftTime = 0.0f;
+
+}
+
+void AMarioKartPlayerController::ItemUse()
+{
+	UE_LOG(LogTemp, Warning, TEXT("ItemUse"));
+	ItemActivate();
+}
+
+void AMarioKartPlayerController::ItemActivate()
+{
+	me->GetCharacterMovement()->MaxWalkSpeed = 4000.0f;
+
+	GetWorldTimerManager().SetTimer(itemDelay, FTimerDelegate::CreateLambda([&]() {
+		me->GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+		}), 1.8f, false);
+	UE_LOG(LogTemp, Warning, TEXT("ItemActivate"));
+
+
+
+	// 부스터 아이템 사용
+
+	//GetWorldTimerManager().ClearTimer(itemDelay);	
 
 }
 

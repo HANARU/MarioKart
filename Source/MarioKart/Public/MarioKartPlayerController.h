@@ -68,7 +68,11 @@ public:
 	class AKartPlayer* me;
 
 private:
+	bool bInDelay = false;
 	FTimerHandle itemDelay;
+
+	UPROPERTY()
+	float itemInterval = 0.0f;
 
 
 	// 전진 함수
@@ -104,9 +108,17 @@ private:
 	UFUNCTION()
 	FVector Direction();
 
+	// 드리프트 활성화 함수
+	UFUNCTION()
+	void DriftActivate(float dashActiveTime);
+
 	// 아이템 사용 함수
 	UFUNCTION()
-	void Item();
+	void ItemUse();
+
+	// 아이템 활성화 함수
+	UFUNCTION()
+	void ItemActivate();
 
 	bool bTestDebug = false;
 	void TestDebug();
