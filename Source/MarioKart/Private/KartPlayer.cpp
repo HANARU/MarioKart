@@ -18,7 +18,7 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	kartbaseSceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	kartbaseSceneComp->SetupAttachment(CapsuleComp);
 
-	//SetRootComponent(kartbaseComp);
+	//SetRootComponent(kartbaseComp); 
 
 	// kartbaseComp 
 	kartbaseSceneComp->SetRelativeLocation(FVector(0, 0, -70));
