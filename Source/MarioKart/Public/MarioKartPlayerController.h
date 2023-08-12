@@ -67,14 +67,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	class AKartPlayer* me;
 
+
 private:
 	bool bInDelay = false;
 	FTimerHandle itemDelay;
 
+<<<<<<< Updated upstream
 	UPROPERTY()
 	float itemInterval = 0.0f;
 
 
+=======
+>>>>>>> Stashed changes
 	// 전진 함수
 	UFUNCTION()
 	void Acc();
@@ -114,12 +118,18 @@ private:
 
 	// 아이템 사용 함수
 	UFUNCTION()
+<<<<<<< Updated upstream
 	void ItemUse();
 
 	// 아이템 활성화 함수
 	UFUNCTION()
 	void ItemActivate();
 
+=======
+	void Item();
+	
+>>>>>>> Stashed changes
 	bool bTestDebug = false;
 	void TestDebug();
+
 };

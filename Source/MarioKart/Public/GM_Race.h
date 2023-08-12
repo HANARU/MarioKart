@@ -11,7 +11,9 @@ class MARIOKART_API AGM_Race : public AGameModeBase, public II_Interact
 	GENERATED_BODY()
 protected:
 	virtual void BeginPlay() override;
+
 public:
 	virtual void Overlap_Lap_System(ANinjaCharacter* Player, bool bIsCheckPoint, bool bIsLap) override;
 	
+
 };

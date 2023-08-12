@@ -17,6 +17,9 @@ class MARIOKART_API AKartPlayer : public ANinjaCharacter
 public:
 	AKartPlayer(const FObjectInitializer& ObjectInitializer);
 
+// input 바인딩 함수
+virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
 //protected:
 //	virtual void SetPointGravityDirection(const FVector& NewGravityPoint) override;
 
@@ -35,5 +38,23 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class UCameraComponent* kartCamComp;
+
+	void Fire();
+
+	FTimerHandle SpeedResetTimerHandle;
+
+	void ResetSpeedToNormal();
+
+public:
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
+    bool bCharacterOverlapped;
+
+	UPROPERTY(BlueprintReadOnly, Category = "Item")
+    FString CollectedItemName;
+
+    UFUNCTION(BlueprintCallable, Category = "Item")
+    void CollectItem(FString ItemName);
+
+	bool Itemget = false;
 	
 };
