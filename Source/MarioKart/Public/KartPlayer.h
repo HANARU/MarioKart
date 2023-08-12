@@ -37,6 +37,12 @@ public:
 	class UStaticMeshComponent* kartmeshComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	class USkeletalMeshComponent* kartCharacterBody;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	class USpringArmComponent* kartSpringComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class UCameraComponent* kartCamComp;
 
 	void Fire();

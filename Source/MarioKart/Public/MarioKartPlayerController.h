@@ -47,6 +47,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	float driftTime;
 
+	// 대쉬 카메라 쉐이크
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Player")
+	TSubclassOf<class UCameraShakeBase> dashShake;
+
 	// 전진주행키 입력 확인
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	bool bisAcc = false;
@@ -72,13 +76,9 @@ private:
 	bool bInDelay = false;
 	FTimerHandle itemDelay;
 
-<<<<<<< Updated upstream
 	UPROPERTY()
 	float itemInterval = 0.0f;
 
-
-=======
->>>>>>> Stashed changes
 	// 전진 함수
 	UFUNCTION()
 	void Acc();
@@ -118,17 +118,14 @@ private:
 
 	// 아이템 사용 함수
 	UFUNCTION()
-<<<<<<< Updated upstream
 	void ItemUse();
 
 	// 아이템 활성화 함수
 	UFUNCTION()
 	void ItemActivate();
 
-=======
 	void Item();
 	
->>>>>>> Stashed changes
 	bool bTestDebug = false;
 	void TestDebug();
 

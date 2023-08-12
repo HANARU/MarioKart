@@ -9,9 +9,12 @@
 #include "Kismet/GameplayStatics.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include <DrawDebugHelpers.h>
+#include <Camera/CameraShakeBase.h>
+
 
 AMarioKartPlayerController::AMarioKartPlayerController()
 {
+
 	PrimaryActorTick.bCanEverTick = true;
 }
 
@@ -79,7 +82,6 @@ void AMarioKartPlayerController::Tick(float DeltaTime)
 			me->AddMovementInput(Direction(), currentSpeed);
 		}
 	}
-
 }
 
 void AMarioKartPlayerController::SetupInputComponent()
@@ -287,18 +289,23 @@ void AMarioKartPlayerController::ItemUse()
 
 void AMarioKartPlayerController::ItemActivate()
 {
+	// 대쉬 카메라 쉐이크
+	if (this->PlayerCameraManager != nullptr && dashShake != nullptr)
+	{
+		
+		this->PlayerCameraManager->StartCameraShake(dashShake);
+		UE_LOG(LogTemp, Warning, TEXT("dashShake"));
+
+	}
+
+	// 대쉬 속도
 	me->GetCharacterMovement()->MaxWalkSpeed = 4000.0f;
 
+	// 대쉬 1.8초 동안 지속
 	GetWorldTimerManager().SetTimer(itemDelay, FTimerDelegate::CreateLambda([&]() {
 		me->GetCharacterMovement()->MaxWalkSpeed = 600.0f;
 		}), 1.8f, false);
 	UE_LOG(LogTemp, Warning, TEXT("ItemActivate"));
-
-
-
-	// 부스터 아이템 사용
-
-	//GetWorldTimerManager().ClearTimer(itemDelay);	
 
 }
 

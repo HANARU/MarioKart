@@ -8,6 +8,7 @@
 #include <Camera/CameraComponent.h>
 #include "C_Turtle.h"
 #include "GM_Race.h"
+#include <GameFramework/SpringArmComponent.h>
 
 AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UNinjaCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -20,27 +21,41 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	kartbaseSceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	kartbaseSceneComp->SetupAttachment(CapsuleComp);
 
-	//SetRootComponent(kartbaseComp); 
-
 	// kartbaseComp 
 	kartbaseSceneComp->SetRelativeLocation(FVector(0, 0, -70));
 	kartbaseSceneComp->SetRelativeRotation(FRotator(0, -90, 0));
-
 
 	// kartmeshComp 컴포넌트 추가
 	kartmeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("kartmeshComp"));
 	kartmeshComp->SetupAttachment(kartbaseSceneComp);
 	kartmeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
+	// kartmeshComp 크기
+	kartmeshComp->SetRelativeScale3D(FVector(1.5f));
 
-	// kartmeshComp 위치, 크기
+	// kartCharacterBody 컴포넌트 추가
+	kartCharacterBody = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("kartCharacterBody"));
+	kartCharacterBody->SetupAttachment(kartbaseSceneComp);
+	kartCharacterBody->SetRelativeLocation(FVector(0, 0, -20));
+	kartCharacterBody->SetRelativeRotation(FRotator(0, 0, 0));
+	kartCharacterBody->SetRelativeScale3D(FVector(4));
+
+	// kartSpringComp 컴포넌트 추가
+	kartSpringComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("kartSpringArmComp"));
+	kartSpringComp->SetupAttachment(kartbaseSceneComp);
+
+	// kartSpringComp 위치, 크기
+	kartSpringComp->SetRelativeLocation(FVector(0.0f, 0.0f, 60.0f));
+	kartSpringComp->SetRelativeRotation(FRotator(-10.0f, 90.0f, 0.0f));
+	kartSpringComp->TargetArmLength=250.0f;
 
 	// kartCamComp 컴포넌트 추가
 	kartCamComp = CreateDefaultSubobject<UCameraComponent>(TEXT("kartCamComp"));
-	kartCamComp->SetupAttachment(kartbaseSceneComp);
+	kartCamComp->SetupAttachment(kartSpringComp);
 
-	// kartCamComp 위치, 크기
-	kartCamComp->SetRelativeLocation(FVector(0, -200, 90));
-	kartCamComp->SetRelativeRotation(FRotator(-20, 90, 0));
+	//// kartCamComp 위치, 크기
+	//kartCamComp->SetRelativeLocation(FVector(0.0f, -200.0f, 90.0f));
+	//kartCamComp->SetRelativeRotation(FRotator(-10.0f, 90.0f, 0.0f));
 	
 	// Mesh 데이터 할당
 	ConstructorHelpers::FObjectFinder<UStaticMesh> TempMesh(TEXT("/Script/Engine.StaticMesh'/Game/3_SM/Object/Kart_Body1/SM_kart_body.SM_kart_body'"));
