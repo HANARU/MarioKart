@@ -15,7 +15,7 @@ protected:
 public:
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
 		class UWidgetSwitcher* WS_MainMenu;
-	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget), Category = Menu)
 		class UImage* IMG_Fade;
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
 		class UButton* Button_Back2BeforeMenu;
@@ -43,9 +43,9 @@ public:
 	FName LevelIntro = FName(TEXT("0_Intro"));
 	//FName Level_Loading = FName(TEXT("2_Lobby_Multi"));
 
-	UPROPERTY(VisibleAnywhere, Transient, meta = (BindWidgetAnim), Category = Menu)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Transient, meta = (BindWidgetAnim), Category = Menu)
 		class UWidgetAnimation* FadeOut;
-	UPROPERTY(VisibleAnywhere, Transient, meta = (BindWidgetAnim), Category = Menu)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Transient, meta = (BindWidgetAnim), Category = Menu)
 		class UWidgetAnimation* FadeIn;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Preview)

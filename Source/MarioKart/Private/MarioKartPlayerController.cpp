@@ -56,23 +56,38 @@ void AMarioKartPlayerController::BeginPlay()
 	FString NameString = UKismetStringLibrary::Conv_ObjectToString(me);
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, NameString);
 
+	FTimerHandle DelayHandle;
 	// 출발 카운트 사운드 재생
-	if (startcountSound)
-	{
-		// soundbase 출발 카운트 사운드 오디오 컴포넌트 생성 및 초기화
-		playingstartComp = UGameplayStatics::SpawnSound2D(GetWorld(), startcountSound);
 
-		// 출발 카운트 사운드 유효성 검사
-		if (playingstartComp)
+	GetWorldTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([this]() {
+		if (startcountSound)
 		{
-			playingstartComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
-			playingstartComp->bAutoDestroy = true; // false : 재생 완료 후 자동으로 제거하지 않는다.
+			playingstartComp = UGameplayStatics::SpawnSound2D(GetWorld(), startcountSound);
 
-			// 출발 카운트 사운드 재생
-			playingstartComp->Play();
+			// 출발 카운트 사운드 유효성 검사
+			if (playingstartComp)
+			{
+				playingstartComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
+				playingstartComp->bAutoDestroy = true; // false : 재생 완료 후 자동으로 제거하지 않는다.
 
+				playingstartComp->Play();
+			}
 		}
-	}
+				}), 3.f, false);
+	//if (startcountSound)
+	//{
+	//	// soundbase 출발 카운트 사운드 오디오 컴포넌트 생성 및 초기화
+	//	playingstartComp = UGameplayStatics::SpawnSound2D(GetWorld(), startcountSound);
+
+	//	// 출발 카운트 사운드 유효성 검사
+	//	if (playingstartComp)
+	//	{
+	//		playingstartComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
+	//		playingstartComp->bAutoDestroy = true; // false : 재생 완료 후 자동으로 제거하지 않는다.
+
+	//		playingstartComp->Play();
+	//		
+	//	}
 	
 }
 
@@ -80,7 +95,7 @@ void AMarioKartPlayerController::Tick(float DeltaTime)
 {
 	startcountTime += DeltaTime;
 
-	if (startcountTime >= 3.7f) // 출발 카운드 사운드 재생 후 주행
+	if (startcountTime >= 6.7f) // 출발 카운드 사운드 재생 후 주행
 	{
 		UE_LOG(LogTemp, Warning, TEXT("startcountTime : %.2f"), startcountTime);
 		// 전진, 후진 주행 (가속, 속도)
