@@ -9,6 +9,11 @@
 #include "C_Turtle.h"
 #include "GM_Race.h"
 #include <GameFramework/SpringArmComponent.h>
+#include "MarioKartPlayerController.h"
+#include "Kismet/GameplayStatics.h"
+#include "Components/AudioComponent.h"
+
+
 
 AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UNinjaCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
@@ -33,36 +38,63 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	// kartmeshComp 크기
 	kartmeshComp->SetRelativeScale3D(FVector(1.5f));
 
+	// kartmeshComp Mesh 데이터 할당
+	ConstructorHelpers::FObjectFinder<UStaticMesh> TempMesh(TEXT("/Script/Engine.StaticMesh'/Game/3_SM/Object/Kart_Body1/SM_kart_body.SM_kart_body'"));
+
+	if (TempMesh.Succeeded())
+	{
+		kartmeshComp->SetStaticMesh(TempMesh.Object);
+	}
+
 	// kartCharacterBody 컴포넌트 추가
 	kartCharacterBody = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("kartCharacterBody"));
 	kartCharacterBody->SetupAttachment(kartbaseSceneComp);
-	kartCharacterBody->SetRelativeLocation(FVector(0, 0, -20));
-	kartCharacterBody->SetRelativeRotation(FRotator(0, 0, 0));
-	kartCharacterBody->SetRelativeScale3D(FVector(4));
+
+	// kartCharacterBody Mesh 데이터 할당
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempCharacterMesh(TEXT("SkeletalMesh'/Game/4_SK/Mario/Mesh/Mario.Mario'"));
+
+	if (TempCharacterMesh.Succeeded())
+	{
+		kartCharacterBody->SetSkeletalMesh(TempCharacterMesh.Object);
+		kartCharacterBody->SetRelativeLocation(FVector(0, -10, -20));
+		kartCharacterBody->SetRelativeScale3D(FVector(5));
+	}
 
 	// kartSpringComp 컴포넌트 추가
 	kartSpringComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("kartSpringArmComp"));
 	kartSpringComp->SetupAttachment(kartbaseSceneComp);
 
 	// kartSpringComp 위치, 크기
-	kartSpringComp->SetRelativeLocation(FVector(0.0f, 0.0f, 60.0f));
-	kartSpringComp->SetRelativeRotation(FRotator(-10.0f, 90.0f, 0.0f));
-	kartSpringComp->TargetArmLength=250.0f;
+	kartSpringComp->SetRelativeLocation(FVector(0, 0, 50));
+	kartSpringComp->SetRelativeRotation(FRotator(-15, 90, 0));
+	kartSpringComp->TargetArmLength=300;
 
 	// kartCamComp 컴포넌트 추가
 	kartCamComp = CreateDefaultSubobject<UCameraComponent>(TEXT("kartCamComp"));
 	kartCamComp->SetupAttachment(kartSpringComp);
-
-	//// kartCamComp 위치, 크기
-	//kartCamComp->SetRelativeLocation(FVector(0.0f, -200.0f, 90.0f));
-	//kartCamComp->SetRelativeRotation(FRotator(-10.0f, 90.0f, 0.0f));
 	
-	// Mesh 데이터 할당
-	ConstructorHelpers::FObjectFinder<UStaticMesh> TempMesh(TEXT("/Script/Engine.StaticMesh'/Game/3_SM/Object/Kart_Body1/SM_kart_body.SM_kart_body'"));
+	// kartCamComp 위치, 크기
+	kartCamComp->SetRelativeRotation(FRotator(5, 0, 0));
 
-	if (TempMesh.Succeeded())
+	//// MarioKartPlayerController에서 대쉬 사운드 가져오기
+	//APlayerController* playerController = Cast<AMarioKartPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
+
+	//if (playerController)
+	//{
+	//	AMarioKartPlayerController* kartplayerController = Cast<AMarioKartPlayerController>(playerController);
+
+	//	if (kartplayerController)
+	//	{
+	//		playerDashSound = kartplayerController->dashSound;
+	//	}
+	//}
+
+	// 대쉬 사운드 가져오기
+	ConstructorHelpers::FObjectFinder<USoundBase> TempkartdashSound(TEXT("SoundWave'/Game/5_FX/Audio/play_dash_.play_dash_'"));
+
+	if (TempkartdashSound.Succeeded())
 	{
-		kartmeshComp->SetStaticMesh(TempMesh.Object);
+		playerDashSound = TempkartdashSound.Object;
 	}
 
 }
@@ -79,6 +111,21 @@ void AKartPlayer::Fire()
 	{ 
 	if (CollectedItemName == TEXT("Mush"))
 	{
+		if (playerDashSound)
+		{
+			// soundbase 대쉬 사운드 오디오 컴포넌트 생성 및 초기화
+			playingDashSound = UGameplayStatics::SpawnSound2D(GetWorld(), playerDashSound);
+
+			// 대쉬 사운드 유효성 검사
+			if (playingDashSound)
+			{
+				playingDashSound->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
+				playingDashSound->bAutoDestroy = false; // 재생 완료 후 자동으로 제거하지 않는다.
+
+				// 대쉬 사운드 재생
+				playingDashSound->Play();
+			}
+		}
 		GetCharacterMovement()->MaxWalkSpeed *= 5.0f;
 
 		// 일정 시간(5초) 뒤에 속도를 원래 값으로 돌리기 위해 타이머를 설정합니다
@@ -117,6 +164,14 @@ void AKartPlayer::ResetSpeedToNormal()
 {
 	// 5초 후에 속도를 원래 값으로 리셋합니다
 	GetCharacterMovement()->MaxWalkSpeed /= 5.0f;
+
+	if (playingDashSound)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("STOP"));
+		playingDashSound->Stop();
+		playingDashSound->SetActive(false);
+		playingDashSound = nullptr;
+	}
 
 	// 타이머 핸들을 무효화합니다
 	SpeedResetTimerHandle.Invalidate();

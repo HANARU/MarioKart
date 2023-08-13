@@ -44,6 +44,13 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class UCameraComponent* kartCamComp;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	class USoundBase* playerDashSound;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	class UAudioComponent* playingDashSound = nullptr;
+
 
 	void Fire();
 

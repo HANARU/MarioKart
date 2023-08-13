@@ -47,9 +47,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	float driftTime;
 
-	// 대쉬 카메라 쉐이크
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Player")
-	TSubclassOf<class UCameraShakeBase> dashShake;
+	// 출발 시간 저장
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	float startcountTime = 0.0f;
+
+	//// 대쉬 카메라 쉐이크
+	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Player")
+	//TSubclassOf<class UCameraShakeBase> dashShake;
 
 	// 전진주행키 입력 확인
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
@@ -71,13 +75,29 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	class AKartPlayer* me;
 
+	// 플레이어 대쉬 사운드
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	class USoundBase* dashSound;
+
+	// 플레이어 대쉬 사운드 저장
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	class UAudioComponent* playingAudioComp = nullptr;
+
+	// 플레이어 마리오 사운드
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	class USoundBase* mariovoiceSound;
+
+	// 출발 카운트 사운드
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	class USoundBase* startcountSound;
+
+	// 출발 카운트 사운드 저장
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	class UAudioComponent* playingstartComp = nullptr;
 
 private:
 	bool bInDelay = false;
 	FTimerHandle itemDelay;
-
-	UPROPERTY()
-	float itemInterval = 0.0f;
 
 	// 전진 함수
 	UFUNCTION()
@@ -123,8 +143,6 @@ private:
 	// 아이템 활성화 함수
 	UFUNCTION()
 	void ItemActivate();
-
-	void Item();
 	
 	bool bTestDebug = false;
 	void TestDebug();

@@ -10,12 +10,38 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include <DrawDebugHelpers.h>
 #include <Camera/CameraShakeBase.h>
+#include "Components/AudioComponent.h"
+
 
 
 AMarioKartPlayerController::AMarioKartPlayerController()
 {
 
 	PrimaryActorTick.bCanEverTick = true;
+
+	// 대쉬 사운드 가져오기
+	ConstructorHelpers::FObjectFinder<USoundBase> TempdashSound(TEXT("SoundWave'/Game/5_FX/Audio/play_dash_.play_dash_'"));
+
+	if (TempdashSound.Succeeded())
+	{
+		dashSound = TempdashSound.Object;
+	}
+
+	// 마리오 보이스 가져오기
+	ConstructorHelpers::FObjectFinder<USoundBase> TempmariovoiceSound(TEXT("SoundWave'/Game/5_FX/Audio/play_mario-voice_.play_mario-voice_'"));
+
+	if (TempmariovoiceSound.Succeeded())
+	{
+		mariovoiceSound = TempmariovoiceSound.Object;
+	}
+	
+	// 출발 카운드 사운드 가져오기
+	ConstructorHelpers::FObjectFinder<USoundBase> TempstartcountSound(TEXT("SoundWave'/Game/5_FX/Audio/play_Start-Sound-Effect_.play_Start-Sound-Effect_'"));
+
+	if (TempstartcountSound.Succeeded())
+	{
+		startcountSound = TempstartcountSound.Object;
+	}
 }
 
 void AMarioKartPlayerController::BeginPlay()
@@ -23,14 +49,43 @@ void AMarioKartPlayerController::BeginPlay()
 	// 플레이어 캐릭터 불러오기
 	me = Cast<AKartPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
+	// 플레이어 기본 속도 설정
+	me->GetCharacterMovement()->MaxWalkSpeed = 1000.0f;
+
+	// 플레이어 확인 디버그 메시지
 	FString NameString = UKismetStringLibrary::Conv_ObjectToString(me);
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, NameString);
+
+	// 출발 카운트 사운드 재생
+	if (startcountSound)
+	{
+		// soundbase 출발 카운트 사운드 오디오 컴포넌트 생성 및 초기화
+		playingstartComp = UGameplayStatics::SpawnSound2D(GetWorld(), startcountSound);
+
+		// 출발 카운트 사운드 유효성 검사
+		if (playingstartComp)
+		{
+			playingstartComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
+			playingstartComp->bAutoDestroy = true; // false : 재생 완료 후 자동으로 제거하지 않는다.
+
+			// 출발 카운트 사운드 재생
+			playingstartComp->Play();
+
+		}
+	}
+	
 }
 
 void AMarioKartPlayerController::Tick(float DeltaTime)
 {
-	// 전진, 후진 주행 (가속, 속도)
-	MoveVertical();
+	startcountTime += DeltaTime;
+
+	if (startcountTime >= 3.7f) // 출발 카운드 사운드 재생 후 주행
+	{
+		UE_LOG(LogTemp, Warning, TEXT("startcountTime : %.2f"), startcountTime);
+		// 전진, 후진 주행 (가속, 속도)
+		MoveVertical();
+	}
 
 	if (bisMovingback == true)
 	{
@@ -262,6 +317,26 @@ FVector AMarioKartPlayerController::Direction()
 
 void AMarioKartPlayerController::DriftActivate(float dashActiveTime)
 {
+	// 플레이어 보이스 재생
+	UGameplayStatics::PlaySound2D(GetWorld(), mariovoiceSound);
+
+	// 대쉬 사운드 재생
+	if (dashSound)
+	{
+		// soundbase 대쉬 사운드 오디오 컴포넌트 생성 및 초기화
+		playingAudioComp = UGameplayStatics::SpawnSound2D(GetWorld(), dashSound);
+
+		// 대쉬 사운드 유효성 검사
+		if (playingAudioComp)
+		{
+			playingAudioComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
+			playingAudioComp->bAutoDestroy = false; // 재생 완료 후 자동으로 제거하지 않는다.
+
+			// 대쉬 사운드 재생
+			playingAudioComp->Play();
+		}
+	}	
+
 	// 플레이어 이동 속도 2000 으로 늘어남
 	me->GetCharacterMovement()->MaxWalkSpeed = 2000.0f;
 
@@ -272,8 +347,21 @@ void AMarioKartPlayerController::DriftActivate(float dashActiveTime)
 	UE_LOG(LogTemp, Warning, TEXT("DriftActivate: %.2f"), dashActiveTime);
 
 	// 드리프트 지속 dashActiveTime초(타이머 사용)
-	GetWorldTimerManager().SetTimer(itemDelay, FTimerDelegate::CreateLambda([&]() {
-		me->GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+	GetWorldTimerManager().SetTimer(itemDelay, FTimerDelegate::CreateLambda([this]() {
+		if (me->GetCharacterMovement() != nullptr)
+		{
+			me->GetCharacterMovement()->MaxWalkSpeed = 1000.0f;
+		}
+
+		// 대쉬 사운드 멈추기대쉬 사운드
+		if (playingAudioComp)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("STOP"));
+ 			playingAudioComp->Stop();
+			playingAudioComp->SetActive(false);
+			playingAudioComp = nullptr;
+		}
+
 		}), dashActiveTime, false);
 
 	// 드리프트 해제
@@ -289,21 +377,21 @@ void AMarioKartPlayerController::ItemUse()
 
 void AMarioKartPlayerController::ItemActivate()
 {
-	// 대쉬 카메라 쉐이크
-	if (this->PlayerCameraManager != nullptr && dashShake != nullptr)
-	{
-		
-		this->PlayerCameraManager->StartCameraShake(dashShake);
-		UE_LOG(LogTemp, Warning, TEXT("dashShake"));
+	//// 대쉬 카메라 쉐이크
+	//if (this->PlayerCameraManager != nullptr && dashShake != nullptr)
+	//{
+	//	
+	//	this->PlayerCameraManager->StartCameraShake(dashShake);
+	//	UE_LOG(LogTemp, Warning, TEXT("dashShake"));
 
-	}
+	//}
 
 	// 대쉬 속도
 	me->GetCharacterMovement()->MaxWalkSpeed = 4000.0f;
 
 	// 대쉬 1.8초 동안 지속
 	GetWorldTimerManager().SetTimer(itemDelay, FTimerDelegate::CreateLambda([&]() {
-		me->GetCharacterMovement()->MaxWalkSpeed = 600.0f;
+		me->GetCharacterMovement()->MaxWalkSpeed = 1000.0f;
 		}), 1.8f, false);
 	UE_LOG(LogTemp, Warning, TEXT("ItemActivate"));
 
