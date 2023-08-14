@@ -143,23 +143,23 @@ void AKartPlayer::Fire()
 
 		Itemget = false;
 	}
-	else if (CollectedItemName == TEXT("Turtle"))
-	{
-		UClass* TurtleClass = AC_Turtle::StaticClass();
-
-		// 캐릭터의 위치와 방향을 기반으로 액터를 스폰합니다
-		FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 200.0f; // 적절한 위치 조정
-		SpawnLocation.Z -= 90.0f; // z 좌표를 90만큼 낮춤
-		FRotator SpawnRotation = GetActorRotation();
-
-		// 액터를 스폰하고 생성된 액터를 가리키는 포인터를 받습니다
-		AC_Turtle* SpawnedTurtle = GetWorld()->SpawnActor<AC_Turtle>(TurtleClass, SpawnLocation, SpawnRotation);
-
-		SpawnedTurtle->SetLifeSpan(2.0f); // 1초 후에 액터가 파괴됩니다.
-
-		Itemget = false;
-	}
-	}
+// 	else if (CollectedItemName == TEXT("Turtle"))
+// 		{
+// 			UClass* TurtleClass = AC_Turtle::StaticClass();
+// 	
+// 			// 캐릭터의 위치와 방향을 기반으로 액터를 스폰합니다
+// 			FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 200.0f; // 적절한 위치 조정
+// 			SpawnLocation.Z -= 90.0f; // z 좌표를 90만큼 낮춤
+// 			FRotator SpawnRotation = GetActorRotation();
+// 	
+// 			// 액터를 스폰하고 생성된 액터를 가리키는 포인터를 받습니다
+// 			AC_Turtle* SpawnedTurtle = GetWorld()->SpawnActor<AC_Turtle>(TurtleClass, SpawnLocation, SpawnRotation);
+// 	
+// 			SpawnedTurtle->SetLifeSpan(2.0f); // 1초 후에 액터가 파괴됩니다.
+// 	
+// 			Itemget = false;
+// 		}
+ 		}
 }
 
 

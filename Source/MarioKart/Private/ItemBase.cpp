@@ -54,14 +54,14 @@ void AItemBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor*
         {
             ItemName = TEXT("Coin");
         }
-        else
-        {
-            ItemName = TEXT("Turtle");
-        }
+//         else
+//         {
+//             ItemName = TEXT("Turtle");
+//         }
 
         kartplayer->Itemget = true;
         kartplayer->CollectItem(ItemName); 
-        //Destroy
+        Destroy();
         
   
         }
