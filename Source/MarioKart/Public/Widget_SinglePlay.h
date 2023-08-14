@@ -21,6 +21,10 @@ public:
 		class UButton* Button_Back2BeforeMenu;
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
 		class UButton* Button_AccessHighlighted;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Menu)
+		class UAudioComponent* BGMComp = nullptr;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Menu)
+		class USoundBase* MenuBGM;
 
 	// Index 0 : Select VS in MainMenu
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)

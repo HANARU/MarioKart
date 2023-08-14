@@ -1,4 +1,5 @@
 #include "Widget_SinglePlay.h"
+#include "Components/AudioComponent.h"
 #include "Components/WidgetSwitcher.h"
 #include "Components/Button.h"
 #include "Components/InputComponent.h"
@@ -18,7 +19,19 @@ void UWidget_SinglePlay::NativeConstruct()
 	Button_VS_Race->OnClicked.AddDynamic(this, &UWidget_SinglePlay::OnClick_Press_VS_Race);
 	Button_Mario->OnClicked.AddDynamic(this, &UWidget_SinglePlay::OnClick_Press_Mario);
 	Button_MushRoom->OnClicked.AddDynamic(this, &UWidget_SinglePlay::OnClick_Press_MushRoomMap);
+	
+	if (MenuBGM)
+	{
+		BGMComp = UGameplayStatics::SpawnSound2D(GetWorld(), MenuBGM);
+		if (BGMComp)
+		{
+			BGMComp->bIsUISound = false;
+			BGMComp->bAutoDestroy = true;
 
+			BGMComp->Play();
+		}
+	}
+	
 	PlayAnimationForward(FadeOut);
 	FTimerHandle DelayHandle;
 	GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([&]()

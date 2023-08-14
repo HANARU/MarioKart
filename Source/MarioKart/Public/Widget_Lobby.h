@@ -27,11 +27,11 @@ public:
 	FName LevelMulti = FName(TEXT("2_Lobby_Multi"));
 
 	// Index 1 : Play SinglePlay or Multiplay
-	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget), Category = Menu)
 		class UButton* Button_PressSinglePlay;
-	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget), Category = Menu)
 		class UButton* Button_PressMultiPlay;
-	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, meta = (BindWidget), Category = Menu)
 		class UImage* IMG_NextMenu;
 
 	// Animation Bind by C++
