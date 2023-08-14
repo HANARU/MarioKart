@@ -46,6 +46,22 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 		kartmeshComp->SetStaticMesh(TempMesh.Object);
 	}
 
+	// kartwheelComp 컴포넌트 추가
+	kartwheelComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("kartwheelComp"));
+	kartwheelComp->SetupAttachment(kartbaseSceneComp);
+	kartwheelComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	// kartwheelComp Mesh 데이터 할당
+	ConstructorHelpers::FObjectFinder<UStaticMesh> TempwheelMesh(TEXT("StaticMesh'/Game/3_SM/Object/Kart_Body1/SM_kart_Wheel.SM_kart_Wheel'"));
+
+	if (TempwheelMesh.Succeeded())
+	{
+		kartwheelComp->SetStaticMesh(TempwheelMesh.Object);
+	}
+
+	// kartwheelComp 크기
+	kartwheelComp->SetRelativeScale3D(FVector(1.5f));
+
 	// kartCharacterBody 컴포넌트 추가
 	kartCharacterBody = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("kartCharacterBody"));
 	kartCharacterBody->SetupAttachment(kartbaseSceneComp);
@@ -75,19 +91,6 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	
 	// kartCamComp 위치, 크기
 	kartCamComp->SetRelativeRotation(FRotator(5, 0, 0));
-
-	//// MarioKartPlayerController에서 대쉬 사운드 가져오기
-	//APlayerController* playerController = Cast<AMarioKartPlayerController>(UGameplayStatics::GetPlayerController(GetWorld(), 0));
-
-	//if (playerController)
-	//{
-	//	AMarioKartPlayerController* kartplayerController = Cast<AMarioKartPlayerController>(playerController);
-
-	//	if (kartplayerController)
-	//	{
-	//		playerDashSound = kartplayerController->dashSound;
-	//	}
-	//}
 
 	// 대쉬 사운드 가져오기
 	ConstructorHelpers::FObjectFinder<USoundBase> TempkartdashSound(TEXT("SoundWave'/Game/5_FX/Audio/play_dash_.play_dash_'"));

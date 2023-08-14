@@ -75,6 +75,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	class AKartPlayer* me;
 
+	// 플레이어 주행 사운드
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	class USoundBase* driveSound;
+
+	// 플레이어 주행 사운드 저장
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	class UAudioComponent* playingdriveComp = nullptr;
+
 	// 플레이어 대쉬 사운드
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	class USoundBase* dashSound;
@@ -82,6 +90,14 @@ public:
 	// 플레이어 대쉬 사운드 저장
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	class UAudioComponent* playingAudioComp = nullptr;
+
+	// 드리프트 사운드
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	class USoundBase* driftSound;
+
+	// 드리프트 사운드 저장
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	class UAudioComponent* playingdriftComp = nullptr;
 
 	// 플레이어 마리오 사운드
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")

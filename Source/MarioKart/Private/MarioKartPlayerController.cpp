@@ -19,12 +19,28 @@ AMarioKartPlayerController::AMarioKartPlayerController()
 
 	PrimaryActorTick.bCanEverTick = true;
 
+	// 주행 사운드 가져오기
+	ConstructorHelpers::FObjectFinder<USoundBase> TempdriveSound(TEXT("SoundWave'/Game/5_FX/Audio/play_drive_kart.play_drive_kart'"));
+
+	if (TempdriveSound.Succeeded())
+	{
+		driveSound = TempdriveSound.Object;
+	}
+
 	// 대쉬 사운드 가져오기
-	ConstructorHelpers::FObjectFinder<USoundBase> TempdashSound(TEXT("SoundWave'/Game/5_FX/Audio/play_dash_.play_dash_'"));
+	ConstructorHelpers::FObjectFinder<USoundBase> TempdashSound(TEXT("SoundWave'/Game/5_FX/Audio/play_dash_short.play_dash_short'"));
 
 	if (TempdashSound.Succeeded())
 	{
 		dashSound = TempdashSound.Object;
+	}
+
+	// 드리프트 사운드 가져오기
+	ConstructorHelpers::FObjectFinder<USoundBase> TempdriftSound(TEXT("SoundWave'/Game/5_FX/Audio/play_DRIFT_STEER.play_DRIFT_STEER'"));
+
+	if (TempdriftSound.Succeeded())
+	{
+		driftSound = TempdriftSound.Object;
 	}
 
 	// 마리오 보이스 가져오기
@@ -50,7 +66,7 @@ void AMarioKartPlayerController::BeginPlay()
 	me = Cast<AKartPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
 	// 플레이어 기본 속도 설정
-	me->GetCharacterMovement()->MaxWalkSpeed = 1000.0f;
+	me->GetCharacterMovement()->MaxWalkSpeed = 1300.0f;
 
 	// 플레이어 확인 디버그 메시지
 	FString NameString = UKismetStringLibrary::Conv_ObjectToString(me);
@@ -137,6 +153,15 @@ void AMarioKartPlayerController::Tick(float DeltaTime)
 			}
 			else
 			{
+				// 드리프트 사운드 멈추기
+				if (playingdriftComp)
+				{
+					playingdriftComp->Stop();
+					playingdriftComp->SetActive(false);
+					playingdriftComp = nullptr;
+
+				}
+
 				FVector Dir = Direction();
 
 				if (bTestDebug)
@@ -186,12 +211,49 @@ void AMarioKartPlayerController::SetupInputComponent()
 void AMarioKartPlayerController::Acc()
 {
 	bisAcc = true;
+
+	// 주행 사운드 재생
+	if (driveSound)
+	{
+		//// 드리프트 사운드 멈추기
+		//if (playingdriftComp)
+		//{
+		//	playingdriftComp->Stop();
+		//	playingdriftComp->SetActive(false);
+		//	playingdriftComp = nullptr;
+
+		//}
+
+		// soundbase 주행 사운드 사운드 오디오 컴포넌트 생성 및 초기화
+		playingdriveComp = UGameplayStatics::SpawnSound2D(GetWorld(), driveSound);
+
+		// 주행 사운드 유효성 검사
+		if (playingdriveComp)
+		{
+			playingdriveComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
+			playingdriveComp->bAutoDestroy = true;
+
+			// 주행 사운드 재생
+			playingdriveComp->Play();
+
+		}
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("Acc: %d"), bisAcc ? true : false);
 }
 
 void AMarioKartPlayerController::Acc_released()
 {
 	bisAcc = false;
+
+	// 주행 사운드 멈추기
+	if (playingdriveComp)
+	{
+		playingdriveComp->Stop();
+		playingdriveComp->SetActive(false);
+		playingdriveComp = nullptr;
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("Acc_released: %d"), bisAcc ? true : false);
 
 }
@@ -199,12 +261,40 @@ void AMarioKartPlayerController::Acc_released()
 void AMarioKartPlayerController::MoveBack()
 {
 	bisMovingback = true;
+
+	// 주행 사운드 재생
+	if (driveSound && bisJump == false)
+	{
+		// soundbase 주행 사운드 사운드 오디오 컴포넌트 생성 및 초기화
+		playingdriveComp = UGameplayStatics::SpawnSound2D(GetWorld(), driveSound);
+
+		// 주행 사운드 유효성 검사
+		if (playingdriveComp)
+		{
+			playingdriveComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
+			playingdriveComp->bAutoDestroy = true;
+
+			// 주행 사운드 재생
+			playingdriveComp->Play();
+
+		}
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("MoveBack: %d"), bisMovingback ? true : false);
 }
 
 void AMarioKartPlayerController::MoveBack_released()
 {
 	bisMovingback = false;
+
+	// 주행 사운드 멈추기
+	if (playingdriveComp)
+	{
+		playingdriveComp->Stop();
+		playingdriveComp->SetActive(false);
+		playingdriveComp = nullptr;
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("MoveBack_released: %d"), bisMovingback ? true : false);
 }
 
@@ -212,14 +302,88 @@ void AMarioKartPlayerController::MoveBack_released()
 void AMarioKartPlayerController::Jump()
 {
 	bisJump = true;
+
+	if (bisAcc == true && horizontalValue != 0.0f)
+	{
+		// 주행 사운드 멈추기
+		if (playingdriveComp)
+		{
+			playingdriveComp->Stop();
+			playingdriveComp->SetActive(false);
+			playingdriveComp = nullptr;
+		}
+
+		if (driftSound)
+		{
+			// soundbase 사운드 오디오 컴포넌트 생성 및 초기화
+			playingdriftComp = UGameplayStatics::SpawnSound2D(GetWorld(), driftSound);
+
+			// 대쉬 사운드 & 플레이어 보이스 유효성 검사
+			if (playingdriftComp)
+			{
+				playingdriftComp->SetSound(driftSound);
+				playingdriftComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
+				playingdriftComp->bAutoDestroy = true;
+
+				// 사운드 재생
+				playingdriftComp->Play();
+			}
+		}
+	}
+	else
+	{
+		if (me)
+		{
+			// 점프 기능
+			me->Jump();
+		}
+		// 주행 사운드 멈추기
+		if (playingdriveComp)
+		{
+			playingdriveComp->Stop();
+			playingdriveComp->SetActive(false);
+			playingdriveComp = nullptr;
+		}
+	}
+
 	UE_LOG(LogTemp, Warning, TEXT("Jump: %d"), bisJump ? true : false);
 }
 
 void AMarioKartPlayerController::Jump_released()
 {
-	bisJump = false;
+	bisJump = false;	
 
-	
+	// 드리프트 사운드 멈추기
+	if (playingdriftComp)
+	{
+		playingdriftComp->Stop();
+		playingdriftComp->SetActive(false);
+		playingdriftComp = nullptr;
+
+	}
+
+ 	if (bisAcc == true)
+	{
+
+		if (driveSound)
+		{
+			// soundbase 사운드 오디오 컴포넌트 생성 및 초기화
+			playingdriveComp = UGameplayStatics::SpawnSound2D(GetWorld(), driveSound);
+
+			// 주행 사운드 & 플레이어 보이스 유효성 검사
+			if (playingdriveComp)
+			{
+				playingdriveComp->SetSound(driveSound);
+				playingdriveComp->bIsUISound = false; 
+				playingdriveComp->bAutoDestroy = true;
+
+				// 사운드 재생
+ 				playingdriveComp->Play();
+			}
+		}
+	}	
+
+	// 드리프트 발동
 	if (driftTime >= 2.0f)
 	{
 		FString NumberString = FString::Printf(TEXT("driftTime: %.2f"), driftTime);
@@ -232,6 +396,7 @@ void AMarioKartPlayerController::Jump_released()
 
 		// 드리프트 해제
 		driftTime = 0.0f;
+
 	}
 	else if (driftTime >= 1.0f)
 	{
@@ -335,6 +500,14 @@ void AMarioKartPlayerController::DriftActivate(float dashActiveTime)
 	// 플레이어 보이스 재생
 	UGameplayStatics::PlaySound2D(GetWorld(), mariovoiceSound);
 
+	// 드리프트 사운드 멈추기
+	if (playingdriftComp)
+	{
+		playingdriftComp->Stop();
+		playingdriftComp->SetActive(false);
+		playingdriftComp = nullptr;
+	}
+
 	// 대쉬 사운드 재생
 	if (dashSound)
 	{
@@ -365,7 +538,7 @@ void AMarioKartPlayerController::DriftActivate(float dashActiveTime)
 	GetWorldTimerManager().SetTimer(itemDelay, FTimerDelegate::CreateLambda([this]() {
 		if (me->GetCharacterMovement() != nullptr)
 		{
-			me->GetCharacterMovement()->MaxWalkSpeed = 1000.0f;
+			me->GetCharacterMovement()->MaxWalkSpeed = 1300.0f;
 		}
 
 		// 대쉬 사운드 멈추기대쉬 사운드
@@ -406,7 +579,7 @@ void AMarioKartPlayerController::ItemActivate()
 
 	// 대쉬 1.8초 동안 지속
 	GetWorldTimerManager().SetTimer(itemDelay, FTimerDelegate::CreateLambda([&]() {
-		me->GetCharacterMovement()->MaxWalkSpeed = 1000.0f;
+		me->GetCharacterMovement()->MaxWalkSpeed = 1300.0f;
 		}), 1.8f, false);
 	UE_LOG(LogTemp, Warning, TEXT("ItemActivate"));
 
