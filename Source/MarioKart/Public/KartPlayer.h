@@ -65,7 +65,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
     bool bCharacterOverlapped;
 
-	UPROPERTY(BlueprintReadOnly, Category = "Item")
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item")
     FString CollectedItemName;
 
     UFUNCTION(BlueprintCallable, Category = "Item")

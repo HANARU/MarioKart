@@ -43,7 +43,7 @@ void AItemBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor*
     if (kartplayer != nullptr)
     {
        
-        int percent = FMath::RandRange(1, 100);
+        int percent = FMath::RandRange(1, 66);
         FString ItemName;
 
         if (percent < 33)

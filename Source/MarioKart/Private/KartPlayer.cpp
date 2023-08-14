@@ -84,6 +84,8 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	kartSpringComp->SetRelativeLocation(FVector(0, 0, 50));
 	kartSpringComp->SetRelativeRotation(FRotator(-15, 90, 0));
 	kartSpringComp->TargetArmLength=300;
+	kartSpringComp->bEnableCameraLag = true;
+	kartSpringComp->bEnableCameraRotationLag = true;
 
 	// kartCamComp 컴포넌트 추가
 	kartCamComp = CreateDefaultSubobject<UCameraComponent>(TEXT("kartCamComp"));
