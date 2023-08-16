@@ -111,70 +111,73 @@ void AMarioKartPlayerController::Tick(float DeltaTime)
 {
 	startcountTime += DeltaTime;
 
-	if (startcountTime >= 6.7f) // 출발 카운드 사운드 재생 후 주행
+	if(me != nullptr)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("startcountTime : %.2f"), startcountTime);
-		// 전진, 후진 주행 (가속, 속도)
-		MoveVertical();
-	}
-
-	if (bisMovingback == true)
-	{
-		// 후진할 때 이동
-		me->AddMovementInput(Direction(), currentSpeed);
-	}
-	else
-	{
-		if (bisAcc == true)
+		if (startcountTime >= 6.7f) // 출발 카운드 사운드 재생 후 주행
 		{
-			if (bisJump == true)
-			{
-				// 드리프트 시작
-				// 드리프트 시간 누적
-				driftTime += DeltaTime;
-				me->AddMovementInput(Direction(), currentSpeed);
-				UE_LOG(LogTemp, Warning, TEXT("driftTime : %.2f"), driftTime);
-				UE_LOG(LogTemp, Warning, TEXT("Jump: %d"), bisJump ? true : false);
+			UE_LOG(LogTemp, Warning, TEXT("startcountTime : %.2f"), startcountTime);
+			// 전진, 후진 주행 (가속, 속도)
+			MoveVertical();
+		}
 
-				// 드리프트가 3초이상 지속됐을 때
-				if (driftTime >= 3.0f)
+		if (bisMovingback == true)
+		{
+			// 후진할 때 이동
+			me->AddMovementInput(Direction(), currentSpeed);
+		}
+		else
+		{
+			if (bisAcc == true)
+			{
+				if (bisJump == true)
 				{
-					FString NumberString = FString::Printf(TEXT("driftTime: %.2f"), driftTime);
-					GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, NumberString);
-					FString DriftString = FString::Printf(TEXT("drift 3"));
-					GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, DriftString);
-					// 3단 드리프트 무조건 발동
-					DriftActivate(3.0f);
+					// 드리프트 시작
+					// 드리프트 시간 누적
+					driftTime += DeltaTime;
+					me->AddMovementInput(Direction(), currentSpeed);
+					UE_LOG(LogTemp, Warning, TEXT("driftTime : %.2f"), driftTime);
 					UE_LOG(LogTemp, Warning, TEXT("Jump: %d"), bisJump ? true : false);
 
-					// 드리프트 시간 리셋
-					driftTime = 0.0f;
+					// 드리프트가 3초이상 지속됐을 때
+					if (driftTime >= 3.0f)
+					{
+						FString NumberString = FString::Printf(TEXT("driftTime: %.2f"), driftTime);
+						GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, NumberString);
+						FString DriftString = FString::Printf(TEXT("drift 3"));
+						GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, DriftString);
+						// 3단 드리프트 무조건 발동
+						DriftActivate(3.0f);
+						UE_LOG(LogTemp, Warning, TEXT("Jump: %d"), bisJump ? true : false);
+
+						// 드리프트 시간 리셋
+						driftTime = 0.0f;
+					}
+				}
+				else
+				{
+					// 드리프트 사운드 멈추기
+					if (playingdriftComp)
+					{
+						playingdriftComp->Stop();
+						playingdriftComp->SetActive(false);
+						playingdriftComp = nullptr;
+
+					}
+
+					FVector Dir = Direction();
+
+					if (bTestDebug)
+						return;
+					// 전진 주행 이동
+					me->AddMovementInput(Direction(), currentSpeed);
+					//UE_LOG(LogTemp, Warning, TEXT("currentSpeed : %.2f"), currentSpeed);
 				}
 			}
 			else
 			{
-				// 드리프트 사운드 멈추기
-				if (playingdriftComp)
-				{
-					playingdriftComp->Stop();
-					playingdriftComp->SetActive(false);
-					playingdriftComp = nullptr;
-
-				}
-
-				FVector Dir = Direction();
-
-				if (bTestDebug)
-					return;
-				// 전진 주행 이동
+				// 가속키 누르지 않았을 때 서서히 감속
 				me->AddMovementInput(Direction(), currentSpeed);
-				//UE_LOG(LogTemp, Warning, TEXT("currentSpeed : %.2f"), currentSpeed);
 			}
-		}
-		else
-		{
-			// 가속키 누르지 않았을 때 서서히 감속
-			me->AddMovementInput(Direction(), currentSpeed);
 		}
 	}
 }
@@ -508,6 +511,14 @@ void AMarioKartPlayerController::DriftActivate(float dashActiveTime)
 		playingdriftComp = nullptr;
 	}
 
+	// 주행 사운드 멈추기
+	if (playingdriveComp)
+	{
+		playingdriveComp->Stop();
+		playingdriveComp->SetActive(false);
+		playingdriveComp = nullptr;
+	}
+
 	// 대쉬 사운드 재생
 	if (dashSound)
 	{
@@ -548,6 +559,25 @@ void AMarioKartPlayerController::DriftActivate(float dashActiveTime)
  			playingAudioComp->Stop();
 			playingAudioComp->SetActive(false);
 			playingAudioComp = nullptr;
+		}
+
+		if(bisAcc == true)
+		{
+			if (driveSound)
+			{
+				// soundbase 주행 사운드 오디오 컴포넌트 생성 및 초기화
+				playingdriveComp = UGameplayStatics::SpawnSound2D(GetWorld(), driveSound);
+
+				// 주행 사운드 유효성 검사
+				if (playingdriveComp)
+				{
+					playingdriveComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
+					playingdriveComp->bAutoDestroy = false; // 재생 완료 후 자동으로 제거하지 않는다.
+
+					// 대쉬 사운드 재생
+					playingdriveComp->Play();
+				}
+			}
 		}
 
 		}), dashActiveTime, false);

@@ -83,7 +83,7 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	// kartSpringComp 위치, 크기
 	kartSpringComp->SetRelativeLocation(FVector(0, 0, 50));
 	kartSpringComp->SetRelativeRotation(FRotator(-15, 90, 0));
-	kartSpringComp->TargetArmLength=300;
+	kartSpringComp->TargetArmLength=350;
 	kartSpringComp->bEnableCameraLag = true;
 	kartSpringComp->bEnableCameraRotationLag = true;
 
