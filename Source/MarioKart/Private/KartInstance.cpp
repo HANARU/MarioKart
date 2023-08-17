@@ -118,6 +118,7 @@ void UKartInstance::OnFindOtherSessions(bool bWasSuccessful)
 void UKartInstance::JoinSelectedSession(int32 index)
 {
 	sessionInterface->JoinSession(0, FName(MySessionName), sessionSearch->SearchResults[index]);
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Successed"));
 }
 
 void UKartInstance::OnJoinSelectedSession(FName sessionName, EOnJoinSessionCompleteResult::Type result)
@@ -126,7 +127,7 @@ void UKartInstance::OnJoinSelectedSession(FName sessionName, EOnJoinSessionCompl
 	{
 	case EOnJoinSessionCompleteResult::Success:
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Success: %s"), *sessionName.ToString());
+		UE_LOG(LogTemp, Warning, TEXT("%s"), result == EOnJoinSessionCompleteResult::Success ? *FString::Printf(TEXT("Success: %s"), *sessionName.ToString()) : *FString(TEXT("Failed")));
 
 		APlayerController* playerCon = GetWorld()->GetFirstPlayerController();
 
