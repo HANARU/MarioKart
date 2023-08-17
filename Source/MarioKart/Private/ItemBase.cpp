@@ -38,10 +38,8 @@ void AItemBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor*
 
     if (kartplayer != nullptr && GameMode != nullptr)
     {
-        FString KartName = UKismetStringLibrary::Conv_ObjectToString(kartplayer);
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, KartName);
-        /*GameMode->ItemOverlaped(kartplayer);
-        Destroy();*/
+        GameMode->ItemOverlaped(kartplayer);
+        Destroy();
     }
 }
 

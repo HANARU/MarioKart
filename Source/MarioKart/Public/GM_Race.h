@@ -2,7 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameModeBase.h"
+#include "ItemInfo.h"
 #include "GM_Race.generated.h"
+
+DECLARE_DELEGATE_OneParam(FItemMessageSignature, int32);
 
 UCLASS()
 class MARIOKART_API AGM_Race : public AGameModeBase
@@ -12,7 +15,9 @@ protected:
 	virtual void BeginPlay() override;
 
 public:
-	//void ItemOverlaped(AKartPlayer Player);
+	FItemMessageSignature ItemSignature;
+
+	void ItemOverlaped(class AKartPlayer* Player);
 	
-	void RandomItem();
+	int32 RandomItem();
 };

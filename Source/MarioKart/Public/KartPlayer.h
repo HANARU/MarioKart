@@ -24,6 +24,8 @@ virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputCompone
 //	virtual void SetPointGravityDirection(const FVector& NewGravityPoint) override;
 
 public:
+	FTimerHandle SpeedResetTimerHandle;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Test)
 	float Testfloat;
 
@@ -54,23 +56,27 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class UAudioComponent* playingDashSound = nullptr;
 
+	class AGM_Race* GameMode;
 
-	void Fire();
+	int32 Current1stItem = 12;
+	int32 Current2ndItem = 12;
 
-	FTimerHandle SpeedResetTimerHandle;
+	FString Item1stString;
+	FString Item2ndString;
+
+protected:
+	virtual void BeginPlay() override;
+
+	virtual void Tick(float DeltaTime) override;
+
+public:
+	UFUNCTION()
+		void ReceiveItem(int32 ItemNum);
+
+	void UsingItem();
 
 	void ResetSpeedToNormal();
 
 public:
-    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Interaction")
-    bool bCharacterOverlapped;
-
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Item")
-    FString CollectedItemName;
-
-    UFUNCTION(BlueprintCallable, Category = "Item")
-    void CollectItem(FString ItemName);
-
-	bool Itemget = false;
 	
 };

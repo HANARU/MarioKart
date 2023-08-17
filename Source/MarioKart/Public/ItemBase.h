@@ -4,16 +4,6 @@
 #include "GameFramework/Actor.h"
 #include "ItemBase.generated.h"
 
-//USTRUCT(BlueprintType)
-//struct FItemInfo
-//{
-//	GENERATED_USTRUCT_BODY()
-//
-//public:
-//	int32 ItemIndex;
-//	FString ItemName;
-//	bool bTargetForSelf;
-//};
 
 
 UCLASS()

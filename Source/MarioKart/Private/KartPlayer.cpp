@@ -6,11 +6,11 @@
 #include "GameFramework/Character.h"
 #include "Components/CapsuleComponent.h"
 #include <Camera/CameraComponent.h>
-#include "C_Turtle.h"
 #include "GM_Race.h"
 #include <GameFramework/SpringArmComponent.h>
 #include "MarioKartPlayerController.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetStringLibrary.h"
 #include "Components/AudioComponent.h"
 
 
@@ -18,6 +18,7 @@
 AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	: Super(ObjectInitializer.SetDefaultSubobjectClass<UNinjaCharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
+	PrimaryActorTick.bCanEverTick = true;
 
 	UCapsuleComponent* CapsuleComp  = GetCapsuleComponent();
 	SetRootComponent(CapsuleComp);
@@ -107,63 +108,58 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 void AKartPlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
 {
 	// 아이템 사용 처리등록
-	PlayerInputComponent->BindAction(TEXT("Fire"), IE_Pressed, this, &AKartPlayer::Fire);
+	PlayerInputComponent->BindAction(TEXT("UseItem"), IE_Pressed, this, &AKartPlayer::UsingItem);
 }
 
-void AKartPlayer::Fire()
+void AKartPlayer::BeginPlay()
 {
-    if(Itemget == true)
-	{ 
-	if (CollectedItemName == TEXT("Mush"))
+	Super::BeginPlay();
+	GameMode = Cast<AGM_Race>(UGameplayStatics::GetGameMode(GetWorld()));
+	if (GameMode != nullptr)
 	{
-		if (playerDashSound)
-		{
-			// soundbase 대쉬 사운드 오디오 컴포넌트 생성 및 초기화
-			playingDashSound = UGameplayStatics::SpawnSound2D(GetWorld(), playerDashSound);
-
-			// 대쉬 사운드 유효성 검사
-			if (playingDashSound)
-			{
-				playingDashSound->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
-				playingDashSound->bAutoDestroy = false; // 재생 완료 후 자동으로 제거하지 않는다.
-
-				// 대쉬 사운드 재생
-				playingDashSound->Play();
-			}
-		}
-		GetCharacterMovement()->MaxWalkSpeed *= 5.0f;
-
-		// 일정 시간(5초) 뒤에 속도를 원래 값으로 돌리기 위해 타이머를 설정합니다
-		GetWorld()->GetTimerManager().SetTimer(SpeedResetTimerHandle, this, &AKartPlayer::ResetSpeedToNormal, 2.0f, false);
-
-		Itemget = false;
+		GameMode->ItemSignature.BindUObject(this, &AKartPlayer::ReceiveItem);
 	}
-	else if (CollectedItemName == TEXT("Coin"))
-	{
-		GetCharacterMovement()->MaxWalkSpeed += 100.0f;
-		GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, FString::Printf(TEXT("MaxWalkSpeed: %f"), GetCharacterMovement()->MaxWalkSpeed));
-
-		Itemget = false;
-	}
-// 	else if (CollectedItemName == TEXT("Turtle"))
-// 		{
-// 			UClass* TurtleClass = AC_Turtle::StaticClass();
-// 	
-// 			// 캐릭터의 위치와 방향을 기반으로 액터를 스폰합니다
-// 			FVector SpawnLocation = GetActorLocation() + GetActorForwardVector() * 200.0f; // 적절한 위치 조정
-// 			SpawnLocation.Z -= 90.0f; // z 좌표를 90만큼 낮춤
-// 			FRotator SpawnRotation = GetActorRotation();
-// 	
-// 			// 액터를 스폰하고 생성된 액터를 가리키는 포인터를 받습니다
-// 			AC_Turtle* SpawnedTurtle = GetWorld()->SpawnActor<AC_Turtle>(TurtleClass, SpawnLocation, SpawnRotation);
-// 	
-// 			SpawnedTurtle->SetLifeSpan(2.0f); // 1초 후에 액터가 파괴됩니다.
-// 	
-// 			Itemget = false;
-// 		}
- 		}
 }
 
+void AKartPlayer::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, Item1stString);
+	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, Item2ndString);
+}
+
+void AKartPlayer::ReceiveItem(int32 ItemNum)
+{	
+	if (Current1stItem == 12 && Current2ndItem == 12)
+	{
+		Current1stItem = ItemNum;
+	}
+	else if (Current1stItem != 12 && Current2ndItem == 12)
+	{
+		Current2ndItem = Current1stItem;
+		Current1stItem = ItemNum;
+	}
+
+	Item1stString = UKismetStringLibrary::Conv_IntToString(Current1stItem);
+	Item2ndString = UKismetStringLibrary::Conv_IntToString(Current2ndItem);
+}
+
+void AKartPlayer::UsingItem()
+{
+	if (Current2ndItem == 12)
+	{
+		Current1stItem = 12;
+	}
+	if (Current2ndItem != 12)
+	{
+		Current1stItem = Current2ndItem;
+		Current2ndItem = 12;
+	}
+	
+	Item1stString = UKismetStringLibrary::Conv_IntToString(Current1stItem);
+	Item2ndString = UKismetStringLibrary::Conv_IntToString(Current2ndItem);
+}
 
 void AKartPlayer::ResetSpeedToNormal()
 {
@@ -180,12 +176,4 @@ void AKartPlayer::ResetSpeedToNormal()
 
 	// 타이머 핸들을 무효화합니다
 	SpeedResetTimerHandle.Invalidate();
-}
-
-void AKartPlayer::CollectItem(FString ItemName)
-{
-	CollectedItemName = ItemName;
-
-	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, ItemName);
-	// 아이템을 수집한 후에 필요한 추가 처리를 할 수 있습니다.
 }
