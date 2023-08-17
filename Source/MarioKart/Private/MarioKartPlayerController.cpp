@@ -19,6 +19,9 @@ AMarioKartPlayerController::AMarioKartPlayerController()
 
 	PrimaryActorTick.bCanEverTick = true;
 
+	// 기본값으로 PlayerID를 0으로 설정
+	PlayerID = 0;
+
 	// 주행 사운드 가져오기
 	ConstructorHelpers::FObjectFinder<USoundBase> TempdriveSound(TEXT("SoundWave'/Game/5_FX/Audio/play_drive_kart.play_drive_kart'"));
 
@@ -68,7 +71,11 @@ void AMarioKartPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	// 플레이어 캐릭터 불러오기
-	me = Cast<AKartPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	//me = Cast<AKartPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+
+	// playercontroller에 possess된 캐릭터 불러오기
+	//AMario
+	
 	meOwner = Cast<AKartPlayer>(GetOwner());
 	
 	if (me != nullptr)
@@ -78,8 +85,8 @@ void AMarioKartPlayerController::BeginPlay()
 	}
 	
 	// 플레이어 확인 디버그 메시지
-	FString NameString = UKismetStringLibrary::Conv_ObjectToString(me);
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, NameString);
+	/*FString NameString = UKismetStringLibrary::Conv_ObjectToString(me);
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, NameString);*/
 
 	//// 출발 카운트 사운드 재생
 	//FTimerHandle DelayHandle;

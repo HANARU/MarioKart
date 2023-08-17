@@ -18,6 +18,14 @@ class MARIOKART_API AMarioKartPlayerController : public APlayerController
 public:
 	AMarioKartPlayerController();
 	
+	// 플레이어 식별자 설정
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	int32 PlayerID;
+
+	// 플레이어가 possess한 캐릭터
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	class AKartPlayer* PossessedPlayer;
+
 
 protected:
 	virtual void BeginPlay() override;
@@ -27,9 +35,6 @@ protected:
 
 	// input 바인딩 함수
 	void SetupInputComponent() override;
-
-//public:
-	
 
 
 public:
