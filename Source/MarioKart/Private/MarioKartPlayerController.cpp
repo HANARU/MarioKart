@@ -11,7 +11,7 @@
 #include <DrawDebugHelpers.h>
 #include <Camera/CameraShakeBase.h>
 #include "Components/AudioComponent.h"
-
+#include "Components/TimelineComponent.h"
 
 
 AMarioKartPlayerController::AMarioKartPlayerController()
@@ -58,67 +58,82 @@ AMarioKartPlayerController::AMarioKartPlayerController()
 	{
 		startcountSound = TempstartcountSound.Object;
 	}
+
+	// 타임라인
+	//driftjumpCurve = nullptr;
 }
 
 void AMarioKartPlayerController::BeginPlay()
 {
+	Super::BeginPlay();
+
 	// 플레이어 캐릭터 불러오기
 	me = Cast<AKartPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
-
-	// 플레이어 기본 속도 설정
-	me->GetCharacterMovement()->MaxWalkSpeed = 1300.0f;
-
+	meOwner = Cast<AKartPlayer>(GetOwner());
+	
+	if (me != nullptr)
+	{
+		// 플레이어 기본 속도 설정
+		me->GetCharacterMovement()->MaxWalkSpeed = 1300.0f;	
+	}
+	
 	// 플레이어 확인 디버그 메시지
 	FString NameString = UKismetStringLibrary::Conv_ObjectToString(me);
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, NameString);
 
-	FTimerHandle DelayHandle;
-	// 출발 카운트 사운드 재생
+	//// 출발 카운트 사운드 재생
+	//FTimerHandle DelayHandle;
 
-	GetWorldTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([this]() {
-		if (startcountSound)
-		{
-			playingstartComp = UGameplayStatics::SpawnSound2D(GetWorld(), startcountSound);
-
-			// 출발 카운트 사운드 유효성 검사
-			if (playingstartComp)
-			{
-				playingstartComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
-				playingstartComp->bAutoDestroy = true; // false : 재생 완료 후 자동으로 제거하지 않는다.
-
-				playingstartComp->Play();
-			}
-		}
-				}), 3.f, false);
-	//if (startcountSound)
-	//{
-	//	// soundbase 출발 카운트 사운드 오디오 컴포넌트 생성 및 초기화
-	//	playingstartComp = UGameplayStatics::SpawnSound2D(GetWorld(), startcountSound);
-
-	//	// 출발 카운트 사운드 유효성 검사
-	//	if (playingstartComp)
+	//GetWorldTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([this]() {
+	//	if (startcountSound)
 	//	{
-	//		playingstartComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
-	//		playingstartComp->bAutoDestroy = true; // false : 재생 완료 후 자동으로 제거하지 않는다.
+	//		playingstartComp = UGameplayStatics::SpawnSound2D(GetWorld(), startcountSound);
 
-	//		playingstartComp->Play();
-	//		
+	//		// 출발 카운트 사운드 유효성 검사
+	//		if (playingstartComp)
+	//		{
+	//			playingstartComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
+	//			playingstartComp->bAutoDestroy = true; // false : 재생 완료 후 자동으로 제거하지 않는다.
+
+	//			playingstartComp->Play();
+	//		}
 	//	}
+	//			}), 3.f, false);
+
+	if (driftjumpCurve != nullptr)
+	{
+
+		// 타임라인 초기화
+		/*UTimelineComponent* timelineComp = NewObject<UTimelineComponent>(this, FName("driftjumpTimeline"));
+		timelineComp->CreationMethod = EComponentCreationMethod::UserConstructionScript;
+		timelineComp->SetNetAddressable();
+		timelineComp->SetPropertySetObject(this);
+		timelineComp->RegisterComponent();*/
 	
+		
+		// 드리프트 동안 뛰어 오를 커브 곡선
+		// 타임라인 등록
+		FOnTimelineFloat onProgressdriftjump;
+		onProgressdriftjump.BindUFunction(this, FName("Ondriftjump"));
+
+		driftjumpTimeline.AddInterpFloat(driftjumpCurve, onProgressdriftjump);
+		driftjumpTimeline.SetTimelineLength(0.5f);
+	}
+
 }
 
-void AMarioKartPlayerController::Tick(float DeltaTime)
+void AMarioKartPlayerController::Tick(float DeltaSeconds)
 {
-	startcountTime += DeltaTime;
+	Super::Tick(DeltaSeconds);
 
-	if(me != nullptr)
+	startcountTime += DeltaSeconds;
+	
+	//driftjumpTimeline.TickTimeline(DeltaSeconds);
+
+	if (startcountTime >= 6.7f) // 출발 카운드 사운드 재생 후 주행 startcountTime >= 6.7f
 	{
-		if (startcountTime >= 6.7f) // 출발 카운드 사운드 재생 후 주행
-		{
-			UE_LOG(LogTemp, Warning, TEXT("startcountTime : %.2f"), startcountTime);
-			// 전진, 후진 주행 (가속, 속도)
-			MoveVertical();
-		}
+		// 전진, 후진 주행 (가속, 속도)
+		MoveVertical();
 
 		if (bisMovingback == true)
 		{
@@ -133,21 +148,18 @@ void AMarioKartPlayerController::Tick(float DeltaTime)
 				{
 					// 드리프트 시작
 					// 드리프트 시간 누적
-					driftTime += DeltaTime;
+					driftTime += DeltaSeconds;
 					me->AddMovementInput(Direction(), currentSpeed);
-					UE_LOG(LogTemp, Warning, TEXT("driftTime : %.2f"), driftTime);
-					UE_LOG(LogTemp, Warning, TEXT("Jump: %d"), bisJump ? true : false);
 
 					// 드리프트가 3초이상 지속됐을 때
 					if (driftTime >= 3.0f)
 					{
-						FString NumberString = FString::Printf(TEXT("driftTime: %.2f"), driftTime);
-						GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, NumberString);
-						FString DriftString = FString::Printf(TEXT("drift 3"));
-						GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, DriftString);
+						//FString NumberString = FString::Printf(TEXT("driftTime: %.2f"), driftTime);
+						//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, NumberString);
+						//FString DriftString = FString::Printf(TEXT("drift 3"));
+						//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, DriftString);
 						// 3단 드리프트 무조건 발동
 						DriftActivate(3.0f);
-						UE_LOG(LogTemp, Warning, TEXT("Jump: %d"), bisJump ? true : false);
 
 						// 드리프트 시간 리셋
 						driftTime = 0.0f;
@@ -168,18 +180,31 @@ void AMarioKartPlayerController::Tick(float DeltaTime)
 
 					if (bTestDebug)
 						return;
-					// 전진 주행 이동
-					me->AddMovementInput(Direction(), currentSpeed);
-					//UE_LOG(LogTemp, Warning, TEXT("currentSpeed : %.2f"), currentSpeed);
+					if (me != nullptr)
+					{
+						// 전진 주행 이동
+						me->AddMovementInput(Direction(), currentSpeed);
+						//UE_LOG(LogTemp, Warning, TEXT("currentSpeed : %.2f"), currentSpeed);
+					}
 				}
 			}
 			else
 			{
-				// 가속키 누르지 않았을 때 서서히 감속
-				me->AddMovementInput(Direction(), currentSpeed);
+				if (me != nullptr)
+				{
+					// 가속키 누르지 않았을 때 서서히 감속
+					me->AddMovementInput(Direction(), currentSpeed);
+				}
+			
 			}
 		}
 	}
+	else
+	{
+		return;
+	}
+
+
 }
 
 void AMarioKartPlayerController::SetupInputComponent()
@@ -218,15 +243,6 @@ void AMarioKartPlayerController::Acc()
 	// 주행 사운드 재생
 	if (driveSound)
 	{
-		//// 드리프트 사운드 멈추기
-		//if (playingdriftComp)
-		//{
-		//	playingdriftComp->Stop();
-		//	playingdriftComp->SetActive(false);
-		//	playingdriftComp = nullptr;
-
-		//}
-
 		// soundbase 주행 사운드 사운드 오디오 컴포넌트 생성 및 초기화
 		playingdriveComp = UGameplayStatics::SpawnSound2D(GetWorld(), driveSound);
 
@@ -306,6 +322,8 @@ void AMarioKartPlayerController::Jump()
 {
 	bisJump = true;
 
+	//Startdriftjump();
+
 	if (bisAcc == true && horizontalValue != 0.0f)
 	{
 		// 주행 사운드 멈추기
@@ -337,7 +355,7 @@ void AMarioKartPlayerController::Jump()
 	{
 		if (me)
 		{
-			// 점프 기능
+			// 드리프트 기능
 			me->Jump();
 		}
 		// 주행 사운드 멈추기
@@ -348,8 +366,6 @@ void AMarioKartPlayerController::Jump()
 			playingdriveComp = nullptr;
 		}
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("Jump: %d"), bisJump ? true : false);
 }
 
 void AMarioKartPlayerController::Jump_released()
@@ -432,7 +448,7 @@ void AMarioKartPlayerController::Horizontal(float value)
 	// 좌우 입력 들어왔을 때(회전)
 	if (FMath::Abs(horizontalValue) != 0.0f)
 	{
-		if (bisMovingback == true)
+		if (bisMovingback == true || currentSpeed != 0)
 		{
 			// 후진 회전
 			float movigbackValue = FMath::Lerp(horizontalValue, 0.0f, 0.3f);
@@ -442,14 +458,12 @@ void AMarioKartPlayerController::Horizontal(float value)
 		}
 		else
 		{
-			if (bisAcc == true)
+			if (bisAcc == true || currentSpeed != 0)
 			{
 				if (bisJump == true)
 				{
-					// 드리프트 시작
-					float driftValue = FMath::Lerp(0.0f, horizontalValue, 0.7f);
+					float driftValue = FMath::Lerp(0.0f, horizontalValue, 0.3f); // 회전율
 					AddYawInput(driftValue);
-					UE_LOG(LogTemp, Warning, TEXT("driftValue : %.2f"), driftValue)
 				}
 				else
 				{
@@ -493,6 +507,8 @@ FVector AMarioKartPlayerController::Direction()
 {
 	// 주행 방향 구하기
 	FVector returnDirection = me->GetActorForwardVector();
+
+	//if(driftTime)
 
 	//UE_LOG(LogTemp, Warning, TEXT("Direction %s"), *returnDirection.ToString());
 	return returnDirection;
@@ -542,9 +558,6 @@ void AMarioKartPlayerController::DriftActivate(float dashActiveTime)
 	// 드리프트 시간 동안 앞으로 빠르게 전진
 	me->AddMovementInput(Direction(), currentSpeed);
 
-	UE_LOG(LogTemp, Warning, TEXT("driftTime: %.2f"), driftTime);
-	UE_LOG(LogTemp, Warning, TEXT("DriftActivate: %.2f"), dashActiveTime);
-
 	// 드리프트 지속 dashActiveTime초(타이머 사용)
 	GetWorldTimerManager().SetTimer(itemDelay, FTimerDelegate::CreateLambda([this]() {
 		if (me->GetCharacterMovement() != nullptr)
@@ -555,7 +568,6 @@ void AMarioKartPlayerController::DriftActivate(float dashActiveTime)
 		// 대쉬 사운드 멈추기대쉬 사운드
 		if (playingAudioComp)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("STOP"));
  			playingAudioComp->Stop();
 			playingAudioComp->SetActive(false);
 			playingAudioComp = nullptr;
@@ -589,21 +601,11 @@ void AMarioKartPlayerController::DriftActivate(float dashActiveTime)
 
 void AMarioKartPlayerController::ItemUse()
 {
-	UE_LOG(LogTemp, Warning, TEXT("ItemUse"));
 	ItemActivate();
 }
 
 void AMarioKartPlayerController::ItemActivate()
 {
-	//// 대쉬 카메라 쉐이크
-	//if (this->PlayerCameraManager != nullptr && dashShake != nullptr)
-	//{
-	//	
-	//	this->PlayerCameraManager->StartCameraShake(dashShake);
-	//	UE_LOG(LogTemp, Warning, TEXT("dashShake"));
-
-	//}
-
 	// 대쉬 속도
 	me->GetCharacterMovement()->MaxWalkSpeed = 4000.0f;
 
@@ -611,7 +613,6 @@ void AMarioKartPlayerController::ItemActivate()
 	GetWorldTimerManager().SetTimer(itemDelay, FTimerDelegate::CreateLambda([&]() {
 		me->GetCharacterMovement()->MaxWalkSpeed = 1300.0f;
 		}), 1.8f, false);
-	UE_LOG(LogTemp, Warning, TEXT("ItemActivate"));
 
 }
 
@@ -619,4 +620,27 @@ void AMarioKartPlayerController::ItemActivate()
 void AMarioKartPlayerController::TestDebug()
 {
 	bTestDebug = !bTestDebug;
+}
+
+void AMarioKartPlayerController::Ondriftjump(float Output)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Cyan, FString::Printf(TEXT("%.3f"), Output));
+	//UE_LOG(LogTemp, Warning, TEXT("%.3f"), Output);
+
+	//me->GetCharacterMovement()->Velocity = currentDir * driftjumpPower * Output;
+}
+
+void AMarioKartPlayerController::Startdriftjump()
+{
+	driftjumpTimeline.PlayFromStart();
+	/*if (me->GetCharacterMovement()->Velocity.IsNearlyZero())
+	{
+		currentDir = me->GetActorUpVector();
+	}
+	else
+	{
+		currentDir = me->GetCharacterMovement()->Velocity;
+	}*/
+	//driftjumpTimeline.SetLooping(false);
+ 	
 }

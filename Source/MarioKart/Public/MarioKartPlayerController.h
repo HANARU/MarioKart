@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/PlayerController.h"
+#include "Components/TimelineComponent.h"
 #include "MarioKartPlayerController.generated.h"
 
 /**
@@ -21,12 +22,14 @@ public:
 protected:
 	virtual void BeginPlay() override;
 
-public:
 	// Tick 함수
-	virtual void Tick(float DeltaTime) override;
+	virtual void Tick(float DeltaSeconds) override;
 
 	// input 바인딩 함수
 	void SetupInputComponent() override;
+
+//public:
+	
 
 
 public:
@@ -47,13 +50,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	float driftTime;
 
-	// 출발 시간 저장
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
-	float startcountTime = 0.0f;
-
-	//// 대쉬 카메라 쉐이크
-	//UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category="Player")
-	//TSubclassOf<class UCameraShakeBase> dashShake;
+	//// 출발 시간 저장
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	//float startcountTime = 0;
 
 	// 전진주행키 입력 확인
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
@@ -111,9 +110,39 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	class UAudioComponent* playingstartComp = nullptr;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	class UCurveFloat* driftjumpCurve;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	FVector currentDir;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	float driftjumpPower = 10;
+	
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	//UCharacterMovementComponent* moveComp;
+
+	// 타임라인 시작 함수
+	void Startdriftjump();
+
+protected:
+	UPROPERTY()
+	AKartPlayer* meOwner;
+
 private:
 	bool bInDelay = false;
 	FTimerHandle itemDelay;
+	struct FTimeline driftjumpTimeline;
+
+	UFUNCTION()
+	void Ondriftjump(float Output);
+
+	//UFUNCTION()
+	//void Finishdriftjump(float Output);
+
+	// 출발 시간 저장
+	UPROPERTY()
+	float startcountTime = 0;
 
 	// 전진 함수
 	UFUNCTION()
@@ -163,4 +192,6 @@ private:
 	bool bTestDebug = false;
 	void TestDebug();
 
+
+	
 };
