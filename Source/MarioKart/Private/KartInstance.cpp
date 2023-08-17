@@ -42,7 +42,7 @@ void UKartInstance::CreateMySession(FText roomName, int32 playerCount)
 	sessionSettings.bAllowJoinViaPresence = true;
 
 	// 5. 입장 가능 인원을 설정한다.
-	sessionSettings.NumPublicConnections = playerCount;
+	sessionSettings.NumPublicConnections = 4;
 
 	// 6. 세션에 추가 설정을 넣는다.
 	sessionSettings.Set(FName("ROOM_NAME"), roomName.ToString(), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
@@ -117,12 +117,16 @@ void UKartInstance::OnFindOtherSessions(bool bWasSuccessful)
 
 void UKartInstance::JoinSelectedSession(int32 index)
 {
-	sessionInterface->JoinSession(0, FName(MySessionName), sessionSearch->SearchResults[index]);
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Successed"));
+	bool isJoin = sessionInterface->JoinSession(0, FName(MySessionName), sessionSearch->SearchResults[index]);
+	UE_LOG(LogTemp, Warning, TEXT("Session Name : %s, UserName : %s"), *MySessionName, *sessionSearch->SearchResults[index].Session.OwningUserName);
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, FString::Printf(TEXT("Join %s"), isJoin ? *FString("Success") : *FString("Failed..")));
+	//GetWorld()->GetFirstPlayerController()->ClientTravel("192.168.0.40:7777", ETravelType::TRAVEL_Absolute);
 }
 
 void UKartInstance::OnJoinSelectedSession(FName sessionName, EOnJoinSessionCompleteResult::Type result)
 {
+	UE_LOG(LogTemp, Warning, TEXT("Success JoinSession"));
+
 	switch (result)
 	{
 	case EOnJoinSessionCompleteResult::Success:

@@ -71,7 +71,7 @@ void AMarioKartPlayerController::BeginPlay()
 	Super::BeginPlay();
 
 	// 플레이어 캐릭터 불러오기
-	//me = Cast<AKartPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	me = Cast<AKartPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
 	// playercontroller에 possess된 캐릭터 불러오기
 	//AMario

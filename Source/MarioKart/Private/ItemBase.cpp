@@ -1,38 +1,34 @@
-
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "ItemBase.h"
 #include "Components/BoxComponent.h"
 #include "GM_Race.h"
 #include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetStringLibrary.h"
 #include "KartPlayer.h"
 
-// Sets default values
+
 AItemBase::AItemBase()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
     BoxCollision = CreateDefaultSubobject<UBoxComponent>(TEXT("Box"));
+    RootComponent = BoxCollision;
     BoxCollision->bHiddenInGame = false;
+
+    ItemBoxMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+    ItemBoxMesh->SetRelativeLocation(FVector(3));
+    ItemBoxMesh->SetupAttachment(RootComponent);
+    ItemBoxMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+    ItemBoxMark = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mark"));
+    ItemBoxMark->SetRelativeLocation(FVector(1.5));
+    ItemBoxMark->SetupAttachment(RootComponent);
+    ItemBoxMark->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
-// Called when the game starts or when spawned
 void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
     BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &AItemBase::OnOverlapBegin);
-	BoxCollision->bHiddenInGame = false;
     GameMode = Cast<AGM_Race>(UGameplayStatics::GetGameMode(GetWorld()));
-}
-
-// Called every frame
-void AItemBase::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
 }
 
 void AItemBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -40,31 +36,12 @@ void AItemBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor*
     AKartPlayer* kartplayer = Cast<AKartPlayer>(OtherActor);
     
 
-    if (kartplayer != nullptr)
+    if (kartplayer != nullptr && GameMode != nullptr)
     {
-       
-        int percent = FMath::RandRange(1, 66);
-        FString ItemName;
-
-        if (percent < 33)
-        {
-            ItemName = TEXT("Mush");
-        }
-        else if (percent < 66)
-        {
-            ItemName = TEXT("Coin");
-        }
-//         else
-//         {
-//             ItemName = TEXT("Turtle");
-//         }
-
-        kartplayer->Itemget = true;
-        kartplayer->CollectItem(ItemName); 
-        Destroy();
-        
-  
-        }
-    
+        FString KartName = UKismetStringLibrary::Conv_ObjectToString(kartplayer);
+        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, KartName);
+        /*GameMode->ItemOverlaped(kartplayer);
+        Destroy();*/
+    }
 }
 

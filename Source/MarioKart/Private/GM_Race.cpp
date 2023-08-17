@@ -1,15 +1,18 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "GM_Race.h"
+#include "KartPlayer.h"
+#include "ItemBase.h"
 
 void AGM_Race::BeginPlay()
 {
 	Super::BeginPlay();
 }
 
-void AGM_Race::Overlap_Lap_System(ANinjaCharacter* Player, bool bIsCheckPoint, bool bIsLap)
+//void AGM_Race::ItemOverlaped(AKartPlayer Player)
+//{
+//	RandomItem();
+//}
+
+void AGM_Race::RandomItem()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Check"));
 
 }
