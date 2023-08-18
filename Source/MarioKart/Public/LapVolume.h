@@ -2,11 +2,10 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "I_Interact.h"
 #include "LapVolume.generated.h"
 
 UCLASS()
-class MARIOKART_API ALapVolume : public AActor, public II_Interact
+class MARIOKART_API ALapVolume : public AActor
 {
 	GENERATED_BODY()
 	
@@ -21,9 +20,7 @@ public:
 		bool bIsThisLapPoint = false;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
-		TSubclassOf<class ANinjaCharacter> PlayerBP;
-
-	class ANinjaCharacter* PlayerSource;
+		TSubclassOf<class AKartPlayer> PlayerBP;
 
 	class AGM_Race* GMRace;
 
@@ -37,7 +34,6 @@ public:
 
 	UFUNCTION()
 	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-
+	
 
 };

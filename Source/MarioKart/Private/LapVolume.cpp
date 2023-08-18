@@ -1,6 +1,7 @@
 #include "LapVolume.h"
 #include "GM_Race.h"
 #include "NinjaCharacter.h"
+#include "KartPlayer.h"
 #include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -30,14 +31,10 @@ void ALapVolume::Tick(float DeltaTime)
 
 void ALapVolume::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	ANinjaCharacter* Player = Cast<ANinjaCharacter>(OtherActor);
+	AKartPlayer* Player = Cast<AKartPlayer>(OtherActor);
 	if (Player != nullptr)
 	{
-		/*if (II_Interact* Interface = Cast<II_Interact>(Player))
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Check"));
-			Interface->Overlap_Lap_System(Player, bIsThisCheckPoint, bIsThisLapPoint);
-		}*/
+		/*GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Check"));*/
 	}
 }
 

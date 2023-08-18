@@ -64,6 +64,11 @@ public:
 	FString Item1stString;
 	FString Item2ndString;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	int32 CurrentCheckpoint = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	int32 CurrentGoalPoint = 0;
+
 protected:
 	virtual void BeginPlay() override;
 
