@@ -12,6 +12,11 @@
 #include <Camera/CameraShakeBase.h>
 #include "Components/AudioComponent.h"
 #include "Components/TimelineComponent.h"
+#include "Net/UnrealNetwork.h" // 언리얼 네트워크 기능
+#include "GameFramework/Controller.h"
+#include "EngineUtils.h"
+#include "KartPlayerAnimInstance.h"
+
 
 
 AMarioKartPlayerController::AMarioKartPlayerController()
@@ -21,6 +26,9 @@ AMarioKartPlayerController::AMarioKartPlayerController()
 
 	// 기본값으로 PlayerID를 0으로 설정
 	PlayerID = 0;
+
+	// 변수 복제 기능 사용
+	bReplicates = true;
 
 	// 주행 사운드 가져오기
 	ConstructorHelpers::FObjectFinder<USoundBase> TempdriveSound(TEXT("SoundWave'/Game/5_FX/Audio/play_drive_kart.play_drive_kart'"));
@@ -70,20 +78,27 @@ void AMarioKartPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// 플레이어 캐릭터 불러오기
-	me = Cast<AKartPlayer>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
+	// playercontroller에 캐릭터 possess
+	//if (this->GetPawn() == nullptr)
+	//{
+	//	FActorSpawnParameters param;
+	//	param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	// playercontroller에 possess된 캐릭터 불러오기
-	//AMario
+	//	me = GetWorld()->SpawnActor<AKartPlayer>(kartPlayer, param);
+	//	//Possess(me);
+	//	this->SetOwner(me);
+	//}
 	
-	meOwner = Cast<AKartPlayer>(GetOwner());
-	
-	if (me != nullptr)
-	{
-		// 플레이어 기본 속도 설정
-		me->GetCharacterMovement()->MaxWalkSpeed = 1300.0f;	
-	}
-	
+	// playercontroller가 possess 하는 캐릭터
+	//me = Cast<AKartPlayer>(this->GetPawn());
+	////meOwner = Cast<AKartPlayer>(GetOwner());
+	//
+	//if (me != nullptr)
+	//{
+	//	// 플레이어 기본 속도 설정
+	//	me->GetCharacterMovement()->MaxWalkSpeed = 1300.0f;	
+	//}
+	//
 	// 플레이어 확인 디버그 메시지
 	/*FString NameString = UKismetStringLibrary::Conv_ObjectToString(me);
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, NameString);*/
@@ -127,6 +142,30 @@ void AMarioKartPlayerController::BeginPlay()
 		driftjumpTimeline.SetTimelineLength(0.5f);
 	}
 
+	//network role 확인
+	myLocalRole = GetLocalRole();
+	myRemoteRole = GetRemoteRole();
+
+}
+
+// 정보를 화면에 출력하는 함수
+void AMarioKartPlayerController::PrintLog()
+{
+	if (me != nullptr)
+	{
+		const FString localRoleString = UEnum::GetValueAsString<ENetRole>(myLocalRole);
+		const FString remoteRoleString = UEnum::GetValueAsString<ENetRole>(myRemoteRole);
+		const FString ownerString = me->GetOwner() != nullptr ? me->GetOwner()->GetName() : FString("No Owner!");
+		const FString connectionString = GetNetConnection() != nullptr ? FString("Valid Connection") : FString("Invalid Connection");
+		//AMarioKartPlayerController* pc = GetController<AMarioKartPlayerController>();
+		const FString PlayerControllerString = this != nullptr ? this->GetName() : *FString("Invalid");
+		const FString printString = FString::Printf(TEXT("Local Role: %s\nRemote Role: %s\nOwner Name: %s\nNet Connection : %s\nPlayerController : %s"), *localRoleString, *remoteRoleString, *ownerString, *connectionString, *PlayerControllerString);
+
+		//const FString printString = FString::Printf(TEXT("Time : %.2f"), timeTest);
+		DrawDebugString(GetWorld(), me->GetActorLocation(), printString, nullptr, FColor::White, 0, true);
+		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, printString);
+	}
+	
 }
 
 void AMarioKartPlayerController::Tick(float DeltaSeconds)
@@ -134,13 +173,16 @@ void AMarioKartPlayerController::Tick(float DeltaSeconds)
 	Super::Tick(DeltaSeconds);
 
 	startcountTime += DeltaSeconds;
+
+	PrintLog();
 	
+	//timeTest += DeltaSeconds;
 	//driftjumpTimeline.TickTimeline(DeltaSeconds);
 
 	if (startcountTime >= 6.7f) // 출발 카운드 사운드 재생 후 주행 startcountTime >= 6.7f
 	{
 		// 전진, 후진 주행 (가속, 속도)
-		MoveVertical();
+		MultiMoveVertical();
 
 		if (bisMovingback == true)
 		{
@@ -286,6 +328,10 @@ void AMarioKartPlayerController::Acc_released()
 
 void AMarioKartPlayerController::MoveBack()
 {
+	if (me == nullptr)
+	{
+		return;
+	}
 	bisMovingback = true;
 
 	// 주행 사운드 재생
@@ -311,6 +357,10 @@ void AMarioKartPlayerController::MoveBack()
 
 void AMarioKartPlayerController::MoveBack_released()
 {
+	if (me == nullptr)
+	{
+		return;
+	}
 	bisMovingback = false;
 
 	// 주행 사운드 멈추기
@@ -327,11 +377,15 @@ void AMarioKartPlayerController::MoveBack_released()
 
 void AMarioKartPlayerController::Jump()
 {
+	if (me == nullptr)
+	{
+		return;
+	}
 	bisJump = true;
 
 	//Startdriftjump();
 
-	if (bisAcc == true && horizontalValue != 0.0f)
+	if (bisAcc == true && me->horizontalValue != 0.0f)
 	{
 		// 주행 사운드 멈추기
 		if (playingdriveComp)
@@ -377,6 +431,10 @@ void AMarioKartPlayerController::Jump()
 
 void AMarioKartPlayerController::Jump_released()
 {
+	if (me == nullptr)
+	{
+		return;
+	}
 	bisJump = false;	
 
 	// 드리프트 사운드 멈추기
@@ -447,43 +505,53 @@ void AMarioKartPlayerController::Jump_released()
 	UE_LOG(LogTemp, Warning, TEXT("DriftOff"));
 }
 
+ // 좌우 키를 눌렀을 때 실행
 void AMarioKartPlayerController::Horizontal(float value)
 {
-	// 좌우 입력값
-	horizontalValue = value;
-
-	// 좌우 입력 들어왔을 때(회전)
-	if (FMath::Abs(horizontalValue) != 0.0f)
+	if (me == nullptr)
 	{
-		if (bisMovingback == true || currentSpeed != 0)
-		{
-			// 후진 회전
-			float movigbackValue = FMath::Lerp(horizontalValue, 0.0f, 0.3f);
-			AddYawInput(movigbackValue);
-			UE_LOG(LogTemp, Warning, TEXT("movigbackValue : %.2f"), movigbackValue);
+		return;
+	}
+	// 좌우 입력값
+	me->horizontalValue = value;
 
-		}
-		else
+	if (value)
+	{
+		// 좌우 입력 들어왔을 때(회전)
+		if (FMath::Abs(me->horizontalValue) != 0.0f)
 		{
-			if (bisAcc == true || currentSpeed != 0)
+			if (bisMovingback == true || currentSpeed != 0)
 			{
-				if (bisJump == true)
+				// 후진 회전
+				float movigbackValue = FMath::Lerp(me->horizontalValue, 0.0f, 0.3f);
+				AddYawInput(movigbackValue);
+				UE_LOG(LogTemp, Warning, TEXT("movigbackValue : %.2f"), movigbackValue);
+
+			}
+			else
+			{
+				if (bisAcc == true || currentSpeed != 0)
 				{
-					float driftValue = FMath::Lerp(0.0f, horizontalValue, 0.3f); // 회전율
-					AddYawInput(driftValue);
-				}
-				else
-				{
-					// 전진 회전
-					AddYawInput(FMath::Lerp(0.0f, horizontalValue, 0.3f));
+					if (bisJump == true)
+					{
+						float driftValue = FMath::Lerp(0.0f, me->horizontalValue, 0.3f); // 회전율
+						AddYawInput(driftValue);
+					}
+					else
+					{
+						// 전진 회전
+						AddYawInput(FMath::Lerp(0.0f, me->horizontalValue, 0.3f));
+					}
 				}
 			}
 		}
 	}
+ 
 
 }
 
-void AMarioKartPlayerController::MoveVertical()
+
+void AMarioKartPlayerController::MultiMoveVertical_Implementation()
 {
 	if (bisAcc == true || bisMovingback == true)
 	{
@@ -650,4 +718,30 @@ void AMarioKartPlayerController::Startdriftjump()
 	}*/
 	//driftjumpTimeline.SetLooping(false);
  	
+}
+
+void AMarioKartPlayerController::OnPossess(APawn* aPawn)
+{
+	Super::OnPossess(aPawn);
+
+	UE_LOG(LogTemp, Warning, TEXT("OnPossess"));
+
+	me = Cast<AKartPlayer>(this->GetPawn());
+	//meOwner = Cast<AKartPlayer>(GetOwner());
+
+	if (me != nullptr)
+	{
+		// 플레이어 기본 속도 설정
+		me->GetCharacterMovement()->MaxWalkSpeed = 1300.0f;
+	}
+
+}
+
+void AMarioKartPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AMarioKartPlayerController, timeTest);
+	//DOREPLIFETIME_CONDITION(AMarioKartPlayerController, timeTest, COND_OwnerOnly);
+	//DOREPLIFETIME(AMarioKartPlayerController, horizontalValue);
 }

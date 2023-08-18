@@ -23,8 +23,8 @@ public:
 	int32 PlayerID;
 
 	// 플레이어가 possess한 캐릭터
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
-	class AKartPlayer* PossessedPlayer;
+	/*UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	class AKartPlayer* PossessedPlayer;*/
 
 
 protected:
@@ -38,10 +38,12 @@ protected:
 
 
 public:
-	
-	// 좌우 입력 값
+
+	// 플레이어 캐릭터
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
-	float horizontalValue;
+	class AKartPlayer* me;
+	
+	
 
 	// 현재 속도
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
@@ -74,10 +76,6 @@ public:
 	// 드리프트 확인
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	bool bisDrift = false;
-
-	// 플레이어 캐릭터
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
-	class AKartPlayer* me;
 
 	// 플레이어 주행 사운드
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
@@ -123,16 +121,19 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	float driftjumpPower = 10;
-	
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
-	//UCharacterMovementComponent* moveComp;
+
+	// 플레이어 파생 클래스
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	TSubclassOf<class AKartPlayer> kartPlayer;
 
 	// 타임라인 시작 함수
 	void Startdriftjump();
 
 protected:
-	UPROPERTY()
-	AKartPlayer* meOwner;
+	/*UPROPERTY()
+	AKartPlayer* meOwner;*/
+
+	virtual void OnPossess(APawn* aPawn) override;
 
 private:
 	bool bInDelay = false;
@@ -174,9 +175,9 @@ private:
 	UFUNCTION()
 	void Horizontal(float value);
 
-	// 상하이동(전진, 후진) 함수
-	UFUNCTION()
-	void MoveVertical();
+	//상하이동(전진, 후진) 함수
+	/*UFUNCTION()
+	void MoveVertical();*/
 
 	// 이동 방향 벡터 반환 함수
 	UFUNCTION()
@@ -196,6 +197,22 @@ private:
 	
 	bool bTestDebug = false;
 	void TestDebug();
+
+private:
+	// network role
+	enum ENetRole myLocalRole;
+	enum ENetRole myRemoteRole;
+
+	UPROPERTY(Replicated)
+	float timeTest = 0;
+
+
+	// 상하 이동 함수 rpc로 할당
+	// 상하이동(전진, 후진) 함수
+	UFUNCTION(NetMulticast, Reliable)
+	void MultiMoveVertical();
+
+	void PrintLog();
 
 
 	

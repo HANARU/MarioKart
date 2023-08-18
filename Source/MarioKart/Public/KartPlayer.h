@@ -15,6 +15,16 @@ class MARIOKART_API AKartPlayer : public ANinjaCharacter
 	GENERATED_BODY()
 	
 public:
+	// 좌우 입력 값
+	UPROPERTY(ReplicatedUsing = OnRep_Horizontal, EditDefaultsOnly, BlueprintReadWrite, Category="Player")
+	float horizontalValue = 0;
+	
+	// horizontalvalue 값이 동기화로 인해 변경될 때 실행되는 함수
+	UFUNCTION()
+	void OnRep_Horizontal();
+
+
+
 	AKartPlayer(const FObjectInitializer& ObjectInitializer);
 
 // input 바인딩 함수

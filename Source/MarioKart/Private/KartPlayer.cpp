@@ -12,6 +12,8 @@
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetStringLibrary.h"
 #include "Components/AudioComponent.h"
+#include "KartPlayerAnimInstance.h"
+#include "Net/UnrealNetwork.h"
 
 
 
@@ -22,6 +24,15 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 
 	UCapsuleComponent* CapsuleComp  = GetCapsuleComponent();
 	SetRootComponent(CapsuleComp);
+
+	// self 속성
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = true;
+	bUseControllerRotationRoll = false;
+
+	//charactermovement 속성
+	GetCharacterMovement()->bOrientRotationToMovement = false;
+
 
 	// kartbaseComp Scene컴포넌트
 	kartbaseSceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
@@ -176,4 +187,24 @@ void AKartPlayer::ResetSpeedToNormal()
 
 	// 타이머 핸들을 무효화합니다
 	SpeedResetTimerHandle.Invalidate();
+}
+
+// horizontalvalue 값이 동기화로 인해 변경될 때 실행되는 함수
+void AKartPlayer::OnRep_Horizontal()
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("%s is %.2f horizontal"), *GetName(), horizontalValue));
+	UKartPlayerAnimInstance* anim = Cast<UKartPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+
+	if (anim != nullptr)
+	{
+		anim->HorizontalValue = horizontalValue;
+	}
+
+}
+
+void AKartPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
+{
+	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
+
+	DOREPLIFETIME(AKartPlayer, horizontalValue);
 }

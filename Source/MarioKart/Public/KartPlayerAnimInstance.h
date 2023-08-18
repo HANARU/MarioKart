@@ -18,5 +18,15 @@ public:
 	class AKartTestModel* Player;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-		float HorizontalValue;
+	float HorizontalValue;
+
+private:
+	UPROPERTY()
+	class AKartPlayer* kartPlayer;
+
+	UPROPERTY()
+	class AMarioKartPlayerController* kartplayerController;
+
+	UPROPERTY()
+	class UCharacterMovementComponent* moveComp;
 };
