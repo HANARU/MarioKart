@@ -14,7 +14,7 @@
 #include "Components/AudioComponent.h"
 #include "KartPlayerAnimInstance.h"
 #include "Net/UnrealNetwork.h"
-
+#include "ItemComponent.h"
 
 
 AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
@@ -113,9 +113,14 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 		playerDashSound = TempkartdashSound.Object;
 	}
 
+
 	bReplicates = true;
 	//bReplicateMovement = true;
 	SetReplicateMovement(true);
+
+	// kartItem 컴포넌트 추가
+	playerItemComp = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
+
 
 }
 
@@ -139,41 +144,24 @@ void AKartPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, Item1stString);
 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, Item2ndString);
+
 
 }
 
 void AKartPlayer::ReceiveItem(int32 ItemNum)
 {	
-	if (Current1stItem == 12 && Current2ndItem == 12)
-	{
-		Current1stItem = ItemNum;
-	}
-	else if (Current1stItem != 12 && Current2ndItem == 12)
-	{
-		Current2ndItem = Current1stItem;
-		Current1stItem = ItemNum;
-	}
+	//GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("Hello"));
+	playerItemComp->ReceiveItemfromCharacter(ItemNum);
 
-	Item1stString = UKismetStringLibrary::Conv_IntToString(Current1stItem);
-	Item2ndString = UKismetStringLibrary::Conv_IntToString(Current2ndItem);
 }
 
 void AKartPlayer::UsingItem()
 {
-	if (Current2ndItem == 12)
-	{
-		Current1stItem = 12;
-	}
-	if (Current2ndItem != 12)
-	{
-		Current1stItem = Current2ndItem;
-		Current2ndItem = 12;
-	}
+	playerItemComp->UsingItem();
 	
-	Item1stString = UKismetStringLibrary::Conv_IntToString(Current1stItem);
-	Item2ndString = UKismetStringLibrary::Conv_IntToString(Current2ndItem);
 }
 
 void AKartPlayer::ResetSpeedToNormal()

@@ -18,6 +18,13 @@ public:
 	FItemMessageSignature ItemSignature;
 
 	void ItemOverlaped(class AKartPlayer* Player);
+	void ItemOverlaped(class UItemComponent* ItemCompo);
 	
 	int32 RandomItem();
+	int32 ItemName;
+public:
+    AGM_Race();
+
+private:
+    class UDataTable* ItemDataTable;
 };

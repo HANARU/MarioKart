@@ -80,6 +80,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class UAnimMontage* M_Base;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	class UItemComponent* playerItemComp;
+
 	class AGM_Race* GameMode;
 
 	int32 Current1stItem = 12;
@@ -100,7 +103,7 @@ protected:
 
 public:
 	UFUNCTION()
-		void ReceiveItem(int32 ItemNum);
+	void ReceiveItem(int32 ItemNum);
 
 	void UsingItem();
 

@@ -24,5 +24,21 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-		
+
+
+class AGM_Race* GameMode;
+
+public:
+	int32 Current1stItem = 12;
+	int32 Current2ndItem = 12;
+
+	FString Item1;
+	FString Item2;
+
+	
+public:
+UFUNCTION()
+void ReceiveItemfromCharacter(int32 ItemNum);
+
+void UsingItem();
 };
