@@ -38,7 +38,9 @@ protected:
 
 
 public:
-
+	// 게임 모드
+	class AGM_Race* gm;
+	
 	// 플레이어 캐릭터
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	class AKartPlayer* me;
@@ -153,6 +155,10 @@ private:
 	UPROPERTY()
 	float startcountTime = 0;
 
+	// 좌우 이동 함수
+	UFUNCTION()
+	void Horizontal(float value);
+
 	// 전진 함수
 	UFUNCTION()
 	void Acc();
@@ -174,9 +180,7 @@ private:
 	UFUNCTION()
 	void Jump_released();
 
-	// 좌우 이동 함수
-	UFUNCTION()
-	void Horizontal(float value);
+
 
 	//상하이동(전진, 후진) 함수
 	/*UFUNCTION()

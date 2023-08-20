@@ -71,6 +71,14 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class UAudioComponent* playingDashSound = nullptr;
+	
+	// 局聪皋捞记根鸥林
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	class UAnimMontage* M_Right;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	class UAnimMontage* M_Left;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	class UAnimMontage* M_Base;
 
 	class AGM_Race* GameMode;
 
@@ -97,6 +105,9 @@ public:
 	void UsingItem();
 
 	void ResetSpeedToNormal();
+
+	//UFUNCTION()
+	//void PlayAnimationMontage();
 
 public:
 	

@@ -16,6 +16,8 @@
 #include "GameFramework/Controller.h"
 #include "EngineUtils.h"
 #include "KartPlayerAnimInstance.h"
+#include "GM_Race.h"
+
 
 
 
@@ -25,7 +27,7 @@ AMarioKartPlayerController::AMarioKartPlayerController()
 	PrimaryActorTick.bCanEverTick = true;
 
 	// 기본값으로 PlayerID를 0으로 설정
-	PlayerID = 0;
+	//PlayerID = 0;
 
 	
 
@@ -74,19 +76,24 @@ AMarioKartPlayerController::AMarioKartPlayerController()
 
 	// 변수 복제 기능 사용
 	bReplicates = true;
+	SetReplicateMovement(true);
 }
 
 void AMarioKartPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
-	
-	//FActorSpawnParameters param;
-	//param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	//me = GetWorld()->SpawnActor<AKartPlayer>(kartPlayer, param);
-	//APawn* aPawn = me;
+	if (HasAuthority())
+	{
+		gm = GetWorld()->GetAuthGameMode<AGM_Race>();
+	}
 
-	if (HasAuthority())// && this->IsLocalPlayerController()
+	FActorSpawnParameters param;
+	param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	me = GetWorld()->SpawnActor<AKartPlayer>(kartPlayer, param);	
+
+	if (me!=nullptr && this->IsLocalPlayerController())// && this->IsLocalPlayerController()
 	{
 		ServerOnPossess(me);
 	}
@@ -168,19 +175,23 @@ void AMarioKartPlayerController::PrintLog()
 {
 	if (me != nullptr)
 	{
+		const FString PawnString = me != nullptr ? me->GetName() : FString("No Pawn!");
 		const FString localRoleString = UEnum::GetValueAsString<ENetRole>(myLocalRole);
 		const FString remoteRoleString = UEnum::GetValueAsString<ENetRole>(myRemoteRole);
 		const FString ownerString = me->GetOwner() != nullptr ? me->GetOwner()->GetName() : FString("No Owner!");
 		const FString connectionString = GetNetConnection() != nullptr ? FString("Valid Connection") : FString("Invalid Connection");
 		//AMarioKartPlayerController* pc = GetController<AMarioKartPlayerController>();
 		const FString PlayerControllerString = this != nullptr ? this->GetName() : *FString("Invalid");
-		const FString printString = FString::Printf(TEXT("Local Role: %s\nRemote Role: %s\nOwner Name: %s\nNet Connection : %s\nPlayerController : %s"), *localRoleString, *remoteRoleString, *ownerString, *connectionString, *PlayerControllerString);
+		const FString printString = FString::Printf(TEXT("PawnString : %s\nLocal Role: %s\nRemote Role: %s\nOwner Name: %s\nNet Connection : %s\nPlayerController : %s"), *PawnString, *localRoleString, *remoteRoleString, *ownerString, *connectionString, *PlayerControllerString);
 
 		//const FString printString = FString::Printf(TEXT("Time : %.2f"), timeTest);
 		DrawDebugString(GetWorld(), me->GetActorLocation(), printString, nullptr, FColor::White, 0, true);
 		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, printString);
 	}
-	
+	else
+	{
+		return;
+	}
 }
 
 void AMarioKartPlayerController::Tick(float DeltaSeconds)
@@ -530,6 +541,7 @@ void AMarioKartPlayerController::Horizontal(float value)
 	{
 		return;
 	}
+
 	// 좌우 입력값
 	me->horizontalValue = value;
 
@@ -538,10 +550,10 @@ void AMarioKartPlayerController::Horizontal(float value)
 		// 좌우 입력 들어왔을 때(회전)
 		if (FMath::Abs(me->horizontalValue) != 0.0f)
 		{
-			if (bisMovingback == true || currentSpeed != 0.0f)
+			if (bisMovingback == true)
 			{
 				// 후진 회전
-				float movigbackValue = FMath::Lerp(me->horizontalValue, 0.0f, 0.3f);
+				float movigbackValue = FMath::Lerp(me->horizontalValue, 0.0f, 0.9f);
 				if (FMath::IsNearlyZero(currentSpeed))
 				{
 					return;
@@ -551,33 +563,51 @@ void AMarioKartPlayerController::Horizontal(float value)
 					AddYawInput(movigbackValue);
 				}
 				
-				UE_LOG(LogTemp, Warning, TEXT("%.2f"), movigbackValue);
+				UE_LOG(LogTemp, Warning, TEXT("movigbackValue : %.2f"), movigbackValue);
 				UE_LOG(LogTemp, Warning, TEXT("%d"), FMath::IsNearlyZero(currentSpeed));
 
 			}
 			else
 			{
-				if (bisAcc == true || currentSpeed != 0.0f)
+				if (bisAcc == true)
 				{
 					if (bisJump == true)
 					{
 						//float driftValue = FMath::Lerp(0.0f, me->horizontalValue, 0.3f); // 회전율
-						float driftValue = 0.8f;
-						if (FMath::IsNearlyZero(currentSpeed))
+						if (me->horizontalValue >= 1.0f)
 						{
-							return;
+							float driftValue = 0.3f;
+							if (FMath::IsNearlyZero(currentSpeed))
+							{
+								return;
+							}
+							else
+							{
+								AddYawInput(driftValue);
+							}
+							UE_LOG(LogTemp, Warning, TEXT("driftValue : %.2f"), driftValue);
+							UE_LOG(LogTemp, Warning, TEXT("%d"), FMath::IsNearlyZero(currentSpeed));
 						}
 						else
 						{
-							AddYawInput(driftValue);
-						}
-						UE_LOG(LogTemp, Warning, TEXT("%.2f"), driftValue);
-						UE_LOG(LogTemp, Warning, TEXT("%d"), FMath::IsNearlyZero(currentSpeed));
+							float driftValue = -0.3f;
+							if (FMath::IsNearlyZero(currentSpeed))
+							{
+								return;
+							}
+							else
+							{
+								AddYawInput(driftValue);
+							}
+							UE_LOG(LogTemp, Warning, TEXT("driftValue : %.2f"), driftValue);
+							UE_LOG(LogTemp, Warning, TEXT("%d"), FMath::IsNearlyZero(currentSpeed));
+						}					
+						
 					}
 					else
 					{
 						// 전진 회전
-						float accValue = FMath::Lerp(0.0f, me->horizontalValue, 0.3f);
+						float accValue = FMath::Lerp(0.0f, me->horizontalValue, 0.1f);
 						
 						if (FMath::IsNearlyZero(currentSpeed))
 						{
@@ -587,7 +617,7 @@ void AMarioKartPlayerController::Horizontal(float value)
 						{
 							AddYawInput(accValue);
 						}
-						UE_LOG(LogTemp, Warning, TEXT("%.2f"), accValue);
+						UE_LOG(LogTemp, Warning, TEXT("accValue : %.2f"), accValue);
 						UE_LOG(LogTemp, Warning, TEXT("%d"), FMath::IsNearlyZero(currentSpeed));
 
 					}
@@ -798,7 +828,7 @@ void AMarioKartPlayerController::OnPossess(APawn* aPawn)
 void AMarioKartPlayerController::ServerOnPossess_Implementation(APawn* aPawn)
 {
 	MulticastOnPossess(aPawn);
-	UE_LOG(LogTemp, Warning, TEXT("OnPossess"));
+	UE_LOG(LogTemp, Warning, TEXT("ServerOnPossess"));
 
 }
 

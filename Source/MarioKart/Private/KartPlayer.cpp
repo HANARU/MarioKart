@@ -114,6 +114,8 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	}
 
 	bReplicates = true;
+	//bReplicateMovement = true;
+	SetReplicateMovement(true);
 
 }
 
@@ -140,14 +142,6 @@ void AKartPlayer::Tick(float DeltaTime)
 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, Item1stString);
 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, Item2ndString);
 
-	//if (GameMode != nullptr)
-	//{
-	//	ServerHorizontal();
-	//}
-	//else
-	//{
-	//	OnPossess(me);
-	//}
 }
 
 void AKartPlayer::ReceiveItem(int32 ItemNum)
@@ -198,6 +192,17 @@ void AKartPlayer::ResetSpeedToNormal()
 	// 타이머 핸들을 무효화합니다
 	SpeedResetTimerHandle.Invalidate();
 }
+
+//void AKartPlayer::PlayAnimationMontage()
+//{
+//	if (horizontalValue)
+//	{
+//		if (horizontalValue == 1.0f)
+//		{
+//			UAnimInstance* animInstance = Mesh
+//		}
+//	}
+//}
 
 // horizontalvalue 값이 동기화로 인해 변경될 때 실행되는 함수
 //void AKartPlayer::OnRep_Horizontal()

@@ -13,7 +13,7 @@ void UKartPlayerAnimInstance::NativeInitializeAnimation()
 	//Player = Cast<AKartTestModel>(TryGetPawnOwner());
 	//kartPlayer = Cast<AKartPlayer>(GetOwningActor());
 	kartPlayer = Cast<AKartPlayer>(TryGetPawnOwner());
-	UE_LOG(LogTemp, Warning, TEXT("%s"), TryGetPawnOwner());
+	//UE_LOG(LogTemp, Warning, TEXT("%s"), TryGetPawnOwner());
 	if (kartPlayer != nullptr)
 	{
 		moveComp = kartPlayer->GetCharacterMovement();
