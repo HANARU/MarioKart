@@ -16,14 +16,20 @@ class MARIOKART_API AKartPlayer : public ANinjaCharacter
 	
 public:
 	// 좌우 입력 값
-	UPROPERTY(ReplicatedUsing = OnRep_Horizontal, EditDefaultsOnly, BlueprintReadWrite, Category="Player")
+	//UPROPERTY(ReplicatedUsing = OnRep_Horizontal)
+
+	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadWrite)
 	float horizontalValue = 0;
+
+	//UFUNCTION()
+	//void Horizontal();
 	
 	// horizontalvalue 값이 동기화로 인해 변경될 때 실행되는 함수
-	UFUNCTION()
-	void OnRep_Horizontal();
+	UFUNCTION(Server, Reliable)
+	void ServerHorizontal();
 
-
+	//UFUNCTION(NetMulticast, Reliable)
+	//void MulticastOnRep_Horizontal();
 
 	AKartPlayer(const FObjectInitializer& ObjectInitializer);
 

@@ -42,8 +42,6 @@ public:
 	// 플레이어 캐릭터
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	class AKartPlayer* me;
-	
-	
 
 	// 현재 속도
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
@@ -130,10 +128,15 @@ public:
 	void Startdriftjump();
 
 protected:
-	/*UPROPERTY()
-	AKartPlayer* meOwner;*/
 
+	// playercontroller를 kartplayer에 possess
 	virtual void OnPossess(APawn* aPawn) override;
+
+	UFUNCTION(Server, Reliable)
+	void ServerOnPossess(APawn* aPawn);
+
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastOnPossess(APawn* aPawn);
 
 private:
 	bool bInDelay = false;
@@ -206,10 +209,9 @@ private:
 	UPROPERTY(Replicated)
 	float timeTest = 0;
 
-
 	// 상하 이동 함수 rpc로 할당
 	// 상하이동(전진, 후진) 함수
-	UFUNCTION(NetMulticast, Reliable)
+	UFUNCTION()
 	void MultiMoveVertical();
 
 	void PrintLog();

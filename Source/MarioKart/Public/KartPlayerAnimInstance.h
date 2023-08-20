@@ -17,7 +17,7 @@ protected:
 public:
 	class AKartTestModel* Player;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadWrite)
 	float HorizontalValue;
 
 private:

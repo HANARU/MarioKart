@@ -27,8 +27,7 @@ AMarioKartPlayerController::AMarioKartPlayerController()
 	// 기본값으로 PlayerID를 0으로 설정
 	PlayerID = 0;
 
-	// 변수 복제 기능 사용
-	bReplicates = true;
+	
 
 	// 주행 사운드 가져오기
 	ConstructorHelpers::FObjectFinder<USoundBase> TempdriveSound(TEXT("SoundWave'/Game/5_FX/Audio/play_drive_kart.play_drive_kart'"));
@@ -72,17 +71,33 @@ AMarioKartPlayerController::AMarioKartPlayerController()
 
 	// 타임라인
 	//driftjumpCurve = nullptr;
+
+	// 변수 복제 기능 사용
+	bReplicates = true;
 }
 
 void AMarioKartPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
+	
+	//FActorSpawnParameters param;
+	//param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
 
-	// playercontroller에 캐릭터 possess
+	//me = GetWorld()->SpawnActor<AKartPlayer>(kartPlayer, param);
+	//APawn* aPawn = me;
+
+	if (HasAuthority())// && this->IsLocalPlayerController()
+	{
+		ServerOnPossess(me);
+	}
+	else
+	{
+		OnPossess(me);
+	}
+	//// playercontroller에 캐릭터 possess
 	//if (this->GetPawn() == nullptr)
 	//{
-	//	FActorSpawnParameters param;
-	//	param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+	//	
 
 	//	me = GetWorld()->SpawnActor<AKartPlayer>(kartPlayer, param);
 	//	//Possess(me);
@@ -287,6 +302,10 @@ void AMarioKartPlayerController::SetupInputComponent()
 
 void AMarioKartPlayerController::Acc()
 {
+	if (me == nullptr)
+	{
+		return;
+	}
 	bisAcc = true;
 
 	// 주행 사운드 재생
@@ -312,6 +331,10 @@ void AMarioKartPlayerController::Acc()
 
 void AMarioKartPlayerController::Acc_released()
 {
+	if (me == nullptr)
+	{
+		return;
+	}
 	bisAcc = false;
 
 	// 주행 사운드 멈추기
@@ -352,7 +375,6 @@ void AMarioKartPlayerController::MoveBack()
 		}
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("MoveBack: %d"), bisMovingback ? true : false);
 }
 
 void AMarioKartPlayerController::MoveBack_released()
@@ -371,7 +393,6 @@ void AMarioKartPlayerController::MoveBack_released()
 		playingdriveComp = nullptr;
 	}
 
-	UE_LOG(LogTemp, Warning, TEXT("MoveBack_released: %d"), bisMovingback ? true : false);
 }
 
 
@@ -500,9 +521,6 @@ void AMarioKartPlayerController::Jump_released()
 		driftTime = 0.0f;
 	}
 	
-	UE_LOG(LogTemp, Warning, TEXT("Jump_released: %d"), bisJump ? true : false);
-	UE_LOG(LogTemp, Warning, TEXT("driftTime: %.2f"), driftTime);
-	UE_LOG(LogTemp, Warning, TEXT("DriftOff"));
 }
 
  // 좌우 키를 눌렀을 때 실행
@@ -520,27 +538,58 @@ void AMarioKartPlayerController::Horizontal(float value)
 		// 좌우 입력 들어왔을 때(회전)
 		if (FMath::Abs(me->horizontalValue) != 0.0f)
 		{
-			if (bisMovingback == true || currentSpeed != 0)
+			if (bisMovingback == true || currentSpeed != 0.0f)
 			{
 				// 후진 회전
 				float movigbackValue = FMath::Lerp(me->horizontalValue, 0.0f, 0.3f);
-				AddYawInput(movigbackValue);
-				UE_LOG(LogTemp, Warning, TEXT("movigbackValue : %.2f"), movigbackValue);
+				if (FMath::IsNearlyZero(currentSpeed))
+				{
+					return;
+				}
+				else
+				{
+					AddYawInput(movigbackValue);
+				}
+				
+				UE_LOG(LogTemp, Warning, TEXT("%.2f"), movigbackValue);
+				UE_LOG(LogTemp, Warning, TEXT("%d"), FMath::IsNearlyZero(currentSpeed));
 
 			}
 			else
 			{
-				if (bisAcc == true || currentSpeed != 0)
+				if (bisAcc == true || currentSpeed != 0.0f)
 				{
 					if (bisJump == true)
 					{
-						float driftValue = FMath::Lerp(0.0f, me->horizontalValue, 0.3f); // 회전율
-						AddYawInput(driftValue);
+						//float driftValue = FMath::Lerp(0.0f, me->horizontalValue, 0.3f); // 회전율
+						float driftValue = 0.8f;
+						if (FMath::IsNearlyZero(currentSpeed))
+						{
+							return;
+						}
+						else
+						{
+							AddYawInput(driftValue);
+						}
+						UE_LOG(LogTemp, Warning, TEXT("%.2f"), driftValue);
+						UE_LOG(LogTemp, Warning, TEXT("%d"), FMath::IsNearlyZero(currentSpeed));
 					}
 					else
 					{
 						// 전진 회전
-						AddYawInput(FMath::Lerp(0.0f, me->horizontalValue, 0.3f));
+						float accValue = FMath::Lerp(0.0f, me->horizontalValue, 0.3f);
+						
+						if (FMath::IsNearlyZero(currentSpeed))
+						{
+							return;
+						}
+						else
+						{
+							AddYawInput(accValue);
+						}
+						UE_LOG(LogTemp, Warning, TEXT("%.2f"), accValue);
+						UE_LOG(LogTemp, Warning, TEXT("%d"), FMath::IsNearlyZero(currentSpeed));
+
 					}
 				}
 			}
@@ -551,7 +600,7 @@ void AMarioKartPlayerController::Horizontal(float value)
 }
 
 
-void AMarioKartPlayerController::MultiMoveVertical_Implementation()
+void AMarioKartPlayerController::MultiMoveVertical()
 {
 	if (bisAcc == true || bisMovingback == true)
 	{
@@ -560,18 +609,21 @@ void AMarioKartPlayerController::MultiMoveVertical_Implementation()
 			// 전진 가속
 			currentSpeed = FMath::Lerp(currentSpeed, maxSpeed, GetWorld()->GetDeltaSeconds() * 1.5);
 
-
 		}
 		else
 		{
 			// 후진 가속
-			currentSpeed = FMath::Lerp(currentSpeed, maxSpeed * -1.8f, GetWorld()->GetDeltaSeconds());
+			currentSpeed = FMath::Lerp(currentSpeed, maxSpeed, GetWorld()->GetDeltaSeconds() * -1.5f);
 		}
 	}
 	else
 	{
 		// 속도 0으로 조정
-		currentSpeed = FMath::Lerp(currentSpeed, 0.0f, GetWorld()->GetDeltaSeconds() * 3.0f);
+		currentSpeed = FMath::Lerp(currentSpeed, 0.0f, GetWorld()->GetDeltaSeconds() * 3.5f);
+		if (FMath::IsNearlyZero(currentSpeed))
+		{
+			currentSpeed = 0.0f;
+		}
 
 	}
 
@@ -720,21 +772,39 @@ void AMarioKartPlayerController::Startdriftjump()
  	
 }
 
+
 void AMarioKartPlayerController::OnPossess(APawn* aPawn)
 {
 	Super::OnPossess(aPawn);
 
 	UE_LOG(LogTemp, Warning, TEXT("OnPossess"));
-
-	me = Cast<AKartPlayer>(this->GetPawn());
-	//meOwner = Cast<AKartPlayer>(GetOwner());
-
-	if (me != nullptr)
+	if (this)
 	{
-		// 플레이어 기본 속도 설정
-		me->GetCharacterMovement()->MaxWalkSpeed = 1300.0f;
-	}
+		me = Cast<AKartPlayer>(this->GetPawn());
+		//meOwner = Cast<AKartPlayer>(GetOwner());
+		//UE_LOG(LogTemp, Warning, TEXT("%d"), me);
+		FString NameString = UKismetStringLibrary::Conv_ObjectToString(me);
+		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, NameString);
+		//UE_LOG(LogTemp, Warning, TEXT("%d"), me->GetOwner());
 
+		if (me != nullptr)
+		{
+			// 플레이어 기본 속도 설정
+			me->GetCharacterMovement()->MaxWalkSpeed = 1300.0f;
+		}
+	}
+}
+
+void AMarioKartPlayerController::ServerOnPossess_Implementation(APawn* aPawn)
+{
+	MulticastOnPossess(aPawn);
+	UE_LOG(LogTemp, Warning, TEXT("OnPossess"));
+
+}
+
+void AMarioKartPlayerController::MulticastOnPossess_Implementation(APawn* aPawn)
+{
+	OnPossess(aPawn);
 }
 
 void AMarioKartPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
@@ -742,6 +812,4 @@ void AMarioKartPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AMarioKartPlayerController, timeTest);
-	//DOREPLIFETIME_CONDITION(AMarioKartPlayerController, timeTest, COND_OwnerOnly);
-	//DOREPLIFETIME(AMarioKartPlayerController, horizontalValue);
 }

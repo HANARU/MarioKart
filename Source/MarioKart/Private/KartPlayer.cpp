@@ -33,7 +33,6 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	//charactermovement 속성
 	GetCharacterMovement()->bOrientRotationToMovement = false;
 
-
 	// kartbaseComp Scene컴포넌트
 	kartbaseSceneComp = CreateDefaultSubobject<USceneComponent>(TEXT("SceneComp"));
 	kartbaseSceneComp->SetupAttachment(CapsuleComp);
@@ -114,6 +113,8 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 		playerDashSound = TempkartdashSound.Object;
 	}
 
+	bReplicates = true;
+
 }
 
 void AKartPlayer::SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent)
@@ -138,6 +139,15 @@ void AKartPlayer::Tick(float DeltaTime)
 
 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, Item1stString);
 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, Item2ndString);
+
+	//if (GameMode != nullptr)
+	//{
+	//	ServerHorizontal();
+	//}
+	//else
+	//{
+	//	OnPossess(me);
+	//}
 }
 
 void AKartPlayer::ReceiveItem(int32 ItemNum)
@@ -190,21 +200,50 @@ void AKartPlayer::ResetSpeedToNormal()
 }
 
 // horizontalvalue 값이 동기화로 인해 변경될 때 실행되는 함수
-void AKartPlayer::OnRep_Horizontal()
+//void AKartPlayer::OnRep_Horizontal()
+//{
+//	if (horizontalValue != 0 && HasAuthority())
+//	{
+//		// 서버에 애니메이션 값 대입 요청
+//		ServerOnRep_Horizontal();
+//	}
+//	UKartPlayerAnimInstance* anim = Cast<UKartPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+//	
+//	if (anim != nullptr)
+//	{
+//		anim->HorizontalValue = horizontalValue;
+//	}
+//
+//	
+//}
+
+void AKartPlayer::ServerHorizontal_Implementation()
 {
-	//GEngine->AddOnScreenDebugMessage(-1, 3.0f, FColor::Green, FString::Printf(TEXT("%s is %.2f horizontal"), *GetName(), horizontalValue));
+	//MulticastOnRep_Horizontal();
+
 	UKartPlayerAnimInstance* anim = Cast<UKartPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 
 	if (anim != nullptr)
 	{
 		anim->HorizontalValue = horizontalValue;
 	}
-
 }
+
+//void AKartPlayer::MulticastOnRep_Horizontal_Implementation()
+//{
+//	UKartPlayerAnimInstance* anim = Cast<UKartPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+//
+//	if (anim != nullptr)
+//	{
+//		anim->HorizontalValue = horizontalValue;
+//	}
+//
+//}
 
 void AKartPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AKartPlayer, horizontalValue);
+	//DOREPLIFETIME(AKartPlayer, this);
 }
