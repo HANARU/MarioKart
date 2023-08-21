@@ -122,6 +122,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	float driftjumpPower = 10;
 
+	AGM_Race* RaceGM;
+
 	// 플레이어 파생 클래스
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	TSubclassOf<class AKartPlayer> kartPlayer;

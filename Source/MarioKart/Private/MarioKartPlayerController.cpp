@@ -83,7 +83,7 @@ void AMarioKartPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-
+	RaceGM = Cast<AGM_Race>(UGameplayStatics::GetGameMode(GetWorld()));
 		
 
 	//if (HasAuthority())
@@ -209,6 +209,7 @@ void AMarioKartPlayerController::Tick(float DeltaSeconds)
 	//driftjumpTimeline.TickTimeline(DeltaSeconds);
 
 	if (startcountTime >= 6.7f) // 출발 카운드 사운드 재생 후 주행 startcountTime >= 6.7f
+	//if(RaceGM->Able2Play == true)
 	{
 		// 전진, 후진 주행 (가속, 속도)
 		MultiMoveVertical();

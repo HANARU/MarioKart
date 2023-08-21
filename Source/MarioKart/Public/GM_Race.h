@@ -11,8 +11,7 @@ UCLASS()
 class MARIOKART_API AGM_Race : public AGameModeBase
 {
 	GENERATED_BODY()
-protected:
-	virtual void BeginPlay() override;
+
 
 public:
 	FItemMessageSignature ItemSignature;
@@ -22,8 +21,20 @@ public:
 	
 	int32 RandomItem();
 	int32 ItemName;
+
+	bool Able2Play = false;
 public:
     AGM_Race();
+
+	UFUNCTION(BlueprintCallable)
+	int32 GetNumberOfPlayersInLevel();
+
+	void CheckAble2Play();
+
+protected:
+	virtual void BeginPlay() override;
+
+	virtual void Tick(float Deltatime) override;
 
 private:
     class UDataTable* ItemDataTable;

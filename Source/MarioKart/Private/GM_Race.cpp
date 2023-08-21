@@ -15,6 +15,25 @@ AGM_Race::AGM_Race()
 	}
 }
 
+int32 AGM_Race::GetNumberOfPlayersInLevel()
+{
+	int32 PlayerCount = 0;
+	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
+	{
+		APlayerController* PlayerController = It->Get();
+		if (PlayerController && PlayerController->GetPawn())
+		{
+			PlayerCount++;
+		}
+	}
+	return PlayerCount;
+}
+
+
+void AGM_Race::Tick(float Deltatime)
+{
+	CheckAble2Play();
+}
 
 void AGM_Race::BeginPlay()
 {
@@ -29,6 +48,25 @@ void AGM_Race::BeginPlay()
 		// 아이템 인덱스를 로그로 출력합니다.
 		UE_LOG(LogTemp, Warning, TEXT("ItemIndex: %d"), ItemName);
 		
+	}
+}
+
+void AGM_Race::CheckAble2Play()
+{
+	if (Able2Play)
+	{
+		return;
+	}
+	else
+	{
+		if (GetNumberOfPlayersInLevel() == 2)
+		{
+			Able2Play = true;
+		}
+		else
+		{
+			Able2Play = false;
+		}
 	}
 }
 
