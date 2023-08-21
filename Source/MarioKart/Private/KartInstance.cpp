@@ -88,7 +88,7 @@ void UKartInstance::OnCreatedMySession(FName sessionName, bool bWasSuccessful)
 {
 	if (bWasSuccessful)
 	{
-		bool result = GetWorld()->ServerTravel("/Game/1_Level/6_Lobby_Multi_Ready?Listen", true);
+		bool result = GetWorld()->ServerTravel("/Game/1_Level/7_Multi_Stardium?Listen", true);
 		UE_LOG(LogTemp, Warning, TEXT("Travel Result: %s"), result ? *FString("Success") : *FString("Failed..."));
 	}
 }

@@ -58,6 +58,13 @@ void AC_Coin::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* O
     {
         GameMode->ItemOverlaped(kartplayer);
 
+        // 사운드를 재생합니다.
+        USoundBase* CoinSound = LoadObject<USoundBase>(nullptr, TEXT("SoundWave'/Game/5_FX/Audio/play_coin_sound_.play_coin_sound_'"));
+        if (CoinSound)
+        {
+            UGameplayStatics::PlaySoundAtLocation(this, CoinSound, GetActorLocation());
+        }
+
         // 플레이어의 이동속도를 0.25배 만큼 늘립니다.
         kartplayer->IncreaseSpeed();
 
