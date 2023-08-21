@@ -42,7 +42,7 @@ public:
 	class AGM_Race* gm;
 	
 	// 플레이어 캐릭터
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category="Player")
 	class AKartPlayer* me;
 
 	// 현재 속도
@@ -137,8 +137,11 @@ protected:
 	UFUNCTION(Server, Reliable)
 	void ServerOnPossess(APawn* aPawn);
 
-	UFUNCTION(NetMulticast, Reliable)
-	void MulticastOnPossess(APawn* aPawn);
+	//UFUNCTION(NetMulticast, Reliable)
+	//void MulticastOnPossess(APawn* aPawn);
+
+	//UFUNCTION(Server, Reliable)
+	//void ServerPossessPawn();
 
 private:
 	bool bInDelay = false;

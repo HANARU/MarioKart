@@ -22,6 +22,38 @@ void UKartInstance::Init()
 		sessionInterface->OnJoinSessionCompleteDelegates.AddUObject(this, &UKartInstance::OnJoinSelectedSession);
 	}
 }
+///////////////////////////////////////////////////
+//void UKartInstance::Host()
+//{
+//	UEngine* Engine = GetEngine(); //게임엔진의 현재 인스턴스를 가져움
+//
+//	if (!ensure(Engine != nullptr)) return;
+//
+//	Engine->AddOnScreenDebugMessage(0, 2, FColor::Green, TEXT("Hosting")); //로그띄워줌
+//
+//	UWorld* World = GetWorld(); // 레벨의 현재 레벨을 가져옴
+//
+//	if (!ensure(World != nullptr)) return;
+//	//서버전용 .  서버를 입력한 경로의 맵으로 이동시킴, 클라이언트랑 같이감 서버가 접속중인 클라이언트들의
+//	//플레이어 컨트롤러에서 ClientTravel을 호출함.
+//	World->ServerTravel("/Game/1_Level/Level_Stardium.Level_Stardium");
+//}
+//
+//void UKartInstance::Join(const FString& Address)
+//{
+//	UEngine* Engine = GetEngine();
+//
+//	//현재 클라의 플레이어컨트롤러의 첫번째 플레이어 컨트롤러 가져옴	
+//	APlayerController* PlayerController = GetFirstLocalPlayerController();
+//
+//	if (!ensure(Engine != nullptr)) return;
+//	//로그
+//	Engine->AddOnScreenDebugMessage(0, 5, FColor::Green, FString::Printf(TEXT("Joining %s"), *Address));
+//
+//	//아이피가 유효할때 호출되면 입력된 아이피주소의 서버로 이동함.  
+//	//인텔리센스 빨간줄 무시하셈.
+//	PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
+//}
 
 void UKartInstance::CreateMySession(FText roomName, int32 playerCount)
 {

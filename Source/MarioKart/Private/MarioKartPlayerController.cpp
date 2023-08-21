@@ -83,24 +83,27 @@ void AMarioKartPlayerController::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (HasAuthority())
-	{
-		gm = GetWorld()->GetAuthGameMode<AGM_Race>();
-	}
 
-	FActorSpawnParameters param;
-	param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+		
 
-	me = GetWorld()->SpawnActor<AKartPlayer>(kartPlayer, param);	
+	//if (HasAuthority())
+	//{
+	//	gm = GetWorld()->GetAuthGameMode<AGM_Race>();
+	//}
 
-	if (me!=nullptr && this->IsLocalPlayerController())// && this->IsLocalPlayerController()
-	{
-		ServerOnPossess(me);
-	}
-	else
-	{
-		OnPossess(me);
-	}
+	//FActorSpawnParameters param;
+	//param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
+
+	//me = GetWorld()->SpawnActor<AKartPlayer>(kartPlayer, param);	
+
+	//if (me!=nullptr && this->IsLocalPlayerController())// && this->IsLocalPlayerController()
+	//{
+	//	ServerOnPossess(me);
+	//}
+	//else
+	//{
+	//	OnPossess(me);
+	//}
 	//// playercontroller에 캐릭터 possess
 	//if (this->GetPawn() == nullptr)
 	//{
@@ -175,7 +178,7 @@ void AMarioKartPlayerController::PrintLog()
 {
 	if (me != nullptr)
 	{
-		const FString PawnString = me != nullptr ? me->GetName() : FString("No Pawn!");
+		const FString PawnString = me != nullptr ? GetPawn()->GetName() : FString("No Pawn!");
 		const FString localRoleString = UEnum::GetValueAsString<ENetRole>(myLocalRole);
 		const FString remoteRoleString = UEnum::GetValueAsString<ENetRole>(myRemoteRole);
 		const FString ownerString = me->GetOwner() != nullptr ? me->GetOwner()->GetName() : FString("No Owner!");
@@ -556,7 +559,7 @@ void AMarioKartPlayerController::Horizontal(float value)
 				float movigbackValue = FMath::Lerp(me->horizontalValue, 0.0f, 0.9f);
 				if (FMath::IsNearlyZero(currentSpeed))
 				{
-					return;
+					return AddYawInput(0.0f);
 				}
 				else
 				{
@@ -579,7 +582,7 @@ void AMarioKartPlayerController::Horizontal(float value)
 							float driftValue = 0.3f;
 							if (FMath::IsNearlyZero(currentSpeed))
 							{
-								return;
+								return AddYawInput(0.0f);
 							}
 							else
 							{
@@ -593,7 +596,7 @@ void AMarioKartPlayerController::Horizontal(float value)
 							float driftValue = -0.3f;
 							if (FMath::IsNearlyZero(currentSpeed))
 							{
-								return;
+								return AddYawInput(0.0f);
 							}
 							else
 							{
@@ -808,38 +811,59 @@ void AMarioKartPlayerController::OnPossess(APawn* aPawn)
 	Super::OnPossess(aPawn);
 
 	UE_LOG(LogTemp, Warning, TEXT("OnPossess"));
-	if (this)
-	{
-		me = Cast<AKartPlayer>(this->GetPawn());
-		//meOwner = Cast<AKartPlayer>(GetOwner());
-		//UE_LOG(LogTemp, Warning, TEXT("%d"), me);
-		FString NameString = UKismetStringLibrary::Conv_ObjectToString(me);
-		GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, NameString);
-		//UE_LOG(LogTemp, Warning, TEXT("%d"), me->GetOwner());
 
-		if (me != nullptr)
-		{
-			// 플레이어 기본 속도 설정
-			me->GetCharacterMovement()->MaxWalkSpeed = 1300.0f;
-		}
+	me = Cast<AKartPlayer>(aPawn);
+
+	if (HasAuthority())
+	{
+		ServerOnPossess(aPawn);
 	}
+
+	//if (this)
+	//{
+	//	me = Cast<AKartPlayer>(this->GetPawn());
+	//	//meOwner = Cast<AKartPlayer>(GetOwner());
+	//	//UE_LOG(LogTemp, Warning, TEXT("%d"), me);
+	//	FString NameString = UKismetStringLibrary::Conv_ObjectToString(me);
+	//	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, NameString);
+	//	//UE_LOG(LogTemp, Warning, TEXT("%d"), me->GetOwner());
+
+	//	if (me != nullptr)
+	//	{
+	//		// 플레이어 기본 속도 설정
+	//		me->GetCharacterMovement()->MaxWalkSpeed = 1300.0f;
+	//	}
+	//}
 }
 
 void AMarioKartPlayerController::ServerOnPossess_Implementation(APawn* aPawn)
 {
-	MulticastOnPossess(aPawn);
+	//OnPossess(aPawn);
+	me = Cast<AKartPlayer>(aPawn);
+
+	//MulticastOnPossess(aPawn);
 	UE_LOG(LogTemp, Warning, TEXT("ServerOnPossess"));
 
 }
 
-void AMarioKartPlayerController::MulticastOnPossess_Implementation(APawn* aPawn)
-{
-	OnPossess(aPawn);
-}
+//void AMarioKartPlayerController::MulticastOnPossess_Implementation(APawn* aPawn)
+//{
+//	OnPossess(aPawn);
+//}
+
+//void AMarioKartPlayerController::ServerPossessPawn_Implementation()
+//{
+//	if (gm != nullptr)
+//	{
+//		APawn* playerpawn = GetPawn();
+//
+//	}
+//}
 
 void AMarioKartPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AMarioKartPlayerController, timeTest);
+	DOREPLIFETIME(AMarioKartPlayerController, me);
 }

@@ -18,8 +18,11 @@ public:
 	// ÁÂ¿ì ÀÔ·Â °ª
 	//UPROPERTY(ReplicatedUsing = OnRep_Horizontal)
 
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = Player)
+	class UKartPlayerAnimInstance* anim;
+	
 	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadWrite)
-	float horizontalValue = 0;
+	float horizontalValue;
 
 	//UFUNCTION()
 	//void Horizontal();
@@ -28,8 +31,8 @@ public:
 	UFUNCTION(Server, Reliable)
 	void ServerHorizontal();
 
-	//UFUNCTION(NetMulticast, Reliable)
-	//void MulticastOnRep_Horizontal();
+	UFUNCTION(NetMulticast, Reliable)
+	void MulticastHorizontal();
 
 	AKartPlayer(const FObjectInitializer& ObjectInitializer);
 
@@ -120,6 +123,7 @@ public:
 	//UFUNCTION()
 	//void PlayAnimationMontage();
 
-public:
+	UFUNCTION()
+	void PlayAnimationMontage();
 	
 };

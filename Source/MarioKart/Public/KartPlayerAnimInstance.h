@@ -17,8 +17,11 @@ protected:
 public:
 	class AKartTestModel* Player;
 
-	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(ReplicatedUsing = OnRep_HorizontalValue, EditDefaultsOnly, BlueprintReadWrite)
 	float HorizontalValue;
+
+	UFUNCTION()
+	void OnRep_HorizontalValue();
 
 private:
 	UPROPERTY()

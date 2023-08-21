@@ -28,11 +28,19 @@ UCLASS()
 class MARIOKART_API UKartInstance : public UGameInstance
 {
 	GENERATED_BODY()
+		
 
 public:
 	UKartInstance();
 
 	virtual void Init() override;
+
+	//////////////////////////////////////////////////
+	//UFUNCTION(Exec)
+	//void Host();
+
+	//UFUNCTION(Exec)
+	//void Join(const FString& Address);
 
 	UPROPERTY()
 		FString MySessionName;

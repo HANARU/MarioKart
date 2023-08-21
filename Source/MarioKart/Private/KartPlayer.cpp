@@ -113,14 +113,18 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 		playerDashSound = TempkartdashSound.Object;
 	}
 
+	// kartItem 컴포넌트 추가
+	playerItemComp = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
+
+	// 플레이어 기본 속도 설정
+	GetCharacterMovement()->MaxWalkSpeed = 1300.0f;
+
+	// 플레이어 애니메이션 블루프린트
+	kartCharacterBody->SetAnimInstanceClass(UKartPlayerAnimInstance::StaticClass());
 
 	bReplicates = true;
 	//bReplicateMovement = true;
 	SetReplicateMovement(true);
-
-	// kartItem 컴포넌트 추가
-	playerItemComp = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
-
 
 }
 
@@ -138,17 +142,33 @@ void AKartPlayer::BeginPlay()
 	{
 		GameMode->ItemSignature.BindUObject(this, &AKartPlayer::ReceiveItem);
 	}
+
+	if (kartCharacterBody)
+	{
+		anim = Cast<UKartPlayerAnimInstance>(kartCharacterBody->GetAnimInstance());
+	}
+	else
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 0.3f, FColor::Red, TEXT(";("));
+
+	}
 }
 
 void AKartPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	//GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, Item1stString);
+	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, FString::Printf(TEXT("Float Value: %.2f"), horizontalValue));
+	
+	if (!HasAuthority())
+	{
+		ServerHorizontal_Implementation();
+	}
 
 // 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, Item1stString);
 // 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, Item2ndString);
 
-
+	PlayAnimationMontage();
 }
 
 void AKartPlayer::ReceiveItem(int32 ItemNum)
@@ -247,6 +267,34 @@ void AKartPlayer::ReturnSpeed()
 //	}
 //}
 
+void AKartPlayer::PlayAnimationMontage()
+{
+	if (horizontalValue)
+	{
+		if (horizontalValue == 1.0f)
+		{
+			if (M_Right)
+			{
+				PlayAnimMontage(M_Right, 1, NAME_None);
+			}
+		}
+		else if (horizontalValue == -1.0f)
+		{
+			if (M_Left)
+			{
+				PlayAnimMontage(M_Left, 1, NAME_None);
+			}
+		}
+		else
+		{
+			if (M_Base)
+			{
+				PlayAnimMontage(M_Base, 1, NAME_None);
+			}
+		}
+	}
+}
+
 // horizontalvalue 값이 동기화로 인해 변경될 때 실행되는 함수
 //void AKartPlayer::OnRep_Horizontal()
 //{
@@ -267,26 +315,21 @@ void AKartPlayer::ReturnSpeed()
 
 void AKartPlayer::ServerHorizontal_Implementation()
 {
-	//MulticastOnRep_Horizontal();
+	//MulticastOnRep_Horizontal();	
 
-	UKartPlayerAnimInstance* anim = Cast<UKartPlayerAnimInstance>(GetMesh()->GetAnimInstance());
-
-	if (anim != nullptr)
+	/*if (anim != nullptr)
 	{
 		anim->HorizontalValue = horizontalValue;
-	}
+	}*/
+	MulticastHorizontal();
 }
 
-//void AKartPlayer::MulticastOnRep_Horizontal_Implementation()
-//{
-//	UKartPlayerAnimInstance* anim = Cast<UKartPlayerAnimInstance>(GetMesh()->GetAnimInstance());
-//
-//	if (anim != nullptr)
-//	{
-//		anim->HorizontalValue = horizontalValue;
-//	}
-//
-//}
+void AKartPlayer::MulticastHorizontal_Implementation()
+{
+	anim->HorizontalValue = horizontalValue;
+	//anim->OnRep_HorizontalValue();
+	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("server Value: %.2f"), horizontalValue));
+}
 
 void AKartPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {

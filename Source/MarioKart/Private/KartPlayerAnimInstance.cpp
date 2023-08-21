@@ -4,15 +4,15 @@
 #include "MarioKartPlayerController.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Net/UnrealNetwork.h"
-
+#include <DrawDebugHelpers.h>
 
 void UKartPlayerAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
 
 	//Player = Cast<AKartTestModel>(TryGetPawnOwner());
-	//kartPlayer = Cast<AKartPlayer>(GetOwningActor());
-	kartPlayer = Cast<AKartPlayer>(TryGetPawnOwner());
+	kartPlayer = Cast<AKartPlayer>(GetOwningActor());
+	//kartPlayer = Cast<AKartPlayer>(TryGetPawnOwner());
 	//UE_LOG(LogTemp, Warning, TEXT("%s"), TryGetPawnOwner());
 	if (kartPlayer != nullptr)
 	{
@@ -36,6 +36,16 @@ void UKartPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		AMarioKartPlayerController* myPlayerController = Cast<AMarioKartPlayerController>(kartPlayer->GetController());
 	}
 }
+
+void UKartPlayerAnimInstance::OnRep_HorizontalValue()
+{
+	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, FString::Printf(TEXT("anim Value: %.2f"), HorizontalValue));
+}
+
+//void UKartPlayerAnimInstance::OnRep_HorizontalValue()
+//{
+//	HorizontalValue = kartPlayer->horizontalValue;
+//}
 
 void UKartPlayerAnimInstance::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
