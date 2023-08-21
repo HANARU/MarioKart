@@ -25,7 +25,7 @@ AC_Turtle::AC_Turtle()
 	BoxCollision->SetWorldScale3D(NewScale);
 
 
-	// 메시 컴포넌트의 메시를 설정 (여기서는 예시로 Engine 폴더에 있는 Sphere 메시를 사용합니다)
+	// 메시 컴포넌트의 메시를 설정 
 	ConstructorHelpers::FObjectFinder<UStaticMesh> MeshAsset(TEXT("StaticMesh'/Game/3_SM/Stadium_Change/Item/Scap/SM_ItemP_red_scab.SM_ItemP_red_scab'"));
 	if (MeshAsset.Succeeded())
 	{

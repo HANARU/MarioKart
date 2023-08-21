@@ -145,8 +145,8 @@ void AKartPlayer::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, Item1stString);
-	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, Item2ndString);
+// 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, Item1stString);
+// 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, Item2ndString);
 
 
 }
@@ -179,6 +179,61 @@ void AKartPlayer::ResetSpeedToNormal()
 
 	// 타이머 핸들을 무효화합니다
 	SpeedResetTimerHandle.Invalidate();
+}
+
+void AKartPlayer::IncreaseSpeed()
+{
+	// 현재 이동속도를 가져옵니다.
+	float CurrentSpeed = GetCharacterMovement()->MaxWalkSpeed;
+
+	// 이동속도를 0.25배 만큼 늘립니다.
+	float NewSpeed = CurrentSpeed * 1.05f;
+
+	// 최대 이동속도를 제한합니다 (1.5배까지만 가능하도록).
+	float MaxAllowedSpeed = 2000;
+	if (NewSpeed > MaxAllowedSpeed)
+	{
+		NewSpeed = MaxAllowedSpeed;
+	}
+
+	// 새로운 이동속도를 적용합니다.
+	GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
+
+	// 디버그 메시지로 새로운 이동속도를 출력합니다.
+	FString DebugMessage = FString::Printf(TEXT("Speed : %.2f"), NewSpeed);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, DebugMessage);
+}
+
+void AKartPlayer::DecreaseSpeed()
+{
+	// 현재 이동속도를 가져옵니다.
+	float CurrentSpeed = GetCharacterMovement()->MaxWalkSpeed;
+
+	// 이동속도를 반으로 감소시킨다.
+	float Despeed = CurrentSpeed * 0.5f;
+
+	// 새로운 이동속도를 적용합니다.
+	GetCharacterMovement()->MaxWalkSpeed = Despeed;
+
+	// 디버그 메시지로 새로운 이동속도를 출력합니다.
+	FString DebugMessage = FString::Printf(TEXT("Speed : %.2f"), Despeed);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, DebugMessage);
+
+}
+
+void AKartPlayer::ReturnSpeed()
+{
+	// 현재 이동속도를 가져옵니다.
+	float CurrentSpeed = GetCharacterMovement()->MaxWalkSpeed;
+	// 이동속도를 반으로 감소시킨다.
+	float speed = CurrentSpeed * 2.0f;
+
+	// 새로운 이동속도를 적용합니다.
+	GetCharacterMovement()->MaxWalkSpeed = speed;
+
+	// 디버그 메시지로 새로운 이동속도를 출력합니다.
+	FString DebugMessage = FString::Printf(TEXT("Speed : %.2f"), speed);
+	GEngine->AddOnScreenDebugMessage(-1, 5.0f, FColor::Green, DebugMessage);
 }
 
 //void AKartPlayer::PlayAnimationMontage()

@@ -108,7 +108,15 @@ public:
 	void UsingItem();
 
 	void ResetSpeedToNormal();
+	
+	//임시 코인 로직
+	void IncreaseSpeed();
 
+	//임시 속도감소 로직
+	void DecreaseSpeed();
+
+	//속도 복구 로직
+	void ReturnSpeed();
 	//UFUNCTION()
 	//void PlayAnimationMontage();
 
