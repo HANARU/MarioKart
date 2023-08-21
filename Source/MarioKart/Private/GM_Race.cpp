@@ -74,7 +74,7 @@ void AGM_Race::ItemOverlaped(AKartPlayer* Player)
 {
 	FString KartName = UKismetStringLibrary::Conv_ObjectToString(Player);
 	FString ItemNum = UKismetStringLibrary::Conv_IntToString(RandomItem());
-	this->ItemSignature.ExecuteIfBound(RandomItem());
+	//this->ItemSignature.ExecuteIfBound(RandomItem());
 }
 
 void AGM_Race::ItemOverlaped(UItemComponent* ItemCompo)

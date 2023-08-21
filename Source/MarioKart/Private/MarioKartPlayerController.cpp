@@ -208,7 +208,7 @@ void AMarioKartPlayerController::Tick(float DeltaSeconds)
 	//timeTest += DeltaSeconds;
 	//driftjumpTimeline.TickTimeline(DeltaSeconds);
 
-	if (startcountTime >= 6.7f) // 출발 카운드 사운드 재생 후 주행 startcountTime >= 6.7f
+	if (startcountTime >= 3.0f) // 출발 카운드 사운드 재생 후 주행 startcountTime >= 6.7f
 	//if(RaceGM->Able2Play == true)
 	{
 		// 전진, 후진 주행 (가속, 속도)
@@ -450,11 +450,11 @@ void AMarioKartPlayerController::Jump()
 	}
 	else
 	{
-		if (me)
-		{
-			// 드리프트 기능
-			me->Jump();
-		}
+		//if (me)
+		//{
+		//	// 드리프트 기능
+		//	//me->Jump();
+		//}
 		// 주행 사운드 멈추기
 		if (playingdriveComp)
 		{
@@ -557,7 +557,7 @@ void AMarioKartPlayerController::Horizontal(float value)
 			if (bisMovingback == true)
 			{
 				// 후진 회전
-				float movigbackValue = FMath::Lerp(me->horizontalValue, 0.0f, 0.9f);
+				float movigbackValue = FMath::Lerp(me->horizontalValue, 0.0f, 0.8f);
 				if (FMath::IsNearlyZero(currentSpeed))
 				{
 					return AddYawInput(0.0f);
@@ -611,7 +611,7 @@ void AMarioKartPlayerController::Horizontal(float value)
 					else
 					{
 						// 전진 회전
-						float accValue = FMath::Lerp(0.0f, me->horizontalValue, 0.1f);
+						float accValue = FMath::Lerp(0.0f, me->horizontalValue, 0.2f);
 						
 						if (FMath::IsNearlyZero(currentSpeed))
 						{

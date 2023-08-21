@@ -122,6 +122,8 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	// 플레이어 애니메이션 블루프린트
 	kartCharacterBody->SetAnimInstanceClass(UKartPlayerAnimInstance::StaticClass());
 
+
+
 	bReplicates = true;
 	//bReplicateMovement = true;
 	SetReplicateMovement(true);
