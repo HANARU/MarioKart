@@ -74,6 +74,11 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class UAudioComponent* playingDashSound = nullptr;
+
+	UPROPERTY(EditDefaultsOnly, Category = Player)
+		TSubclassOf<class UWidget_Player> InGamePlayerWidget;
+
+	class UWidget_Player* UI_PlayerInGame;
 	
 	// 局聪皋捞记根鸥林
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
@@ -94,10 +99,15 @@ public:
 	FString Item1stString;
 	FString Item2ndString;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	/*UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = Player)
 	int32 CurrentCheckpoint = 0;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
-	int32 CurrentGoalPoint = 0;
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = Player)
+	int32 CurrentGoalPoint = 0;*/
+
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentLapdata, VisibleAnywhere, BlueprintReadOnly, Category = Player)
+		int32 CurrentGoalPoint;
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentLapdata, VisibleAnywhere, BlueprintReadOnly, Category = Player)
+		int32 CurrentCheckPoint;
 
 protected:
 	virtual void BeginPlay() override;
@@ -116,6 +126,16 @@ public:
 	//void PlayAnimationMontage();
 
 	UFUNCTION()
-	void PlayAnimationMontage();
+		void PlayAnimationMontage();
+
+	UFUNCTION()
+		void OnRep_CurrentLapdata();
+
+	UFUNCTION()
+		void ReceiveFromLapVolume(bool IsThisGoalPoint, bool IsThisCheckPoint);
+
+	void OnCurrentLapDataUpdate();
+
+
 	
 };

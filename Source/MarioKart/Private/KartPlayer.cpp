@@ -13,6 +13,7 @@
 #include "Kismet/KismetStringLibrary.h"
 #include "Components/AudioComponent.h"
 #include "KartPlayerAnimInstance.h"
+#include "Widget_Player.h"
 #include "Net/UnrealNetwork.h"
 #include "ItemComponent.h"
 
@@ -122,11 +123,8 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	// 플레이어 애니메이션 블루프린트
 	kartCharacterBody->SetAnimInstanceClass(UKartPlayerAnimInstance::StaticClass());
 
-
-
 	bReplicates = true;
 	//bReplicateMovement = true;
-	SetReplicateMovement(true);
 
 }
 
@@ -152,7 +150,15 @@ void AKartPlayer::BeginPlay()
 	else
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 0.3f, FColor::Red, TEXT(";("));
+	}
 
+	if (GetController() != nullptr && GetController()->IsLocalPlayerController())
+	{
+		UI_PlayerInGame = CreateWidget<UWidget_Player>(GetWorld(), InGamePlayerWidget);
+		if (UI_PlayerInGame != nullptr)
+		{
+			UI_PlayerInGame->AddToViewport();
+		}
 	}
 }
 
@@ -243,6 +249,44 @@ void AKartPlayer::PlayAnimationMontage()
 		}
 	}
 }
+
+void AKartPlayer::OnRep_CurrentLapdata()
+{
+	OnCurrentLapDataUpdate();
+}
+
+void AKartPlayer::ReceiveFromLapVolume(bool IsThisGoalPoint, bool IsThisCheckPoint)
+{
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		if (IsThisGoalPoint && !IsThisCheckPoint)
+		{
+			CurrentGoalPoint += 1;
+			CurrentCheckPoint = 0;
+		}
+		else if (!IsThisGoalPoint && IsThisCheckPoint)
+		{
+			CurrentCheckPoint += 1;
+		}
+
+		OnCurrentLapDataUpdate();
+	}
+}
+
+void AKartPlayer::OnCurrentLapDataUpdate()
+{
+	if (IsLocallyControlled())
+	{
+		FString LapDataMessage = FString::Printf(TEXT("Your Lap is %d, Your Checkpoint is %d."), CurrentGoalPoint, CurrentCheckPoint);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, LapDataMessage);
+	}
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		FString LapDataMessage = FString::Printf(TEXT("%s now has Lap %d, Checkpoint %d"), *GetFName().ToString(), CurrentGoalPoint, CurrentCheckPoint);
+		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, LapDataMessage);
+	}
+}
+
 
 // horizontalvalue 값이 동기화로 인해 변경될 때 실행되는 함수
 //void AKartPlayer::OnRep_Horizontal()
