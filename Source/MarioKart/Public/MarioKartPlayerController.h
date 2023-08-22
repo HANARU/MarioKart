@@ -57,6 +57,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	float driftTime;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	float hvalue;
+
 	//// 출발 시간 저장
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	//float startcountTime = 0;
@@ -112,15 +115,9 @@ public:
 	// 출발 카운트 사운드 저장
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	class UAudioComponent* playingstartComp = nullptr;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
-	class UCurveFloat* driftjumpCurve;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	FVector currentDir;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
-	float driftjumpPower = 10;
 
 	AGM_Race* RaceGM;
 

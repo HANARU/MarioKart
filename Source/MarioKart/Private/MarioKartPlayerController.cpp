@@ -147,26 +147,6 @@ void AMarioKartPlayerController::BeginPlay()
 	//	}
 	//			}), 3.f, false);
 
-	if (driftjumpCurve != nullptr)
-	{
-
-		// 타임라인 초기화
-		/*UTimelineComponent* timelineComp = NewObject<UTimelineComponent>(this, FName("driftjumpTimeline"));
-		timelineComp->CreationMethod = EComponentCreationMethod::UserConstructionScript;
-		timelineComp->SetNetAddressable();
-		timelineComp->SetPropertySetObject(this);
-		timelineComp->RegisterComponent();*/
-	
-		
-		// 드리프트 동안 뛰어 오를 커브 곡선
-		// 타임라인 등록
-		FOnTimelineFloat onProgressdriftjump;
-		onProgressdriftjump.BindUFunction(this, FName("Ondriftjump"));
-
-		driftjumpTimeline.AddInterpFloat(driftjumpCurve, onProgressdriftjump);
-		driftjumpTimeline.SetTimelineLength(0.5f);
-	}
-
 	//network role 확인
 	myLocalRole = GetLocalRole();
 	myRemoteRole = GetRemoteRole();
@@ -549,87 +529,94 @@ void AMarioKartPlayerController::Horizontal(float value)
 	// 좌우 입력값
 	me->horizontalValue = value;
 
-	if (value)
+	// 좌우 입력 들어왔을 때(회전)
+	if (me->horizontalValue && FMath::Abs(currentSpeed)>0.9f)
 	{
-		// 좌우 입력 들어왔을 때(회전)
-		if (FMath::Abs(me->horizontalValue) != 0.0f)
+		if (bisMovingback == true)
 		{
-			if (bisMovingback == true)
+			// 후진 회전
+			hvalue = FMath::Lerp(me->horizontalValue, 0.0f, 0.4f);
+			if (FMath::IsNearlyZero(currentSpeed))
 			{
-				// 후진 회전
-				float movigbackValue = FMath::Lerp(me->horizontalValue, 0.0f, 0.8f);
-				if (FMath::IsNearlyZero(currentSpeed))
-				{
-					return AddYawInput(0.0f);
-				}
-				else
-				{
-					AddYawInput(movigbackValue);
-				}
-				
-				UE_LOG(LogTemp, Warning, TEXT("movigbackValue : %.2f"), movigbackValue);
-				UE_LOG(LogTemp, Warning, TEXT("%d"), FMath::IsNearlyZero(currentSpeed));
-
+				return AddYawInput(0.0f);
 			}
 			else
 			{
-				if (bisAcc == true)
+				AddYawInput(hvalue);
+			}
+
+		}
+		else
+		{
+			if (bisAcc == true)
+			{
+				if (bisJump == true)
 				{
-					if (bisJump == true)
+					if (me->horizontalValue >= 1.0f)
 					{
-						//float driftValue = FMath::Lerp(0.0f, me->horizontalValue, 0.3f); // 회전율
-						if (me->horizontalValue >= 1.0f)
+						hvalue = 0.7f;
+						if (FMath::IsNearlyZero(currentSpeed))
 						{
-							float driftValue = 0.3f;
-							if (FMath::IsNearlyZero(currentSpeed))
-							{
-								return AddYawInput(0.0f);
-							}
-							else
-							{
-								AddYawInput(driftValue);
-							}
-							UE_LOG(LogTemp, Warning, TEXT("driftValue : %.2f"), driftValue);
-							UE_LOG(LogTemp, Warning, TEXT("%d"), FMath::IsNearlyZero(currentSpeed));
+							return AddYawInput(0.0f);
 						}
 						else
 						{
-							float driftValue = -0.3f;
-							if (FMath::IsNearlyZero(currentSpeed))
-							{
-								return AddYawInput(0.0f);
-							}
-							else
-							{
-								AddYawInput(driftValue);
-							}
-							UE_LOG(LogTemp, Warning, TEXT("driftValue : %.2f"), driftValue);
-							UE_LOG(LogTemp, Warning, TEXT("%d"), FMath::IsNearlyZero(currentSpeed));
-						}					
-						
+							AddYawInput(hvalue);
+						}
+
 					}
 					else
 					{
-						// 전진 회전
-						float accValue = FMath::Lerp(0.0f, me->horizontalValue, 0.2f);
-						
+						hvalue = -0.7f;
 						if (FMath::IsNearlyZero(currentSpeed))
 						{
-							return;
+							return AddYawInput(0.0f);
 						}
 						else
 						{
-							AddYawInput(accValue);
+							AddYawInput(hvalue);
 						}
-						UE_LOG(LogTemp, Warning, TEXT("accValue : %.2f"), accValue);
-						UE_LOG(LogTemp, Warning, TEXT("%d"), FMath::IsNearlyZero(currentSpeed));
-
+					}					
+						
+				}
+				else
+				{
+					// 전진 회전
+					hvalue = FMath::Lerp(0.0f, me->horizontalValue, 0.4f);
+						
+					if (FMath::IsNearlyZero(currentSpeed))
+					{
+						return;
+					}
+					else
+					{
+						AddYawInput(hvalue);
 					}
 				}
 			}
+			else
+			{
+				if (me->horizontalValue >= 1.0f)
+				{
+					hvalue = FMath::Lerp(0.0f, me->horizontalValue, 0.4f);
+					AddYawInput(hvalue);
+				}
+				else
+				{
+					hvalue = FMath::Lerp(me->horizontalValue, 0.0f, 0.4f);
+					if (FMath::IsNearlyZero(currentSpeed))
+					{
+						return AddYawInput(0.0f);
+					}
+					else
+					{
+						AddYawInput(hvalue);
+					}
+				}
+				
+			}
 		}
-	}
- 
+	} 
 
 }
 
@@ -641,7 +628,7 @@ void AMarioKartPlayerController::MultiMoveVertical()
 		if (bisAcc == true)
 		{
 			// 전진 가속
-			currentSpeed = FMath::Lerp(currentSpeed, maxSpeed, GetWorld()->GetDeltaSeconds() * 1.5);
+			currentSpeed = FMath::Lerp(currentSpeed, maxSpeed, GetWorld()->GetDeltaSeconds() * 1.5f);
 
 		}
 		else
@@ -654,10 +641,10 @@ void AMarioKartPlayerController::MultiMoveVertical()
 	{
 		// 속도 0으로 조정
 		currentSpeed = FMath::Lerp(currentSpeed, 0.0f, GetWorld()->GetDeltaSeconds() * 3.5f);
-		if (FMath::IsNearlyZero(currentSpeed))
+		/*if (FMath::IsNearlyZero(currentSpeed))
 		{
 			currentSpeed = 0.0f;
-		}
+		}*/
 
 	}
 
