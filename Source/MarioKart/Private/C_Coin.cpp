@@ -3,9 +3,8 @@
 
 #include "C_Coin.h"
 #include "Components/BoxComponent.h"
-#include "KartPlayer.h"
 #include "Kismet/GameplayStatics.h"
-#include "GM_Race.h"
+
 
 // Sets default values
 AC_Coin::AC_Coin()
@@ -40,7 +39,7 @@ void AC_Coin::BeginPlay()
 	Super::BeginPlay();
     
     BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &AC_Coin::OnOverlapBegin);
-    GameMode = Cast<AGM_Race>(UGameplayStatics::GetGameMode(GetWorld()));
+   
 }
 
 // Called every frame
@@ -52,23 +51,6 @@ void AC_Coin::Tick(float DeltaTime)
 
 void AC_Coin::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    AKartPlayer* kartplayer = Cast<AKartPlayer>(OtherActor);
-
-    if (kartplayer != nullptr && GameMode != nullptr)
-    {
-        GameMode->ItemOverlaped(kartplayer);
-
-        // 사운드를 재생합니다.
-        USoundBase* CoinSound = LoadObject<USoundBase>(nullptr, TEXT("SoundWave'/Game/5_FX/Audio/play_coin_sound_.play_coin_sound_'"));
-        if (CoinSound)
-        {
-            UGameplayStatics::PlaySoundAtLocation(this, CoinSound, GetActorLocation());
-        }
-
-        // 플레이어의 이동속도를 0.25배 만큼 늘립니다.
-        kartplayer->IncreaseSpeed();
-
-        Destroy();
-    }
+   
 }
 

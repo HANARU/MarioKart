@@ -203,7 +203,7 @@ void AMarioKartPlayerController::Tick(float DeltaSeconds)
 
 	startcountTime += DeltaSeconds;
 
-	PrintLog();
+//	PrintLog();
 	
 	//timeTest += DeltaSeconds;
 	//driftjumpTimeline.TickTimeline(DeltaSeconds);
