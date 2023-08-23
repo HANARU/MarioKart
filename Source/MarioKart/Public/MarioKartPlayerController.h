@@ -46,7 +46,7 @@ public:
 	class AKartPlayer* me;
 
 	// 현재 속도
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category="Player")
 	float currentSpeed;
 
 	// 최대 속도
@@ -57,6 +57,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	float driftTime;
 
+	// 좌우 회전 lerp 변수, addYawInput 값
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	float hvalue;
 
@@ -79,6 +80,10 @@ public:
 	// 드리프트 확인
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	bool bisDrift = false;
+
+	// 드리프트 횟수 카운트
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
+	int32 dashCount = 0;
 
 	// 플레이어 주행 사운드
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
@@ -145,13 +150,6 @@ protected:
 private:
 	bool bInDelay = false;
 	FTimerHandle itemDelay;
-	struct FTimeline driftjumpTimeline;
-
-	UFUNCTION()
-	void Ondriftjump(float Output);
-
-	//UFUNCTION()
-	//void Finishdriftjump(float Output);
 
 	// 출발 시간 저장
 	UPROPERTY()
@@ -175,26 +173,28 @@ private:
 	UFUNCTION()
 	void MoveBack_released();
 
-	// 점프키 함수
-	UFUNCTION()
-	void Jump();
-
-	UFUNCTION()
-	void Jump_released();
-
-
-
-	//상하이동(전진, 후진) 함수
-	/*UFUNCTION()
-	void MoveVertical();*/
-
 	// 이동 방향 벡터 반환 함수
 	UFUNCTION()
 	FVector Direction();
 
+	// 점프키 함수
+	UFUNCTION()
+	void Drift();
+
+	UFUNCTION()
+	void Drift_released();	
+
 	// 드리프트 활성화 함수
 	UFUNCTION()
-	void DriftActivate(float dashActiveTime);
+	void DashActivate(float dashActiveTime);
+
+	// 드리프트 카트바디 회전 함수
+	UFUNCTION()
+	void DriftBody(int32 DCount);
+
+	// 드리프트 카트바디 원래 모습으로 회전 함수
+	UFUNCTION()
+	void DriftBodyReturn();
 
 	// 아이템 사용 함수
 	UFUNCTION()
@@ -215,7 +215,7 @@ private:
 	UPROPERTY(Replicated)
 	float timeTest = 0;
 
-	// 상하 이동 함수 rpc로 할당
+	// 상하 이동 함수 rpc로 할당	
 	// 상하이동(전진, 후진) 함수
 	UFUNCTION()
 	void MultiMoveVertical();
