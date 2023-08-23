@@ -88,54 +88,73 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class UAnimMontage* M_Base;
 
+	UFUNCTION(NetMulticast, Unreliable)
+		void Multicast_PlayAnimation();
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class UItemComponent* playerItemComp;
 
 	class AGM_Race* GameMode;
 
-	int32 Current1stItem = 12;
-	int32 Current2ndItem = 12;
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentItemData, VisibleAnywhere, BlueprintReadWrite, Category = Item)
+		int32 Current1stItem = 12;
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentItemData, VisibleAnywhere, BlueprintReadWrite, Category = Item)
+		int32 Current2ndItem = 12;
 
 	FString Item1stString;
 	FString Item2ndString;
+	FString LocalItemDataMessage;
+	FString ServerItemDataMessage;
 
-	/*UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = Player)
-	int32 CurrentCheckpoint = 0;
-	UPROPERTY(Replicated, EditAnywhere, BlueprintReadWrite, Category = Player)
-	int32 CurrentGoalPoint = 0;*/
-
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentLapdata, VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentLapdata, VisibleAnywhere, BlueprintReadWrite, Category = Player)
 		int32 CurrentGoalPoint;
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentLapdata, VisibleAnywhere, BlueprintReadOnly, Category = Player)
+	UPROPERTY(ReplicatedUsing = OnRep_CurrentLapdata, VisibleAnywhere, BlueprintReadWrite, Category = Player)
 		int32 CurrentCheckPoint;
+
+	FString LocalLapDataMessage;
+	FString ServerLapDataMessage;
+
+	UPROPERTY(EditAnywhere, Category = Player)
+	bool LapDataLog = false;
+	UPROPERTY(EditAnywhere, Category = Player)
+	bool ItemDataLog = false;
 
 protected:
 	virtual void BeginPlay() override;
 
 	virtual void Tick(float DeltaTime) override;
 
+	void PrintStringAtPlayer();
+
 public:
+	UFUNCTION()
+	void OnRep_CurrentItemData();
+
+	void OnCurrentItemDataUpdate();
+
 	UFUNCTION()
 	void ReceiveItem(int32 ItemNum);
 
 	void UsingItem();
 
-	void ResetSpeedToNormal();
-	
+	UFUNCTION()
+	void OnRep_CurrentLapdata();
+
+	void OnCurrentLapDataUpdate();
+
+	UFUNCTION()
+	void ReceiveFromLapVolume(bool IsThisGoalPoint, bool IsThisCheckPoint);
+
+	UFUNCTION(Category = Player)
+		FORCEINLINE int32 GetCurrentGoalPoint() const { return CurrentGoalPoint; }
+	UFUNCTION(Category = Player)
+		FORCEINLINE int32 GetCurrentCheckPoint() const { return CurrentCheckPoint; }
+
 	//UFUNCTION()
 	//void PlayAnimationMontage();
 
 	UFUNCTION()
 		void PlayAnimationMontage();
 
-	UFUNCTION()
-		void OnRep_CurrentLapdata();
-
-	UFUNCTION()
-		void ReceiveFromLapVolume(bool IsThisGoalPoint, bool IsThisCheckPoint);
-
-	void OnCurrentLapDataUpdate();
-
-
-	
+	void ResetSpeedToNormal();
 };

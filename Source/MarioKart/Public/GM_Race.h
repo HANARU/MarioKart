@@ -16,8 +16,6 @@ class MARIOKART_API AGM_Race : public AGameModeBase
 public:
 	FItemMessageSignature ItemSignature;
 
-	void ItemOverlaped(class AKartPlayer* Player);
-	void ItemOverlaped(class UItemComponent* ItemCompo);
 	
 	int32 RandomItem();
 	int32 ItemName;
@@ -30,6 +28,9 @@ public:
 	int32 GetNumberOfPlayersInLevel();
 
 	void CheckAble2Play();
+
+	void ItemOverlaped(class AKartPlayer* Player);
+	void ItemOverlaped(class UItemComponent* ItemComp);
 
 protected:
 	virtual void BeginPlay() override;

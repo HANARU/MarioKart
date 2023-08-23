@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
@@ -13,15 +11,12 @@ class MARIOKART_API UItemComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UItemComponent();
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 public:	
-	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 
@@ -29,7 +24,9 @@ public:
 class AGM_Race* GameMode;
 
 public:
+	UPROPERTY(/*ReplicatedUsing = OnRep_CurrentItemData,*/ VisibleAnywhere, BlueprintReadOnly, Category = Item)
 	int32 Current1stItem = 12;
+	UPROPERTY(/*ReplicatedUsing = OnRep_CurrentItemData,*/ VisibleAnywhere, BlueprintReadOnly, Category = Item)
 	int32 Current2ndItem = 12;
 
 	FString Item1;
@@ -37,8 +34,13 @@ public:
 
 	
 public:
-UFUNCTION()
-void ReceiveItemfromCharacter(int32 ItemNum);
+	UFUNCTION()
+	void ReceiveItemfromCharacter(int32 ItemNum);
 
-void UsingItem();
+	void UsingItem();
+
+	UFUNCTION()
+	void OnRep_CurrentItemData();
+
+	void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 };

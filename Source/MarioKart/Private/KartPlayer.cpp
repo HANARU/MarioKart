@@ -16,6 +16,9 @@
 #include "Widget_Player.h"
 #include "Net/UnrealNetwork.h"
 #include "ItemComponent.h"
+#include "DrawDebugHelpers.h"
+
+#define NoItem 12
 
 
 AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
@@ -160,36 +163,122 @@ void AKartPlayer::BeginPlay()
 			UI_PlayerInGame->AddToViewport();
 		}
 	}
+	LocalItemDataMessage = FString::Printf(TEXT("Your First Item : %d, Second Item : %d"), Current1stItem, Current2ndItem);
+	ServerLapDataMessage = FString::Printf(TEXT("%s now has Lap %d, Checkpoint %d"), *GetFName().ToString(), CurrentGoalPoint, CurrentCheckPoint);
 }
+
 
 void AKartPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, Item1stString);
-	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, FString::Printf(TEXT("Float Value: %.2f"), horizontalValue));
 	
+	PrintStringAtPlayer();
+
 	if (!HasAuthority())
 	{
 		ServerHorizontal_Implementation();
 	}
+	//PlayAnimationMontage();
+}
 
-// 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Red, Item1stString);
-// 	GEngine->AddOnScreenDebugMessage(-1, 0.f, FColor::Blue, Item2ndString);
+void AKartPlayer::OnRep_CurrentItemData()
+{
+	OnCurrentItemDataUpdate();
+}
 
-	PlayAnimationMontage();
+void AKartPlayer::PrintStringAtPlayer()
+{
+	FString CombineString;
+	CombineString.Append(LocalItemDataMessage);
+	CombineString.Append("\n");
+	CombineString.Append(ServerLapDataMessage);
+
+	DrawDebugString(GetWorld(), GetActorLocation(), CombineString, nullptr, FColor::White, 0, true);
+}
+
+void AKartPlayer::OnCurrentItemDataUpdate()
+{
+	if (IsLocallyControlled())
+	{
+		if (ItemDataLog)
+		{
+			LocalItemDataMessage = FString::Printf(TEXT("Your First Item : %d, Second Item : %d"), Current1stItem, Current2ndItem);
+		}
+	}
+
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		ServerItemDataMessage = FString::Printf(TEXT("%s's First Item : %d, Second Item : %d"), *GetFName().ToString(), Current1stItem, Current2ndItem);
+		if (ItemDataLog)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *ServerItemDataMessage);
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, ServerItemDataMessage);
+		}
+	}
 }
 
 void AKartPlayer::ReceiveItem(int32 ItemNum)
 {	
-	//GEngine->AddOnScreenDebugMessage(-1, 4.0f, FColor::Red, TEXT("Hello"));
-	playerItemComp->ReceiveItemfromCharacter(ItemNum);
-
+	if (GetLocalRole() == ROLE_Authority)
+	{
+		if (Current1stItem == NoItem && Current2ndItem == NoItem)
+		{
+			Current1stItem = ItemNum;
+		}
+		else if (Current1stItem != NoItem && Current2ndItem == NoItem)
+		{
+			Current2ndItem = Current1stItem;
+			Current1stItem = ItemNum;
+		}
+	}
+	OnCurrentItemDataUpdate();
 }
 
 void AKartPlayer::UsingItem()
 {
-	playerItemComp->UsingItem();
-	
+	if (Current1stItem == NoItem && Current2ndItem == NoItem)
+	{
+		return;
+	}
+	if (Current2ndItem == NoItem)
+	{
+		Current1stItem = NoItem;
+		LocalItemDataMessage = FString::Printf(TEXT("Your First Item : %d, Second Item : %d"), Current1stItem, Current2ndItem);
+	}
+	if (Current2ndItem != NoItem)
+	{
+		Current1stItem = Current2ndItem;
+		Current2ndItem = NoItem;
+		LocalItemDataMessage = FString::Printf(TEXT("Your First Item : %d, Second Item : %d"), Current1stItem, Current2ndItem);
+	}
+}
+
+void AKartPlayer::Multicast_PlayAnimation_Implementation()
+{
+	if (horizontalValue)
+	{
+		if (horizontalValue == 1.0f)
+		{
+			if (M_Right)
+			{
+				PlayAnimMontage(M_Right, 1, NAME_None);
+			}
+		}
+		else if (horizontalValue == -1.0f)
+		{
+			if (M_Left)
+			{
+				PlayAnimMontage(M_Left, 1, NAME_None);
+			}
+		}
+		else
+		{
+			if (M_Base)
+			{
+				PlayAnimMontage(M_Base, 1, NAME_None);
+			}
+		}
+	}
 }
 
 void AKartPlayer::ResetSpeedToNormal()
@@ -263,10 +352,12 @@ void AKartPlayer::ReceiveFromLapVolume(bool IsThisGoalPoint, bool IsThisCheckPoi
 		{
 			CurrentGoalPoint += 1;
 			CurrentCheckPoint = 0;
+			ServerLapDataMessage = FString::Printf(TEXT("%s now has Lap %d, Checkpoint %d"), *GetFName().ToString(), CurrentGoalPoint, CurrentCheckPoint);
 		}
 		else if (!IsThisGoalPoint && IsThisCheckPoint)
 		{
 			CurrentCheckPoint += 1;
+			ServerLapDataMessage = FString::Printf(TEXT("%s now has Lap %d, Checkpoint %d"), *GetFName().ToString(), CurrentGoalPoint, CurrentCheckPoint);
 		}
 
 		OnCurrentLapDataUpdate();
@@ -277,13 +368,24 @@ void AKartPlayer::OnCurrentLapDataUpdate()
 {
 	if (IsLocallyControlled())
 	{
-		FString LapDataMessage = FString::Printf(TEXT("Your Lap is %d, Your Checkpoint is %d."), CurrentGoalPoint, CurrentCheckPoint);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, LapDataMessage);
+		LocalLapDataMessage = FString::Printf(TEXT("Your Lap is %d, Your Checkpoint is %d."), CurrentGoalPoint, CurrentCheckPoint);
+		if (LapDataLog)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, LocalLapDataMessage);
+			
+		}
 	}
 	if (GetLocalRole() == ROLE_Authority)
 	{
-		FString LapDataMessage = FString::Printf(TEXT("%s now has Lap %d, Checkpoint %d"), *GetFName().ToString(), CurrentGoalPoint, CurrentCheckPoint);
-		GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, LapDataMessage);
+		ServerLapDataMessage = FString::Printf(TEXT("%s now has Lap %d, Checkpoint %d"), *GetFName().ToString(), CurrentGoalPoint, CurrentCheckPoint);
+		if (LapDataLog)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, ServerLapDataMessage);
+			if (CurrentGoalPoint == 2)
+			{
+				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Game Over by %s"), *GetFName().ToString()));
+			}
+		}
 	}
 }
 
@@ -314,7 +416,7 @@ void AKartPlayer::ServerHorizontal_Implementation()
 	{
 		anim->HorizontalValue = horizontalValue;
 	}*/
-	MulticastHorizontal();
+	Multicast_PlayAnimation_Implementation();
 }
 
 void AKartPlayer::MulticastHorizontal_Implementation()
@@ -329,5 +431,6 @@ void AKartPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
 
 	DOREPLIFETIME(AKartPlayer, horizontalValue);
-	//DOREPLIFETIME(AKartPlayer, this);
+	DOREPLIFETIME(AKartPlayer, Current1stItem);
+	DOREPLIFETIME(AKartPlayer, Current2ndItem);
 }

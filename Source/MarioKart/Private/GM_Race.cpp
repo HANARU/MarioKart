@@ -42,7 +42,6 @@ void AGM_Race::BeginPlay()
 
 	if (ItemDataTable != nullptr)
 	{
-		
 		FItemInfo* ItemDataRow = ItemDataTable->FindRow<FItemInfo>(FName(*FString::FromInt(ItemName)), TEXT("Context String"));
 
 		// 아이템 인덱스를 로그로 출력합니다.
@@ -74,16 +73,16 @@ void AGM_Race::ItemOverlaped(AKartPlayer* Player)
 {
 	FString KartName = UKismetStringLibrary::Conv_ObjectToString(Player);
 	FString ItemNum = UKismetStringLibrary::Conv_IntToString(RandomItem());
-	//this->ItemSignature.ExecuteIfBound(RandomItem());
+	this->ItemSignature.ExecuteIfBound(RandomItem());
 }
 
-void AGM_Race::ItemOverlaped(UItemComponent* ItemCompo)
+void AGM_Race::ItemOverlaped(UItemComponent* ItemComp)
 {
 	FString ItemNum = UKismetStringLibrary::Conv_IntToString(RandomItem());
-	this->ItemSignature.ExecuteIfBound(RandomItem());
+	//this->ItemSignature.ExecuteIfBound(RandomItem());
 }
 
 int32 AGM_Race::RandomItem()
 {
-	return FMath::RandRange(0, 1);
+	return FMath::RandRange(0, 9);
 }
