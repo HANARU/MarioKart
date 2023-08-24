@@ -27,11 +27,18 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Menu)
 		class USoundBase* MenuBGM;
 
+	//UserName 입력
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
+		class UEditableText* EText_UserName;
+	//
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
+		class UButton* Button_InputUserName;
+
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
 		class UButton* Button_MakeLobby;
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
 		class UEditableText* EText_RoomName;
-
+	
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
 		class UVerticalBox* VB_SessionList;
 
@@ -54,6 +61,9 @@ public:
 		void OnClick_Back2BeforeMenu();
 	UFUNCTION()
 		void OnClick_AccessHighlighted();
+    //
+	UFUNCTION()
+	    void OnClick_NextInmputName();
 
 	UFUNCTION()
 		void OnClick_CreateLobby();
@@ -70,4 +80,7 @@ private:
 
 	UPROPERTY()
 		class UWidget_SessionInfo* SessionSlot;
+//캔버스 다음으로 넘기기
+private:
+    void SwitchCanvas(int32 index);
 };

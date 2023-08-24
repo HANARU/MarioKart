@@ -19,6 +19,7 @@ void UWidget_MultiPlay::NativeConstruct()
 	Button_AccessHighlighted->OnClicked.AddDynamic(this, &UWidget_MultiPlay::OnClick_AccessHighlighted);
 	Button_MakeLobby->OnClicked.AddDynamic(this, &UWidget_MultiPlay::OnClick_CreateLobby);
 	Button_FindLobby->OnClicked.AddDynamic(this, &UWidget_MultiPlay::OnClick_FindLobby);
+	Button_InputUserName->OnClicked.AddDynamic(this, &UWidget_MultiPlay::OnClick_NextInmputName);
 
 	if (MenuBGM)
 	{
@@ -78,7 +79,13 @@ void UWidget_MultiPlay::OnClick_AccessHighlighted()
 	{
 	case 0:
 		break;
-	case 1:
+// 	case 1:
+// 		if (GI != nullptr && !EText_UserName->GetText().IsEmpty())
+// 		{
+// 			WS_MainMenu->SetActiveWidgetIndex(1);		
+// 		}
+// 		break;
+	case 2:
 		if (GI != nullptr && !EText_RoomName->GetText().IsEmpty())
 		{
 			GI->CreateMySession(EText_RoomName->GetText(), 4);
@@ -90,11 +97,19 @@ void UWidget_MultiPlay::OnClick_AccessHighlighted()
 	}
 }
 
+void UWidget_MultiPlay::OnClick_NextInmputName()
+{
+    if(!EText_UserName->GetText().IsEmpty())
+	{ 
+	    WS_MainMenu->SetActiveWidgetIndex(1);
+	}
+}
+
 void UWidget_MultiPlay::OnClick_CreateLobby()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("CreateLobby"));
-	WS_MainMenu->SetActiveWidgetIndex(1);
-	ActivatedWidget = 1;
+	WS_MainMenu->SetActiveWidgetIndex(2);
+	ActivatedWidget = 2;
 
 }
 
@@ -127,3 +142,8 @@ void UWidget_MultiPlay::ChangeButtonActivation(bool bIsActivation)
 {
 	Button_FindLobby->SetIsEnabled(bIsActivation);
 }
+
+// void UWidget_MultiPlay::SwitchCanvas(int32 index)
+// {
+//     WS_MainMenu->SetActiveWidgetIndex(index);
+// }
