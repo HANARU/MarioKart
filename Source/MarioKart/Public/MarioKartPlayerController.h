@@ -130,6 +130,14 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Player")
 	TSubclassOf<class AKartPlayer> kartPlayer;
 
+	// 글라이드 카운트
+	UPROPERTY(EditDefaultsOnly, Category = "Player")
+	int32 glideCount = 0;
+
+	// 글라이드 시작 전 속도
+	UPROPERTY(EditDefaultsOnly, Category = "Player")	
+	float velocityZ;
+
 	// 타임라인 시작 함수
 	void Startdriftjump();
 
@@ -150,6 +158,7 @@ protected:
 private:
 	bool bInDelay = false;
 	FTimerHandle itemDelay;
+	FTimerHandle glideDelay;
 
 	// 출발 시간 저장
 	UPROPERTY()
@@ -206,6 +215,10 @@ private:
 	
 	bool bTestDebug = false;
 	void TestDebug();
+
+	// 글라이딩 함수
+	UFUNCTION()
+	void Glide();
 
 private:
 	// network role

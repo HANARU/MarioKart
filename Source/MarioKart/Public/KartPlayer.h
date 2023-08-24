@@ -68,6 +68,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class UCameraComponent* kartCamComp;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	class UStaticMeshComponent* kartParachute;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class USoundBase* playerDashSound;

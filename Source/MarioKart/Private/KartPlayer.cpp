@@ -92,6 +92,25 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 		//kartCharacterBody->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
+	// parachute 컴포넌트 추가
+	kartParachute = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("kartParachute"));
+	kartParachute->SetupAttachment(kartbaseSceneComp);
+	kartParachute->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	kartParachute->SetVisibility(false);
+
+	// kartParachute Mesh 데이터 할당
+	ConstructorHelpers::FObjectFinder<UStaticMesh> TempParachute(TEXT("StaticMesh'/Game/3_SM/Object/Parachute/parachute.parachute'"));
+
+	if (TempParachute.Succeeded())
+	{
+		kartParachute->SetStaticMesh(TempParachute.Object);
+	}
+
+	// kartParachute 위치, 크기
+	kartParachute->SetRelativeLocation(FVector(0, -35, 18));
+	kartParachute->SetRelativeRotation(FRotator(0, 0, 80));
+	kartParachute->SetRelativeScale3D(FVector(5));
+
 	// kartSpringComp 컴포넌트 추가
 	kartSpringComp = CreateDefaultSubobject<USpringArmComponent>(TEXT("kartSpringArmComp"));
 	kartSpringComp->SetupAttachment(kartbaseSceneComp);
@@ -118,6 +137,7 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 		playerDashSound = TempkartdashSound.Object;
 	}
 
+
 	// kartItem 컴포넌트 추가
 	playerItemComp = CreateDefaultSubobject<UItemComponent>(TEXT("ItemComponent"));
 
@@ -127,6 +147,7 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	// 플레이어 애니메이션 블루프린트
 	kartCharacterBody->SetAnimInstanceClass(UKartPlayerAnimInstance::StaticClass());
 
+	// 동기화 설정
 	bReplicates = true;
 	//bReplicateMovement = true;
 
@@ -179,6 +200,8 @@ void AKartPlayer::Tick(float DeltaTime)
 		ServerHorizontal_Implementation();
 	}
 	//PlayAnimationMontage();
+
+	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, kart);
 }
 
 void AKartPlayer::OnRep_CurrentItemData()
