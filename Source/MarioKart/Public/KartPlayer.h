@@ -98,6 +98,7 @@ public:
 	class UItemComponent* playerItemComp;
 
 	class AGM_Race* GameMode;
+	class AState_KartPlayer* PlayerState;
 
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentItemData, VisibleAnywhere, BlueprintReadWrite, Category = Item)
 		int32 Current1stItem = 12;

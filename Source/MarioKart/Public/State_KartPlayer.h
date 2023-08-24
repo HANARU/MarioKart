@@ -60,6 +60,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = Item)
 		int SelectRandomItem();
 
+	UFUNCTION(BlueprintCallable, Category = Item)
+		void UseItem();
+
 	UPROPERTY(BlueprintAssignable, Category = Events)
 		FOn1stItem On1stItem;
 	UPROPERTY(BlueprintAssignable, Category = Events)

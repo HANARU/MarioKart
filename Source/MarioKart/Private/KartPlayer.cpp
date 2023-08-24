@@ -16,6 +16,7 @@
 #include "Widget_Player.h"
 #include "Net/UnrealNetwork.h"
 #include "ItemComponent.h"
+#include "State_KartPlayer.h"
 #include "DrawDebugHelpers.h"
 
 #define NoItem 12
@@ -168,6 +169,8 @@ void AKartPlayer::BeginPlay()
 		GameMode->ItemSignature.BindUObject(this, &AKartPlayer::ReceiveItem);
 	}
 
+	PlayerState = Cast<AState_KartPlayer>(GetPlayerState());
+
 	if (kartCharacterBody)
 	{
 		anim = Cast<UKartPlayerAnimInstance>(kartCharacterBody->GetAnimInstance());
@@ -258,7 +261,11 @@ void AKartPlayer::ReceiveItem(int32 ItemNum)
 
 void AKartPlayer::UsingItem()
 {
-	if (Current1stItem == NoItem && Current2ndItem == NoItem)
+	if (PlayerState != nullptr)
+	{
+		PlayerState->UseItem();
+	}
+	/*if (Current1stItem == NoItem && Current2ndItem == NoItem)
 	{
 		return;
 	}
@@ -272,7 +279,7 @@ void AKartPlayer::UsingItem()
 		Current1stItem = Current2ndItem;
 		Current2ndItem = NoItem;
 		LocalItemDataMessage = FString::Printf(TEXT("Your First Item : %d, Second Item : %d"), Current1stItem, Current2ndItem);
-	}
+	}*/
 }
 
 void AKartPlayer::Multicast_PlayAnimation_Implementation()

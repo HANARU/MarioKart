@@ -82,6 +82,11 @@ int AState_KartPlayer::SelectRandomItem()
 	return FMath::RandRange(0, 3);
 }
 
+void AState_KartPlayer::UseItem()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Used Item"));
+}
+
 void AState_KartPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
