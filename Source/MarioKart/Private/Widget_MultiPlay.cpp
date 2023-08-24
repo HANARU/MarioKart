@@ -88,7 +88,7 @@ void UWidget_MultiPlay::OnClick_AccessHighlighted()
 	case 2:
 		if (GI != nullptr && !EText_RoomName->GetText().IsEmpty())
 		{
-			GI->CreateMySession(EText_RoomName->GetText(), 4);
+			GI->CreateMySession(EText_UserName->GetText(), EText_RoomName->GetText(), 4);
 			GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("CreateSession"));
 		}
 		break;
@@ -102,6 +102,7 @@ void UWidget_MultiPlay::OnClick_NextInmputName()
     if(!EText_UserName->GetText().IsEmpty())
 	{ 
 	    WS_MainMenu->SetActiveWidgetIndex(1);
+		ActivatedWidget = 1;
 	}
 }
 
@@ -128,6 +129,7 @@ void UWidget_MultiPlay::AddRoomSlot(FSessionSlotInfo slotInfo)
 
 	if (SessionSlot != nullptr)
 	{
+	    //SessionSlot->text_UserName->SetText(FText::FromString(slotInfo.userName));
 		SessionSlot->text_RoomName->SetText(FText::FromString(slotInfo.roomName));
 		SessionSlot->text_HostName->SetText(FText::FromString(slotInfo.hostName));
 		SessionSlot->text_PlayerCount->SetText(FText::FromString(slotInfo.playerCount));
@@ -143,7 +145,4 @@ void UWidget_MultiPlay::ChangeButtonActivation(bool bIsActivation)
 	Button_FindLobby->SetIsEnabled(bIsActivation);
 }
 
-// void UWidget_MultiPlay::SwitchCanvas(int32 index)
-// {
-//     WS_MainMenu->SetActiveWidgetIndex(index);
-// }
+

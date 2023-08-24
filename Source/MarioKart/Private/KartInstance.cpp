@@ -55,7 +55,7 @@ void UKartInstance::Init()
 //	PlayerController->ClientTravel(Address, ETravelType::TRAVEL_Absolute);
 //}
 
-void UKartInstance::CreateMySession(FText roomName, int32 playerCount)
+void UKartInstance::CreateMySession(FText userName, FText roomName, int32 playerCount)
 {
 	FOnlineSessionSettings sessionSettings;
 
@@ -79,6 +79,7 @@ void UKartInstance::CreateMySession(FText roomName, int32 playerCount)
 	// 6. 세션에 추가 설정을 넣는다.
 	sessionSettings.Set(FName("ROOM_NAME"), roomName.ToString(), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
 	sessionSettings.Set(FName("HOST_NAME"), MySessionName, EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);
+	sessionSettings.Set(FName("USER_NAME"), userName.ToString(), EOnlineDataAdvertisementType::ViaOnlineServiceAndPing);//추가
 
 	bool isSuccess = sessionInterface->CreateSession(0, FName(roomName.ToString()), sessionSettings);
 	UE_LOG(LogTemp, Warning, TEXT("Session Create Result: %s"), isSuccess ? *FString("Success") : *FString("Failed..."));
@@ -121,6 +122,8 @@ void UKartInstance::OnFindOtherSessions(bool bWasSuccessful)
 
 		for (int32 i = 0; i < searchResults.Num(); i++)
 		{
+			FString userName;
+			searchResults[i].Session.SessionSettings.Get(FName("USER_NAME"), userName);//추가
 			FString roomName;
 			searchResults[i].Session.SessionSettings.Get(FName("ROOM_NAME"), roomName);
 			FString hostName;
@@ -129,11 +132,11 @@ void UKartInstance::OnFindOtherSessions(bool bWasSuccessful)
 			int32 maxNumber = searchResults[i].Session.SessionSettings.NumPublicConnections;
 			int32 pingSpeed = searchResults[i].PingInMs;
 
-			UE_LOG(LogTemp, Warning, TEXT("Room Name: %s, HostName: %s, OpenNumber: %d, MaxNumber: %d, Ping Speed: %d"), *roomName, *hostName, openNumber, maxNumber, pingSpeed);
+			UE_LOG(LogTemp, Warning, TEXT("User Name: %s, Room Name: %s, HostName: %s, OpenNumber: %d, MaxNumber: %d, Ping Speed: %d"),*userName, *roomName, *hostName, openNumber, maxNumber, pingSpeed);
 
 			// 구조체 변수에 찾은 세션 정보를 입력한다.
 			FSessionSlotInfo slotInfo;
-			slotInfo.Set(roomName, hostName, FString::Printf(TEXT("(%d/%d)"), maxNumber - openNumber, maxNumber), pingSpeed, i);
+			slotInfo.Set(userName, roomName, hostName, FString::Printf(TEXT("(%d/%d)"), maxNumber - openNumber, maxNumber), pingSpeed, i);
 
 			// 세션 정보를 델리게이트로 전파한다.
 			onSearchCompleted.Broadcast(slotInfo);

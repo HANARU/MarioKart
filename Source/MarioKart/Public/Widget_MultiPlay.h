@@ -80,7 +80,5 @@ private:
 
 	UPROPERTY()
 		class UWidget_SessionInfo* SessionSlot;
-//캔버스 다음으로 넘기기
-private:
-    void SwitchCanvas(int32 index);
+
 };

@@ -11,13 +11,14 @@ struct FSessionSlotInfo
 	GENERATED_USTRUCT_BODY()
 
 public:
+    FString userName = TEXT("");//Ãß°¡
 	FString roomName = TEXT("");
 	FString hostName = TEXT("");
 	FString playerCount = TEXT("");
 	int32 pingSpeed = 0;
 	int32 sessionIndex = 0;
 
-	FORCEINLINE void Set(FString rName, FString hName, FString pCount, int32 ping, int32 index) { roomName = rName; hostName = hName; playerCount = pCount; pingSpeed = ping; sessionIndex = index; }
+	FORCEINLINE void Set(FString uName, FString rName, FString hName, FString pCount, int32 ping, int32 index) { userName = uName; roomName = rName; hostName = hName; playerCount = pCount; pingSpeed = ping; sessionIndex = index; }
 };
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSearchSignature, FSessionSlotInfo, sessionInfo);
@@ -50,7 +51,7 @@ public:
 	FSearchSignature onSearchCompleted;
 	FFindButtonSignature onFindButtonActivation;
 
-	void CreateMySession(FText roomName, int32 playerCount);
+	void CreateMySession(FText userName, FText roomName, int32 playerCount);
 	void OnCreatedMySession(FName sessionName, bool bWasSuccessful);
 	void FindOtherSession();
 	void OnFindOtherSessions(bool bWasSuccessful);
