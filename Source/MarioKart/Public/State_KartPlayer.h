@@ -69,5 +69,15 @@ public:
 		FOn2ndItem On2ndItem;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
+
+protected:
+    virtual void BeginPlay() override;
+
+public:
+    UFUNCTION(Server, Reliable)
+	void SetMyName(const FString& myName);
+
+private:
+    class UKartInstance* gi;
 	
 };

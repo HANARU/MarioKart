@@ -19,7 +19,7 @@ void UWidget_MultiPlay::NativeConstruct()
 	Button_AccessHighlighted->OnClicked.AddDynamic(this, &UWidget_MultiPlay::OnClick_AccessHighlighted);
 	Button_MakeLobby->OnClicked.AddDynamic(this, &UWidget_MultiPlay::OnClick_CreateLobby);
 	Button_FindLobby->OnClicked.AddDynamic(this, &UWidget_MultiPlay::OnClick_FindLobby);
-	Button_InputUserName->OnClicked.AddDynamic(this, &UWidget_MultiPlay::OnClick_NextInmputName);
+	Button_InputUserName->OnClicked.AddDynamic(this, &UWidget_MultiPlay::OnClick_NextInputName);
 
 	if (MenuBGM)
 	{
@@ -97,10 +97,11 @@ void UWidget_MultiPlay::OnClick_AccessHighlighted()
 	}
 }
 
-void UWidget_MultiPlay::OnClick_NextInmputName()
+void UWidget_MultiPlay::OnClick_NextInputName()
 {
     if(!EText_UserName->GetText().IsEmpty())
 	{ 
+	    GI->MySessionName = EText_UserName->GetText().ToString();
 	    WS_MainMenu->SetActiveWidgetIndex(1);
 		ActivatedWidget = 1;
 	}

@@ -30,7 +30,7 @@ public:
 	//UserName ют╥б
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
 		class UEditableText* EText_UserName;
-	//
+	
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
 		class UButton* Button_InputUserName;
 
@@ -61,9 +61,9 @@ public:
 		void OnClick_Back2BeforeMenu();
 	UFUNCTION()
 		void OnClick_AccessHighlighted();
-    //
+    
 	UFUNCTION()
-	    void OnClick_NextInmputName();
+	    void OnClick_NextInputName();
 
 	UFUNCTION()
 		void OnClick_CreateLobby();

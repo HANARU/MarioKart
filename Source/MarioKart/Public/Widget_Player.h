@@ -12,6 +12,7 @@ class MARIOKART_API UWidget_Player : public UUserWidget
 protected:
 	virtual void NativePreConstruct() override;
 	virtual void NativeConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
 
 public:
 
@@ -39,4 +40,8 @@ public:
 		class UImage* IMG_Current1stIcon;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget), Category = Collectable)
 		class UImage* IMG_Current2ndIcon;
+	
+	
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Collectable)
+	class UTextBlock* text_players;
 };

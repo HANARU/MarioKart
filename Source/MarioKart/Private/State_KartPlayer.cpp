@@ -4,6 +4,7 @@
 #include "State_KartPlayer.h"
 #include "Kismet/KismetStringLibrary.h"
 #include "Net/UnrealNetwork.h"
+#include "KartInstance.h"
 
 void AState_KartPlayer::OnRep_Lap(int OldLap)
 {
@@ -95,3 +96,22 @@ void AState_KartPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION(AState_KartPlayer, Item1st, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AState_KartPlayer, Item2nd, COND_OwnerOnly);
 }
+
+void AState_KartPlayer::BeginPlay()
+{
+    Super::BeginPlay();
+
+	gi = Cast<UKartInstance>(GetGameInstance());
+
+	if (gi != nullptr /*&& GetPawn()->GetController() != nullptr && GetPawn()->GetController()->IsLocalPlayerController()*/)
+	{
+		SetMyName(gi->MySessionName);
+	}
+}
+
+void AState_KartPlayer::SetMyName_Implementation(const FString& myName)
+{
+    SetPlayerName(myName);
+}
+
+
