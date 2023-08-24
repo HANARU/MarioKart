@@ -1,6 +1,7 @@
 #include "GM_Race.h"
 #include "KartPlayer.h"
 #include "ItemBase.h"
+#include "State_KartPlayer.h"
 #include "Kismet/KismetStringLibrary.h"
 #include "UObject/ConstructorHelpers.h"
 #include "ItemInfo.h"
@@ -8,6 +9,8 @@
 
 AGM_Race::AGM_Race()
 {
+	PlayerStateClass = AState_KartPlayer::StaticClass();
+
 	static ConstructorHelpers::FObjectFinder<UDataTable> DataTable(TEXT("DataTable'/Game/7_System/DataList/DT_ItemInfo.DT_ItemInfo'"));
 	if (DataTable.Succeeded())
 	{

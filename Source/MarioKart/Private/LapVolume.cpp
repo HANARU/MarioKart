@@ -7,10 +7,11 @@
 
 ALapVolume::ALapVolume()
 {
-	//PrimaryActorTick.bCanEverTick = true;
 	CheckVolume = CreateDefaultSubobject<UBoxComponent>(TEXT("Collision"));
 	RootComponent = CheckVolume;
 	CheckVolume->SetCollisionProfileName(FName(TEXT("ItemBox")));
+
+	bReplicates = true;
 }
 
 void ALapVolume::BeginPlay()
@@ -18,24 +19,35 @@ void ALapVolume::BeginPlay()
 	Super::BeginPlay();
 
 	GMRace = Cast<AGM_Race>(UGameplayStatics::GetGameMode(GetWorld()));
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		CheckVolume->OnComponentBeginOverlap.AddDynamic(this, &ALapVolume::OnOverlapBegin);
-	}
-}
-
-// Called every frame
-void ALapVolume::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
+	CheckVolume->OnComponentBeginOverlap.AddDynamic(this, &ALapVolume::OnOverlapBegin);
 }
 
 void ALapVolume::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	AKartPlayer* Player = Cast<AKartPlayer>(OtherActor);
-	if (Player != nullptr)
+	//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Overlapped"));
+	if (const auto Character = Cast<AKartPlayer>(OtherActor))
 	{
-		Player->ReceiveFromLapVolume(bIsThisLapPoint, bIsThisCheckPoint);
+		LapUpdate(Character);
 	}
+}
+
+void ALapVolume::CheckLapData()
+{
+	if (bIsThisCheckPoint)		// CheckPoint Add
+	{
+		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("CheckPoint Overlapped"));
+		LapCheckValue = 8;
+		return;
+	}
+	if (bIsThisLapPoint)		// LapPoint Add
+	{
+		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Blue, TEXT("LapPoint Overlapped"));
+		LapCheckValue = 9;
+		return;
+	}
+}
+
+void ALapVolume::LapUpdate_Implementation(AKartPlayer* OwningPlayer)
+{
+	SetOwner(OwningPlayer);
 }

@@ -106,16 +106,6 @@ public:
 	FString LocalItemDataMessage;
 	FString ServerItemDataMessage;
 
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentLapdata, VisibleAnywhere, BlueprintReadWrite, Category = Player)
-		int32 CurrentGoalPoint;
-	UPROPERTY(ReplicatedUsing = OnRep_CurrentLapdata, VisibleAnywhere, BlueprintReadWrite, Category = Player)
-		int32 CurrentCheckPoint;
-
-	FString LocalLapDataMessage;
-	FString ServerLapDataMessage;
-
-	UPROPERTY(EditAnywhere, Category = Player)
-	bool LapDataLog = false;
 	UPROPERTY(EditAnywhere, Category = Player)
 	bool ItemDataLog = false;
 
@@ -136,19 +126,6 @@ public:
 	void ReceiveItem(int32 ItemNum);
 
 	void UsingItem();
-
-	UFUNCTION()
-	void OnRep_CurrentLapdata();
-
-	void OnCurrentLapDataUpdate();
-
-	UFUNCTION()
-	void ReceiveFromLapVolume(bool IsThisGoalPoint, bool IsThisCheckPoint);
-
-	UFUNCTION(Category = Player)
-		FORCEINLINE int32 GetCurrentGoalPoint() const { return CurrentGoalPoint; }
-	UFUNCTION(Category = Player)
-		FORCEINLINE int32 GetCurrentCheckPoint() const { return CurrentCheckPoint; }
 
 	//UFUNCTION()
 	//void PlayAnimationMontage();

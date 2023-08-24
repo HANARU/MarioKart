@@ -25,6 +25,8 @@ public:
 		class UStaticMeshComponent* ItemBoxMesh;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		class UStaticMeshComponent* ItemBoxMark;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Item)
+		int CheckItemGotNow;
 
 	UPROPERTY(VisibleAnywhere)
 	class AGM_Race* GameMode;
@@ -33,6 +35,13 @@ public:
 
 	UFUNCTION()
 	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult & SweepResult);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Item, meta = (DisplayName = "Item"))
+		void ItemUpdate(class AKartPlayer* OwningPlayer);
+
+	UFUNCTION(BlueprintCallable, Category = Item)
+		void CheckItemData();
+
 
 	void SendItemByOverlap();
 };

@@ -1,10 +1,9 @@
 #include "ItemBase.h"
-#include "Components/BoxComponent.h"
 #include "GM_Race.h"
+#include "KartPlayer.h"
+#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Kismet/KismetStringLibrary.h"
-#include "KartPlayer.h"
-
 
 AItemBase::AItemBase()
 {
@@ -29,24 +28,28 @@ void AItemBase::BeginPlay()
 {
 	Super::BeginPlay();
 	
-    if (GetLocalRole() == ROLE_Authority)
-    {
-        BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &AItemBase::OnOverlapBegin);
-    }
     GameMode = Cast<AGM_Race>(UGameplayStatics::GetGameMode(GetWorld()));
+    BoxCollision->OnComponentBeginOverlap.AddDynamic(this, &AItemBase::OnOverlapBegin);
+    
 }
 
 void AItemBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    AKartPlayer* Player = Cast<AKartPlayer>(OtherActor);
-
-    if (Player != nullptr && GameMode != nullptr)
+    if (const auto Character = Cast<AKartPlayer>(OtherActor))
     {
-        GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("%s is overlaped."), *Player->GetName()));
-        //GameMode->ItemOverlaped(Player);
-        Player->ReceiveItem(FMath::RandRange(0, 9));
-        Destroy();
+        ItemUpdate(Character);
     }
+}
+
+void AItemBase::CheckItemData()
+{
+    CheckItemGotNow = FMath::RandRange(0, 3);
+}
+
+
+void AItemBase::ItemUpdate_Implementation(AKartPlayer* OwningPlayer)
+{
+    SetOwner(OwningPlayer);
 }
 
 void AItemBase::SendItemByOverlap()
@@ -54,3 +57,12 @@ void AItemBase::SendItemByOverlap()
     //this->ItemSignature.ExecuteIfBound();
 }
 
+//AKartPlayer* Player = Cast<AKartPlayer>(OtherActor);
+
+//if (Player != nullptr && GameMode != nullptr)
+//{
+//    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("%s is overlaped."), *Player->GetName()));
+//    //GameMode->ItemOverlaped(Player);
+//    Player->ReceiveItem(FMath::RandRange(0, 9));
+//    Destroy();
+//}

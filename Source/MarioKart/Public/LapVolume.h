@@ -19,22 +19,25 @@ public:
 		bool bIsThisCheckPoint = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = GameSystem)
 		bool bIsThisLapPoint = false;
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Lap)
+		int LapCheckValue;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 		TSubclassOf<class AKartPlayer> PlayerBP;
 
 	class AGM_Race* GMRace;
 
-	FString CurrentLapString;
-	FString CurrentCheckString;
-
 protected:
 	virtual void BeginPlay() override;
 
 public:	
-	virtual void Tick(float DeltaTime) override;
-
 	UFUNCTION()
 		void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = Lap, meta = (DisplayName = "Lap"))
+		void LapUpdate(class AKartPlayer* OwningPlayer);
+
+	UFUNCTION(BlueprintCallable, Category = Lap)
+		void CheckLapData();
 
 };

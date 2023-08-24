@@ -89,6 +89,7 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 		kartCharacterBody->SetSkeletalMesh(TempCharacterMesh.Object);
 		kartCharacterBody->SetRelativeLocation(FVector(0, -10, -20));
 		kartCharacterBody->SetRelativeScale3D(FVector(5));
+		//kartCharacterBody->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
 	// kartSpringComp 컴포넌트 추가
@@ -164,7 +165,6 @@ void AKartPlayer::BeginPlay()
 		}
 	}
 	LocalItemDataMessage = FString::Printf(TEXT("Your First Item : %d, Second Item : %d"), Current1stItem, Current2ndItem);
-	ServerLapDataMessage = FString::Printf(TEXT("%s now has Lap %d, Checkpoint %d"), *GetFName().ToString(), CurrentGoalPoint, CurrentCheckPoint);
 }
 
 
@@ -191,7 +191,6 @@ void AKartPlayer::PrintStringAtPlayer()
 	FString CombineString;
 	CombineString.Append(LocalItemDataMessage);
 	CombineString.Append("\n");
-	CombineString.Append(ServerLapDataMessage);
 
 	DrawDebugString(GetWorld(), GetActorLocation(), CombineString, nullptr, FColor::White, 0, true);
 }
@@ -338,57 +337,6 @@ void AKartPlayer::PlayAnimationMontage()
 		}
 	}
 }
-
-void AKartPlayer::OnRep_CurrentLapdata()
-{
-	OnCurrentLapDataUpdate();
-}
-
-void AKartPlayer::ReceiveFromLapVolume(bool IsThisGoalPoint, bool IsThisCheckPoint)
-{
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		if (IsThisGoalPoint && !IsThisCheckPoint)
-		{
-			CurrentGoalPoint += 1;
-			CurrentCheckPoint = 0;
-			ServerLapDataMessage = FString::Printf(TEXT("%s now has Lap %d, Checkpoint %d"), *GetFName().ToString(), CurrentGoalPoint, CurrentCheckPoint);
-		}
-		else if (!IsThisGoalPoint && IsThisCheckPoint)
-		{
-			CurrentCheckPoint += 1;
-			ServerLapDataMessage = FString::Printf(TEXT("%s now has Lap %d, Checkpoint %d"), *GetFName().ToString(), CurrentGoalPoint, CurrentCheckPoint);
-		}
-
-		OnCurrentLapDataUpdate();
-	}
-}
-
-void AKartPlayer::OnCurrentLapDataUpdate()
-{
-	if (IsLocallyControlled())
-	{
-		LocalLapDataMessage = FString::Printf(TEXT("Your Lap is %d, Your Checkpoint is %d."), CurrentGoalPoint, CurrentCheckPoint);
-		if (LapDataLog)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, LocalLapDataMessage);
-			
-		}
-	}
-	if (GetLocalRole() == ROLE_Authority)
-	{
-		ServerLapDataMessage = FString::Printf(TEXT("%s now has Lap %d, Checkpoint %d"), *GetFName().ToString(), CurrentGoalPoint, CurrentCheckPoint);
-		if (LapDataLog)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Green, ServerLapDataMessage);
-			if (CurrentGoalPoint == 2)
-			{
-				GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Yellow, FString::Printf(TEXT("Game Over by %s"), *GetFName().ToString()));
-			}
-		}
-	}
-}
-
 
 // horizontalvalue 값이 동기화로 인해 변경될 때 실행되는 함수
 //void AKartPlayer::OnRep_Horizontal()
