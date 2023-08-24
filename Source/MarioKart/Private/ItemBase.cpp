@@ -38,31 +38,11 @@ void AItemBase::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor*
     if (const auto Character = Cast<AKartPlayer>(OtherActor))
     {
         ItemUpdate(Character);
+        Destroy();
     }
 }
-
-void AItemBase::CheckItemData()
-{
-    CheckItemGotNow = FMath::RandRange(0, 3);
-}
-
 
 void AItemBase::ItemUpdate_Implementation(AKartPlayer* OwningPlayer)
 {
     SetOwner(OwningPlayer);
 }
-
-void AItemBase::SendItemByOverlap()
-{
-    //this->ItemSignature.ExecuteIfBound();
-}
-
-//AKartPlayer* Player = Cast<AKartPlayer>(OtherActor);
-
-//if (Player != nullptr && GameMode != nullptr)
-//{
-//    GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("%s is overlaped."), *Player->GetName()));
-//    //GameMode->ItemOverlaped(Player);
-//    Player->ReceiveItem(FMath::RandRange(0, 9));
-//    Destroy();
-//}

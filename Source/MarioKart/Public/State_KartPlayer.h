@@ -7,7 +7,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLapChanged, int, NewLapValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnCheckChanged, int, NewCheckValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOn1stItem, int, New1stItem);
-//DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOn2ndItem, int, New2ndItem);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOn2ndItem, int, New2ndItem);
 
 UCLASS()
 class MARIOKART_API AState_KartPlayer : public APlayerState
@@ -26,10 +26,14 @@ protected:
 		int CurrentCheckPoint = 0;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_Item1st, Category = Item)
-		int Item1st = 0;
+		int Item1st = 12;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, ReplicatedUsing = OnRep_Item2nd, Category = Item)
+		int Item2nd = 12;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Lap)
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Item)
 		int Current1stItem = 12;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Item)
+		int Current2ndItem = 12;
 
 	//UPROPERTY()
 
@@ -39,6 +43,8 @@ protected:
 		void OnRep_Check(int OldCheck);
 	UFUNCTION()
 		void OnRep_Item1st(int OldValue);
+	UFUNCTION()
+		void OnRep_Item2nd(int OldValue);
 
 public:
 	UFUNCTION(BlueprintCallable, Category = Lap)
@@ -50,14 +56,14 @@ public:
 		FOnCheckChanged OnCheckChanged;
 
 	UFUNCTION(BlueprintCallable, Category = Item)
-		void Add1stItem(int Value);
-	//UFUNCTION(BlueprintCallable, Category = Item)
-	//	void Add2ndItem(int Value);
+		void AddItem();
+	UFUNCTION(BlueprintCallable, Category = Item)
+		int SelectRandomItem();
 
 	UPROPERTY(BlueprintAssignable, Category = Events)
 		FOn1stItem On1stItem;
-	//UPROPERTY(BlueprintAssignable, Category = Events)
-	//	FOn2ndItem On2ndItem;
+	UPROPERTY(BlueprintAssignable, Category = Events)
+		FOn2ndItem On2ndItem;
 
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 	

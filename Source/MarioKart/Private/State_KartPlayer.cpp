@@ -2,6 +2,7 @@
 
 
 #include "State_KartPlayer.h"
+#include "Kismet/KismetStringLibrary.h"
 #include "Net/UnrealNetwork.h"
 
 void AState_KartPlayer::OnRep_Lap(int OldLap)
@@ -17,6 +18,11 @@ void AState_KartPlayer::OnRep_Check(int OldCheck)
 void AState_KartPlayer::OnRep_Item1st(int OldValue)
 {
 	On1stItem.Broadcast(Item1st);
+}
+
+void AState_KartPlayer::OnRep_Item2nd(int OldValue)
+{
+	On2ndItem.Broadcast(Item2nd);
 }
 
 void AState_KartPlayer::AddLapData(int Value)
@@ -52,41 +58,29 @@ void AState_KartPlayer::AddLapData(int Value)
 	}
 }
 
-void AState_KartPlayer::Add1stItem(int Value)
+void AState_KartPlayer::AddItem()
 {
-	Current1stItem = Value;
-	On1stItem.Broadcast(Current1stItem);
-
-	/*switch (Value)
+	if (Current1stItem == 12 && Current2ndItem == 12)
 	{
-	case 0:
-	{
-		Current1stItem = Value;
-		break;
+		Current1stItem = SelectRandomItem();
+		On1stItem.Broadcast(Current1stItem);
 	}
-	case 1:
+	else if(Current1stItem != 12 && Current2ndItem == 12)
 	{
-		Current1stItem = Value;
-		break;
+		Current2ndItem = Current1stItem;
+		Current1stItem = SelectRandomItem();
+		On1stItem.Broadcast(Current1stItem);
+		On2ndItem.Broadcast(Current2ndItem);
 	}
-	case 2:
-	{
-		Current1stItem = Value;
-		break;
-	}
-	case 3:
-	{
-		Current1stItem = Value;
-		break;
-	}
-	default:
-		break;
-	}*/
+		
+	UE_LOG(LogTemp, Warning, TEXT("1st Item : %d, 2nd Item : %d"), Current1stItem, Current2ndItem);
+	
 }
 
-//void AState_KartPlayer::Add2ndItem(int Value)
-//{
-//}
+int AState_KartPlayer::SelectRandomItem()
+{
+	return FMath::RandRange(0, 3);
+}
 
 void AState_KartPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
@@ -94,4 +88,5 @@ void AState_KartPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& Ou
 	DOREPLIFETIME_CONDITION(AState_KartPlayer, LapValue, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AState_KartPlayer, CheckValue, COND_OwnerOnly);
 	DOREPLIFETIME_CONDITION(AState_KartPlayer, Item1st, COND_OwnerOnly);
+	DOREPLIFETIME_CONDITION(AState_KartPlayer, Item2nd, COND_OwnerOnly);
 }
