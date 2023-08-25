@@ -8,7 +8,7 @@ public class MarioKart : ModuleRules
 	{
 		PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "OnlineSubsystem", "OnlineSubsystemSteam", "PhysXVehicles", "UMG" });
+		PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "OnlineSubsystem", "OnlineSubsystemSteam", "PhysXVehicles", "UMG", "Niagara" });
 
 		PublicDefinitions.Add("HMD_MODULE_INCLUDED=1");
 

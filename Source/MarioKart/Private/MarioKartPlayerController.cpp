@@ -190,7 +190,7 @@ void AMarioKartPlayerController::Tick(float DeltaSeconds)
 	//timeTest += DeltaSeconds;
 	
 	// 글라이딩 조건
-	if (startcountTime >= 1.0f && me->GetCharacterMovement()->IsFalling() && glideCount == 0)
+	if (bGlide && me->GetCharacterMovement()->IsFalling() && glideCount == 0)
 	{
 		Glide();
 	}
@@ -218,7 +218,7 @@ void AMarioKartPlayerController::Tick(float DeltaSeconds)
 				me->AddMovementInput(Direction(), currentSpeed);
 
 				// 드리프트가 1초이상 지속됐을 때
-				if (driftTime >= 1.5f && dashCount == 0)
+				if (driftTime >= 1.2f && dashCount == 0)
 				{
 					//FString NumberString = FString::Printf(TEXT("driftTime: %.2f"), driftTime);
 					//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, NumberString);
@@ -226,7 +226,7 @@ void AMarioKartPlayerController::Tick(float DeltaSeconds)
 					//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, DriftString);
 
 					// 대쉬 무조건 발동
-					DashActivate(1.5f);
+					Dash(1.2f);
 
 					// 드리프트 시간 리셋
 					//driftTime = 0.0f;
@@ -652,8 +652,112 @@ FVector AMarioKartPlayerController::Direction()
 	return returnDirection;
 }
 
-// 드리프트 활성화
-void AMarioKartPlayerController::DashActivate(float dashActiveTime)
+//// 드리프트 활성화
+//void AMarioKartPlayerController::DashActivate(float dashTime)
+//{
+//	// 플레이어 보이스 재생
+//	UGameplayStatics::PlaySound2D(GetWorld(), mariovoiceSound);
+//
+//	// 드리프트 사운드 멈추기
+//	if (playingdriftComp)
+//	{
+//		playingdriftComp->Stop();
+//		playingdriftComp->SetActive(false);
+//		playingdriftComp = nullptr;
+//	}
+//
+//	// 주행 사운드 멈추기
+//	if (playingdriveComp)
+//	{
+//		playingdriveComp->Stop();
+//		playingdriveComp->SetActive(false);
+//		playingdriveComp = nullptr;
+//	}
+//
+//	// 대쉬 사운드 재생
+//	if (dashSound)
+//	{
+//		// soundbase 대쉬 사운드 오디오 컴포넌트 생성 및 초기화
+//		playingAudioComp = UGameplayStatics::SpawnSound2D(GetWorld(), dashSound);
+//
+//		// 대쉬 사운드 유효성 검사
+//		if (playingAudioComp)
+//		{
+//			playingAudioComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
+//			playingAudioComp->bAutoDestroy = false; // 재생 완료 후 자동으로 제거하지 않는다.
+//
+//			// 대쉬 사운드 재생
+//			playingAudioComp->Play();
+//		}
+//	}
+//
+//
+//	// 대쉬 카운트 증가
+//	dashCount++;
+//
+//	// 플레이어 이동 속도 2000 으로 늘어남
+//	me->GetCharacterMovement()->MaxWalkSpeed = 2000.0f;
+//
+//	// 드리프트 시간 동안 앞으로 빠르게 전진
+//	me->AddMovementInput(Direction(), currentSpeed);
+//	
+//	// 대쉬 카메라 이펙트 설정
+//	me->kartCamComp->PostProcessSettings.bOverride_MotionBlurAmount = true;
+//	me->kartCamComp->PostProcessSettings.MotionBlurAmount = 1.0f;
+//	me->kartCamComp->PostProcessSettings.bOverride_MotionBlurMax = true;
+//	me->kartCamComp->PostProcessSettings.MotionBlurMax = 50.0f;
+//
+//	// 대쉬 dashTime초 타이머(타이머 사용)
+//	GetWorldTimerManager().SetTimer(itemDelay, FTimerDelegate::CreateLambda([this]() {
+//		DriftBody(dashCount);
+//
+//		if (me->GetCharacterMovement() != nullptr)
+//		{
+//			me->GetCharacterMovement()->MaxWalkSpeed = 1300.0f;
+//		}
+//
+//		// 대쉬 사운드 멈추기대쉬 사운드
+//		if (playingAudioComp)
+//		{
+// 			playingAudioComp->Stop();
+//			playingAudioComp->SetActive(false);
+//			playingAudioComp = nullptr;
+//		}
+//		 
+//		if(bisAcc == true)
+//		{
+//			if (driveSound)
+//			{
+//				// soundbase 주행 사운드 오디오 컴포넌트 생성 및 초기화
+//				playingdriveComp = UGameplayStatics::SpawnSound2D(GetWorld(), driveSound);
+//
+//				// 주행 사운드 유효성 검사
+//				if (playingdriveComp)
+//				{
+//					playingdriveComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
+//					playingdriveComp->bAutoDestroy = false; // 재생 완료 후 자동으로 제거하지 않는다.
+//
+//					// 주행 사운드 재생
+//					playingdriveComp->Play();
+//				}
+//			}
+//		}
+//
+//		// 대쉬 카메라 이펙트 해제
+//		me->kartCamComp->PostProcessSettings.bOverride_MotionBlurAmount = false;
+//		me->kartCamComp->PostProcessSettings.MotionBlurAmount = 0.5f;
+//		me->kartCamComp->PostProcessSettings.bOverride_MotionBlurMax = false;
+//		me->kartCamComp->PostProcessSettings.MotionBlurMax = 5.0f;
+//		
+//
+//	}), dashTime, false);
+//
+//	//// 드리프트 해제
+//	//driftTime = 0.0f;
+//
+//}
+
+void AMarioKartPlayerController::Dash_Implementation(float dashTime)
 {
 	// 플레이어 보이스 재생
 	UGameplayStatics::PlaySound2D(GetWorld(), mariovoiceSound);
@@ -690,6 +794,8 @@ void AMarioKartPlayerController::DashActivate(float dashActiveTime)
 			playingAudioComp->Play();
 		}
 	}
+
+
 	// 대쉬 카운트 증가
 	dashCount++;
 
@@ -698,14 +804,14 @@ void AMarioKartPlayerController::DashActivate(float dashActiveTime)
 
 	// 드리프트 시간 동안 앞으로 빠르게 전진
 	me->AddMovementInput(Direction(), currentSpeed);
-	
-	// 대쉬 카메라 이펙트 설정
-	me->kartCamComp->PostProcessSettings.bOverride_MotionBlurAmount = true;
-	me->kartCamComp->PostProcessSettings.MotionBlurAmount = 1.0f;
-	me->kartCamComp->PostProcessSettings.bOverride_MotionBlurMax = true;
-	me->kartCamComp->PostProcessSettings.MotionBlurMax = 50.0f;
 
-	// 대쉬 dashActiveTime초 타이머(타이머 사용)
+	// 대쉬 카메라 이펙트 설정
+	//me->kartCamComp->PostProcessSettings.bOverride_MotionBlurAmount = true;
+	//me->kartCamComp->PostProcessSettings.MotionBlurAmount = 1.0f;
+	//me->kartCamComp->PostProcessSettings.bOverride_MotionBlurMax = true;
+	//me->kartCamComp->PostProcessSettings.MotionBlurMax = 50.0f;
+
+	// 대쉬 dashTime초 타이머(타이머 사용)
 	GetWorldTimerManager().SetTimer(itemDelay, FTimerDelegate::CreateLambda([this]() {
 		DriftBody(dashCount);
 
@@ -717,12 +823,12 @@ void AMarioKartPlayerController::DashActivate(float dashActiveTime)
 		// 대쉬 사운드 멈추기대쉬 사운드
 		if (playingAudioComp)
 		{
- 			playingAudioComp->Stop();
+			playingAudioComp->Stop();
 			playingAudioComp->SetActive(false);
 			playingAudioComp = nullptr;
 		}
-		 
-		if(bisAcc == true)
+
+		if (bisAcc == true)
 		{
 			if (driveSound)
 			{
@@ -742,17 +848,16 @@ void AMarioKartPlayerController::DashActivate(float dashActiveTime)
 		}
 
 		// 대쉬 카메라 이펙트 해제
-		me->kartCamComp->PostProcessSettings.bOverride_MotionBlurAmount = false;
-		me->kartCamComp->PostProcessSettings.MotionBlurAmount = 0.5f;
-		me->kartCamComp->PostProcessSettings.bOverride_MotionBlurMax = false;
-		me->kartCamComp->PostProcessSettings.MotionBlurMax = 5.0f;
-		
+		//me->kartCamComp->PostProcessSettings.bOverride_MotionBlurAmount = false;
+		//me->kartCamComp->PostProcessSettings.MotionBlurAmount = 0.5f;
+		//me->kartCamComp->PostProcessSettings.bOverride_MotionBlurMax = false;
+		//me->kartCamComp->PostProcessSettings.MotionBlurMax = 5.0f;
 
-	}), dashActiveTime, false);
+
+		}), dashTime, false);
 
 	//// 드리프트 해제
 	//driftTime = 0.0f;
-
 }
 
 // 드리프트 카트바디 회전 함수

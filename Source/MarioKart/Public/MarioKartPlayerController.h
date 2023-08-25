@@ -14,7 +14,8 @@ UCLASS()
 class MARIOKART_API AMarioKartPlayerController : public APlayerController
 {
 	GENERATED_BODY()
-
+	
+	
 public:
 	AMarioKartPlayerController();
 	
@@ -138,8 +139,16 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "Player")	
 	float velocityZ;
 
-	// 타임라인 시작 함수
-	void Startdriftjump();
+	// 글라이드 콜리젼 변수
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Player")
+	bool bGlide = false;
+
+	// 드리프트 활성화 함수
+	//UFUNCTION(BlueprintImplementableEvent)
+	//void DashActivate(float dashActiveTime);
+
+	UFUNCTION(BlueprintNativeEvent, Category = "Player")
+	void Dash(float dashTime);
 
 protected:
 
@@ -192,10 +201,6 @@ private:
 
 	UFUNCTION()
 	void Drift_released();	
-
-	// 드리프트 활성화 함수
-	UFUNCTION()
-	void DashActivate(float dashActiveTime);
 
 	// 드리프트 카트바디 회전 함수
 	UFUNCTION()
