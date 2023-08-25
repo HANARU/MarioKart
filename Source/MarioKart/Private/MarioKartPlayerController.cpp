@@ -20,8 +20,6 @@
 #include "GM_Race.h"
 
 
-
-
 AMarioKartPlayerController::AMarioKartPlayerController()
 {
 
@@ -185,9 +183,18 @@ void AMarioKartPlayerController::Tick(float DeltaSeconds)
 
 	startcountTime += DeltaSeconds;
 
-	//PrintLog();
+	PrintLog();
 	
 	//timeTest += DeltaSeconds;
+	//if (me != nullptr)
+	//{
+	//	return;
+	//}
+
+	if (me != nullptr && IsLocalPlayerController())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("%.2f"), me->GetCharacterMovement()->MaxWalkSpeed);
+	}
 	
 	// 글라이딩 조건
 	if (bGlide && me->GetCharacterMovement()->IsFalling() && glideCount == 0)
@@ -799,26 +806,44 @@ void AMarioKartPlayerController::Dash_Implementation(float dashTime)
 	// 대쉬 카운트 증가
 	dashCount++;
 
-	// 플레이어 이동 속도 2000 으로 늘어남
-	me->GetCharacterMovement()->MaxWalkSpeed = 2000.0f;
+	// 대쉬 변수 true
+	bIsDash = true;
+
+	// 플레이어 이동 속도 dashSpeed로 늘어남
+	//me->GetCharacterMovement()->MaxWalkSpeed = 2000.0f;
+	/*if (Role == ROLE_SimulatedProxy)
+	{
+		ServerDashSpeed_Implementation(2000.f);
+	}
+	else
+	{
+		me->GetCharacterMovement()->MaxWalkSpeed = 2000.f;
+	}*/
+
+	ServerDashSpeed(2000.f);
+
 
 	// 드리프트 시간 동안 앞으로 빠르게 전진
 	me->AddMovementInput(Direction(), currentSpeed);
 
-	// 대쉬 카메라 이펙트 설정
-	//me->kartCamComp->PostProcessSettings.bOverride_MotionBlurAmount = true;
-	//me->kartCamComp->PostProcessSettings.MotionBlurAmount = 1.0f;
-	//me->kartCamComp->PostProcessSettings.bOverride_MotionBlurMax = true;
-	//me->kartCamComp->PostProcessSettings.MotionBlurMax = 50.0f;
+	//// 대쉬 카메라 이펙트 설정
+	//FPostProcessSettings& CamComp_PostProcessSettings = me->kartCamComp->PostProcessSettings;
+
+	//if (&CamComp_PostProcessSettings)
+	//{
+	//	CamComp_PostProcessSettings.bOverride_MotionBlurAmount = true;
+	//	CamComp_PostProcessSettings.MotionBlurAmount = 1.0f;
+	//	CamComp_PostProcessSettings.bOverride_MotionBlurMax = true;
+	//	CamComp_PostProcessSettings.MotionBlurMax = 50.0f;	
+	//}
 
 	// 대쉬 dashTime초 타이머(타이머 사용)
 	GetWorldTimerManager().SetTimer(itemDelay, FTimerDelegate::CreateLambda([this]() {
 		DriftBody(dashCount);
 
-		if (me->GetCharacterMovement() != nullptr)
-		{
-			me->GetCharacterMovement()->MaxWalkSpeed = 1300.0f;
-		}
+		bIsDash = false;
+
+		ServerDashSpeed(1300.f);
 
 		// 대쉬 사운드 멈추기대쉬 사운드
 		if (playingAudioComp)
@@ -845,19 +870,37 @@ void AMarioKartPlayerController::Dash_Implementation(float dashTime)
 					playingdriveComp->Play();
 				}
 			}
-		}
-
-		// 대쉬 카메라 이펙트 해제
-		//me->kartCamComp->PostProcessSettings.bOverride_MotionBlurAmount = false;
-		//me->kartCamComp->PostProcessSettings.MotionBlurAmount = 0.5f;
-		//me->kartCamComp->PostProcessSettings.bOverride_MotionBlurMax = false;
-		//me->kartCamComp->PostProcessSettings.MotionBlurMax = 5.0f;
+		}		
+		//FPostProcessSettings& CamComp_PostProcessSettings = me->kartCamComp->PostProcessSettings;
+		//if(&CamComp_PostProcessSettings)
+		//{
+		//	// 대쉬 카메라 이펙트 해제
+		//	CamComp_PostProcessSettings.bOverride_MotionBlurAmount = false;
+		//	CamComp_PostProcessSettings.MotionBlurAmount = 0.5f;
+		//	CamComp_PostProcessSettings.bOverride_MotionBlurMax = false;
+		//	CamComp_PostProcessSettings.MotionBlurMax = 5.0f;
+		//}
+		
 
 
 		}), dashTime, false);
 
 	//// 드리프트 해제
 	//driftTime = 0.0f;
+}
+
+void AMarioKartPlayerController::OnRep_DashSpeed()
+{
+	me->GetCharacterMovement()->MaxWalkSpeed = dashSpeed;
+}
+
+void AMarioKartPlayerController::ServerDashSpeed_Implementation(float newdashSpeed)
+{
+	dashSpeed = newdashSpeed;
+	if (HasAuthority())
+	{
+		OnRep_DashSpeed();
+	}
 }
 
 // 드리프트 카트바디 회전 함수
@@ -950,6 +993,7 @@ void AMarioKartPlayerController::Glide()
 		me->GetCharacterMovement()->AirControl = 0.05f;
 		me->kartParachute->SetVisibility(false);
 		glideCount = 0;
+		bGlide = false;
 		/*UE_LOG(LogTemp, Warning, TEXT("%.2f, %.2f, %.2f"), me->GetCharacterMovement()->Velocity.X, me->GetCharacterMovement()->Velocity.Y, me->GetCharacterMovement()->Velocity.Z);
 		UE_LOG(LogTemp, Warning, TEXT("GlideOff"));*/
 
@@ -1020,4 +1064,7 @@ void AMarioKartPlayerController::GetLifetimeReplicatedProps(TArray<FLifetimeProp
 	DOREPLIFETIME(AMarioKartPlayerController, timeTest);
 	DOREPLIFETIME(AMarioKartPlayerController, currentSpeed);
 	DOREPLIFETIME(AMarioKartPlayerController, me);
+	DOREPLIFETIME(AMarioKartPlayerController, bGlide);
+	DOREPLIFETIME(AMarioKartPlayerController, dashSpeed);
+
 }

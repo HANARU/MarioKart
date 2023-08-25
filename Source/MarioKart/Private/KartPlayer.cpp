@@ -123,12 +123,12 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	kartSpringComp->bEnableCameraLag = true;
 	kartSpringComp->bEnableCameraRotationLag = true;
 
-	// kartCamComp 컴포넌트 추가
-	kartCamComp = CreateDefaultSubobject<UCameraComponent>(TEXT("kartCamComp"));
-	kartCamComp->SetupAttachment(kartSpringComp);
+	// kartCameraComp 컴포넌트 추가
+	kartCameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("kartCameraComp"));
+	kartCameraComp->SetupAttachment(kartSpringComp);
 	
 	// kartCamComp 위치, 크기
-	kartCamComp->SetRelativeRotation(FRotator(5, 0, 0));
+	kartCameraComp->SetRelativeRotation(FRotator(5, 0, 0));
 
 	// 대쉬 사운드 가져오기
 	ConstructorHelpers::FObjectFinder<USoundBase> TempkartdashSound(TEXT("SoundWave'/Game/5_FX/Audio/play_dash_.play_dash_'"));

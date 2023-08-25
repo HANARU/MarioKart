@@ -66,8 +66,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class USpringArmComponent* kartSpringComp;
 
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+	//class UCameraComponent* kartCamComp;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
-	class UCameraComponent* kartCamComp;
+	class UCameraComponent* kartCameraComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class UStaticMeshComponent* kartParachute;

@@ -121,10 +121,8 @@ public:
 	// 출발 카운트 사운드 저장
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
 	class UAudioComponent* playingstartComp = nullptr;
-	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Player")
-	FVector currentDir;
 
+	// 메인맵 게임 모드
 	AGM_Race* RaceGM;
 
 	// 플레이어 파생 클래스
@@ -140,15 +138,29 @@ public:
 	float velocityZ;
 
 	// 글라이드 콜리젼 변수
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category="Player")
+	UPROPERTY(Replicated ,BlueprintReadWrite, EditAnywhere, Category="Player")
 	bool bGlide = false;
 
-	// 드리프트 활성화 함수
-	//UFUNCTION(BlueprintImplementableEvent)
-	//void DashActivate(float dashActiveTime);
+	//// 기본 속도
+	//UPROPERTY(EditDefaultsOnly, Category="Player")
+	//float walkSpeed = 1300.f;
 
-	UFUNCTION(BlueprintNativeEvent, Category = "Player")
+	// 대쉬 변수
+	UPROPERTY(BlueprintReadWrite ,EditDefaultsOnly, Category = "Player")	
+	bool bIsDash = false;
+
+	// 대쉬 속도
+	UPROPERTY(ReplicatedUsing = OnRep_DashSpeed ,EditDefaultsOnly, Category="Player")
+	float dashSpeed;
+
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent, Category = "Player")
 	void Dash(float dashTime);
+
+	UFUNCTION()
+	void OnRep_DashSpeed();
+	
+	UFUNCTION(Server, Reliable)
+	void ServerDashSpeed(float newdashSpeed);
 
 protected:
 
