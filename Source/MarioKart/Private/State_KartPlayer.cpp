@@ -107,11 +107,13 @@ void AState_KartPlayer::BeginPlay()
 	{
 		SetMyName(gi->MySessionName);
 	}
+
 }
 
 void AState_KartPlayer::SetMyName_Implementation(const FString& myName)
 {
     SetPlayerName(myName);
+	UE_LOG(LogTemp, Warning, TEXT("%s"), *myName);
 }
 
 

@@ -17,6 +17,7 @@ class MARIOKART_API UWidget_GameStart : public UUserWidget
 protected:
 	virtual void NativePreConstruct() override;
     virtual void NativeConstruct() override;
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
 	
 public:
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
@@ -30,6 +31,10 @@ public:
 
 	UFUNCTION()
 	void OnClickCreateButton();
+
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Collectable)
+	class UTextBlock* text_players;
+
 
 
 
