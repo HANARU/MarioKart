@@ -35,7 +35,43 @@ public:
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Collectable)
 	class UTextBlock* text_players;
 
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Collectable)
+		class UTextBlock* text_player_1;
 
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Collectable)
+		class UTextBlock* text_player_2;
 
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Collectable)
+		class UTextBlock* text_player_3;
 
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Collectable)
+		class UTextBlock* text_player_4;
+
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Collectable)
+		class UImage* IMG_MarioReady;
+
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Collectable)
+		class UImage* IMG_LuigeReady;
+
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Collectable)
+		class UImage* IMG_DaisyReady;
+
+	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Collectable)
+		class UImage* IMG_YoshiReady;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Data)
+	TArray<FText> PlayerArray;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Data)
+	TArray<ESlateVisibility> TextureArray;
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Data)
+	TArray<float> RenderArray;
+
+	UPROPERTY()
+	FString PlayerInfoText1;
+	UPROPERTY()
+	FString PlayerInfoText2;
+	UPROPERTY()
+	FString PlayerInfoText3;
+	UPROPERTY()
+	FString PlayerInfoText4;
 };
