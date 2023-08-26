@@ -66,9 +66,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 		TArray<class USkeletalMesh*> MeshArray;
 
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh)
 		class USkeletalMesh* SK_Mario;
-	UPROPERTY()
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Mesh)
 		class USkeletalMesh* SK_Luige;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)

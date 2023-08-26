@@ -199,10 +199,47 @@ void AKartPlayer::BeginPlay()
 		}), 10.f, false);*/
 
 	KartInstance = Cast<UKartInstance>(GetGameInstance());
+	KartPlayerState = Cast<AState_KartPlayer>(GetPlayerState());
 
-	PlayerNumber = KartInstance->CurrentPlayerNum;
+	//PlayerNumber = KartInstance->CurrentPlayerNum;
+	PlayerNumber = KartPlayerState->PlayerNum;
 
-	
+	if (KartInstance != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerState is not NULL"));
+		switch (PlayerNumber)
+		{
+		case 0:			// 첫번째 플레이어 = 마리오
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Player has 0 num"));
+			kartCharacterBody->SetSkeletalMesh(SK_Mario);
+			kartCharacterBody->SetRelativeLocation(FVector(0, -10, -20));
+			kartCharacterBody->SetRelativeScale3D(FVector(5));
+			break;
+		}
+		case 1:			// 두번째 플레이어 = 루이지
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Player has 1 num"));
+			kartCharacterBody->SetSkeletalMesh(SK_Luige);
+			kartCharacterBody->SetRelativeLocation(FVector(0, -10, -30));
+			kartCharacterBody->SetRelativeScale3D(FVector(5));
+			break;
+		}
+		case 2:
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Player has 2 num"));
+			break;
+		}
+		case 3:			// 네번째 플레이어 = 요시
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Player has 3 num"));
+			break;
+		}
+		default:
+			UE_LOG(LogTemp, Warning, TEXT("NULL Detected"));
+			break;
+		}
+	}
 
 	UE_LOG(LogTemp, Warning, TEXT("PlayerState Check End"));
 
@@ -240,38 +277,7 @@ void AKartPlayer::Tick(float DeltaTime)
 		ServerHorizontal_Implementation();
 	}
 
-	if (KartInstance != nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("PlayerState is not NULL"));
-		switch (PlayerNumber)
-		{
-		case 0:			// 첫번째 플레이어 = 마리오
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Player has 0 num"));
-			kartCharacterBody->SetSkeletalMesh(SK_Mario);
-			break;
-		}
-		case 1:			// 두번째 플레이어 = 루이지
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Player has 1 num"));
-			kartCharacterBody->SetSkeletalMesh(SK_Luige);
-			break;
-		}
-		case 2:
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Player has 2 num"));
-			break;
-		}
-		case 3:			// 네번째 플레이어 = 요시
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Player has 3 num"));
-			break;
-		}
-		default:
-			UE_LOG(LogTemp, Warning, TEXT("NULL Detected"));
-			break;
-		}
-	}
+	
 	//PlayAnimationMontage();
 
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, kart);
