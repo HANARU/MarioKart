@@ -46,6 +46,8 @@ public:
 	UPROPERTY()
 		FString MySessionName;
 
+	int CurrentPlayerNum = 12;
+
 	IOnlineSessionPtr sessionInterface;
 	TSharedPtr<FOnlineSessionSearch> sessionSearch;
 	FSearchSignature onSearchCompleted;

@@ -30,6 +30,8 @@ void UWidget_GameStart::NativeConstruct()
     IMG_LuigeReady->SetRenderOpacity(0);
     IMG_DaisyReady->SetRenderOpacity(0);
     IMG_YoshiReady->SetRenderOpacity(0);
+
+    GameKartInstance = Cast<UKartInstance>(GetGameInstance());
 }
 
 void UWidget_GameStart::NativeTick(const FGeometry& MyGeometry, float InDeltaTime)
@@ -42,11 +44,13 @@ void UWidget_GameStart::NativeTick(const FGeometry& MyGeometry, float InDeltaTim
     for (int index = 0; index < players.Num(); ++index)
     {
         AState_KartPlayer* KartPlayerState = Cast<AState_KartPlayer>(players[index]);
+        
         if (KartPlayerState != nullptr)
         {
             PlayerArray[index] = FText::FromString(*KartPlayerState->GetPlayerName());
             RenderArray[index] = 1;
             KartPlayerState->PlayerNum = index;
+            GameKartInstance->CurrentPlayerNum = index;
         }
         UE_LOG(LogTemp, Warning, TEXT("Player : %s, %d"), KartPlayerState != nullptr ? *KartPlayerState->GetPlayerName() : *FString("Null"), KartPlayerState->PlayerNum);
     }

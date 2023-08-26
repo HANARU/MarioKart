@@ -4,11 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "KartInstance.h"
 #include "Widget_GameStart.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class MARIOKART_API UWidget_GameStart : public UUserWidget
 {
@@ -17,9 +15,12 @@ class MARIOKART_API UWidget_GameStart : public UUserWidget
 protected:
 	virtual void NativePreConstruct() override;
     virtual void NativeConstruct() override;
-	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
+	
 	
 public:
+
+	virtual void NativeTick(const FGeometry& MyGeometry, float InDeltaTime);
+
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Menu)
 	class UButton* btn_GameStart;
 
@@ -69,4 +70,7 @@ public:
 	FString PlayerInfoText3;
 	UPROPERTY()
 	FString PlayerInfoText4;
+
+public:
+	class UKartInstance* GameKartInstance;
 };

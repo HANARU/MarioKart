@@ -66,6 +66,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 		TArray<class USkeletalMesh*> MeshArray;
 
+	UPROPERTY()
+		class USkeletalMesh* SK_Mario;
+	UPROPERTY()
+		class USkeletalMesh* SK_Luige;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class USpringArmComponent* kartSpringComp;
 
@@ -108,6 +113,7 @@ public:
 
 	class AGM_Race* GameMode;
 	class AState_KartPlayer* KartPlayerState;
+	class UKartInstance* KartInstance;
 	int PlayerNumber = 12;
 
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentItemData, VisibleAnywhere, BlueprintReadWrite, Category = Item)

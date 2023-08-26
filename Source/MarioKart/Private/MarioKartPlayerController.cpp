@@ -193,7 +193,7 @@ void AMarioKartPlayerController::Tick(float DeltaSeconds)
 
 	if (me != nullptr && IsLocalPlayerController())
 	{
-		UE_LOG(LogTemp, Warning, TEXT("%.2f"), me->GetCharacterMovement()->MaxWalkSpeed);
+		//UE_LOG(LogTemp, Warning, TEXT("%.2f"), me->GetCharacterMovement()->MaxWalkSpeed);
 	}
 	
 	// 글라이딩 조건

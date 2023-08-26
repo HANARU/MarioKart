@@ -18,6 +18,7 @@
 #include "ItemComponent.h"
 #include "State_KartPlayer.h"
 #include "GameFramework/GameState.h"
+#include "KartInstance.h"
 #include "DrawDebugHelpers.h"
 
 #define NoItem 12
@@ -91,10 +92,16 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 
 	if (Mesh_Mario.Succeeded())
 	{
+		SK_Mario = Mesh_Mario.Object;
 		//kartCharacterBody->SetSkeletalMesh(Mesh_Mario.Object);
 		//kartCharacterBody->SetRelativeLocation(FVector(0, -10, -20));
 		//kartCharacterBody->SetRelativeScale3D(FVector(5));
 		//kartCharacterBody->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+
+	if (Mesh_Luige.Succeeded())
+	{
+		SK_Luige = Mesh_Luige.Object;
 	}
 
 	// parachute 컴포넌트 추가
@@ -175,8 +182,7 @@ void AKartPlayer::BeginPlay()
 
 	FTimerHandle DelayHandle;
 
-
-	GetWorldTimerManager().SetTimer(DelayHandle,FTimerDelegate::CreateLambda([this]() 
+	/*GetWorldTimerManager().SetTimer(DelayHandle,FTimerDelegate::CreateLambda([this]() 
 		{
 			TArray<APlayerState*> players = GetWorld()->GetGameState()->PlayerArray;
 
@@ -190,38 +196,13 @@ void AKartPlayer::BeginPlay()
 				UE_LOG(LogTemp, Warning, TEXT("Player : %d"), KartPlayerState != nullptr ? KartPlayerState->PlayerNum : 12);
 			}
 
-		}), 10.f, false);
+		}), 10.f, false);*/
 
-	if (KartPlayerState != nullptr)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("PlayerState is not NULL")); 
-		switch (PlayerNumber)
-		{
-		case 0:			// 첫번째 플레이어 = 마리오
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Player has 0 num"));
-			break;
-		}
-		case 1:			// 두번째 플레이어 = 루이지
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Player has 1 num"));
-			break;
-		}
-		case 2:
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Player has 2 num"));
-			break;
-		}
-		case 3:			// 네번째 플레이어 = 요시
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Player has 3 num"));
-			break;
-		}
-		default:
-			UE_LOG(LogTemp, Warning, TEXT("NULL Detected"));
-			break;
-		}
-	}
+	KartInstance = Cast<UKartInstance>(GetGameInstance());
+
+	PlayerNumber = KartInstance->CurrentPlayerNum;
+
+	
 
 	UE_LOG(LogTemp, Warning, TEXT("PlayerState Check End"));
 
@@ -257,6 +238,39 @@ void AKartPlayer::Tick(float DeltaTime)
 	if (!HasAuthority())
 	{
 		ServerHorizontal_Implementation();
+	}
+
+	if (KartInstance != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerState is not NULL"));
+		switch (PlayerNumber)
+		{
+		case 0:			// 첫번째 플레이어 = 마리오
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Player has 0 num"));
+			kartCharacterBody->SetSkeletalMesh(SK_Mario);
+			break;
+		}
+		case 1:			// 두번째 플레이어 = 루이지
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Player has 1 num"));
+			kartCharacterBody->SetSkeletalMesh(SK_Luige);
+			break;
+		}
+		case 2:
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Player has 2 num"));
+			break;
+		}
+		case 3:			// 네번째 플레이어 = 요시
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Player has 3 num"));
+			break;
+		}
+		default:
+			UE_LOG(LogTemp, Warning, TEXT("NULL Detected"));
+			break;
+		}
 	}
 	//PlayAnimationMontage();
 
