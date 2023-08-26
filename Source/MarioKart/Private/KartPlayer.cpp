@@ -17,6 +17,7 @@
 #include "Net/UnrealNetwork.h"
 #include "ItemComponent.h"
 #include "State_KartPlayer.h"
+#include "GameFramework/GameState.h"
 #include "DrawDebugHelpers.h"
 
 #define NoItem 12
@@ -34,6 +35,8 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationRoll = false;
+
+	MeshArray.SetNum(4);
 
 	//charactermovement 속성
 	GetCharacterMovement()->bOrientRotationToMovement = false;
@@ -83,13 +86,14 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	kartCharacterBody->SetupAttachment(kartbaseSceneComp);
 
 	// kartCharacterBody Mesh 데이터 할당
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> TempCharacterMesh(TEXT("SkeletalMesh'/Game/4_SK/Mario/Mesh/Mario.Mario'"));
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> Mesh_Mario(TEXT("SkeletalMesh'/Game/4_SK/Mario/Mesh/Mario.Mario'"));
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> Mesh_Luige(TEXT("SkeletalMesh'/Game/4_SK/Luige/Mesh/Luige.Luige'"));
 
-	if (TempCharacterMesh.Succeeded())
+	if (Mesh_Mario.Succeeded())
 	{
-		kartCharacterBody->SetSkeletalMesh(TempCharacterMesh.Object);
-		kartCharacterBody->SetRelativeLocation(FVector(0, -10, -20));
-		kartCharacterBody->SetRelativeScale3D(FVector(5));
+		//kartCharacterBody->SetSkeletalMesh(Mesh_Mario.Object);
+		//kartCharacterBody->SetRelativeLocation(FVector(0, -10, -20));
+		//kartCharacterBody->SetRelativeScale3D(FVector(5));
 		//kartCharacterBody->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
 
@@ -169,7 +173,57 @@ void AKartPlayer::BeginPlay()
 		GameMode->ItemSignature.BindUObject(this, &AKartPlayer::ReceiveItem);
 	}
 
-	PlayerState = Cast<AState_KartPlayer>(GetPlayerState());
+	FTimerHandle DelayHandle;
+
+
+	GetWorldTimerManager().SetTimer(DelayHandle,FTimerDelegate::CreateLambda([this]() 
+		{
+			TArray<APlayerState*> players = GetWorld()->GetGameState()->PlayerArray;
+
+			for (int index = 0; index < players.Num(); ++index)
+			{
+				KartPlayerState = Cast<AState_KartPlayer>(players[index]);
+				if (KartPlayerState != nullptr)
+				{
+					KartPlayerState->PlayerNum = PlayerNumber;
+				}
+				UE_LOG(LogTemp, Warning, TEXT("Player : %d"), KartPlayerState != nullptr ? KartPlayerState->PlayerNum : 12);
+			}
+
+		}), 10.f, false);
+
+	if (KartPlayerState != nullptr)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("PlayerState is not NULL")); 
+		switch (PlayerNumber)
+		{
+		case 0:			// 첫번째 플레이어 = 마리오
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Player has 0 num"));
+			break;
+		}
+		case 1:			// 두번째 플레이어 = 루이지
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Player has 1 num"));
+			break;
+		}
+		case 2:
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Player has 2 num"));
+			break;
+		}
+		case 3:			// 네번째 플레이어 = 요시
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Player has 3 num"));
+			break;
+		}
+		default:
+			UE_LOG(LogTemp, Warning, TEXT("NULL Detected"));
+			break;
+		}
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("PlayerState Check End"));
 
 	if (kartCharacterBody)
 	{
@@ -189,6 +243,8 @@ void AKartPlayer::BeginPlay()
 		}
 	}
 	LocalItemDataMessage = FString::Printf(TEXT("Your First Item : %d, Second Item : %d"), Current1stItem, Current2ndItem);
+
+	
 }
 
 
@@ -196,7 +252,7 @@ void AKartPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
-	PrintStringAtPlayer();
+	//PrintStringAtPlayer();
 
 	if (!HasAuthority())
 	{
@@ -261,9 +317,9 @@ void AKartPlayer::ReceiveItem(int32 ItemNum)
 
 void AKartPlayer::UsingItem()
 {
-	if (PlayerState != nullptr)
+	if (KartPlayerState != nullptr)
 	{
-		PlayerState->UseItem();
+		KartPlayerState->UseItem();
 	}
 	/*if (Current1stItem == NoItem && Current2ndItem == NoItem)
 	{

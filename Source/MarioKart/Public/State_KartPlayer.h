@@ -68,6 +68,9 @@ public:
 	UPROPERTY(BlueprintAssignable, Category = Events)
 		FOn2ndItem On2ndItem;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Character)
+		int PlayerNum = 12;
+
 	virtual void GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const override;
 
 protected:

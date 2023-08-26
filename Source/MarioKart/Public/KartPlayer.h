@@ -64,6 +64,9 @@ public:
 	class USkeletalMeshComponent* kartCharacterBody;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
+		TArray<class USkeletalMesh*> MeshArray;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class USpringArmComponent* kartSpringComp;
 
 	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
@@ -104,7 +107,8 @@ public:
 	class UItemComponent* playerItemComp;
 
 	class AGM_Race* GameMode;
-	class AState_KartPlayer* PlayerState;
+	class AState_KartPlayer* KartPlayerState;
+	int PlayerNumber = 12;
 
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentItemData, VisibleAnywhere, BlueprintReadWrite, Category = Item)
 		int32 Current1stItem = 12;
@@ -118,6 +122,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = Player)
 	bool ItemDataLog = false;
+
 
 protected:
 	virtual void BeginPlay() override;

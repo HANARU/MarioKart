@@ -33,9 +33,6 @@ public:
 	void OnClickCreateButton();
 
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Collectable)
-	class UTextBlock* text_players;
-
-	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Collectable)
 		class UTextBlock* text_player_1;
 
 	UPROPERTY(VisibleAnywhere, meta = (BindWidget), Category = Collectable)
@@ -61,8 +58,6 @@ public:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Data)
 	TArray<FText> PlayerArray;
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Data)
-	TArray<ESlateVisibility> TextureArray;
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Data)
 	TArray<float> RenderArray;
 
