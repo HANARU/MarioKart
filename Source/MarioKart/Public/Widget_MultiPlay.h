@@ -53,6 +53,10 @@ public:
 	UPROPERTY(EditAnywhere, Category = MySettings)
 		TSubclassOf<class UWidget_SessionInfo> sessionInfoWidget;
 
+		
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio") // 사운드 리소스 선언
+    class USoundBase* ClickSound;
+
 	FName LevelIntro = FName(TEXT("0_Intro"));
 	int32 ActivatedWidget = 0;
 

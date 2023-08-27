@@ -109,6 +109,14 @@ void UWidget_MultiPlay::OnClick_NextInputName()
 
 void UWidget_MultiPlay::OnClick_CreateLobby()
 {
+	// 사운드 재생
+	if (ClickSound != nullptr)
+	{
+		UGameplayStatics::PlaySound2D(this, ClickSound);
+
+
+	}
+	
 	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("CreateLobby"));
 	WS_MainMenu->SetActiveWidgetIndex(2);
 	ActivatedWidget = 2;

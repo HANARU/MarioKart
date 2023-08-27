@@ -4,6 +4,8 @@
 #include "Blueprint/UserWidget.h"
 #include "Widget_Lobby.generated.h"
 
+
+
 UCLASS()
 class MARIOKART_API UWidget_Lobby : public UUserWidget
 {
@@ -56,4 +58,6 @@ public:
 	UFUNCTION()
 		void OnClickedPressMenu2Multi();
 	
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Audio") // 사운드 리소스 선언
+    class USoundBase* ClickSound;
 };

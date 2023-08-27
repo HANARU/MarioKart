@@ -4,6 +4,7 @@
 #include "Components/InputComponent.h"
 #include "Components/Image.h"
 #include "Kismet/GameplayStatics.h"
+#include "Blueprint/UserWidget.h"
 
 void UWidget_Lobby::NativePreConstruct()
 {
@@ -26,6 +27,7 @@ void UWidget_Lobby::NativeConstruct()
 			IMG_InitFade->SetVisibility(ESlateVisibility::Hidden);
 		}
 	), 1, false);
+
 	
 }
 
@@ -65,11 +67,20 @@ void UWidget_Lobby::OnClickedPressMenu2Multi()
 {
 	if (Menu2RaceType != nullptr)
 	{
+		
+
+		// 사운드 재생
+		if (ClickSound != nullptr)
+		{
+			UGameplayStatics::PlaySound2D(this, ClickSound);
+		}
+
 		IMG_NextMenu->SetVisibility(ESlateVisibility::Visible);
 		PlayAnimationForward(Menu2RaceType);
 		FTimerHandle DelayHandle;
 		GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([&]()
-			{
+		{
+			
 				UGameplayStatics::OpenLevel(this, LevelMulti);
 				//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, TEXT("Multi"));
 			}
