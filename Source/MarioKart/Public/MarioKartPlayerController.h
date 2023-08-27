@@ -141,13 +141,13 @@ public:
 	UPROPERTY(Replicated ,BlueprintReadWrite, EditAnywhere, Category="Player")
 	bool bGlide = false;
 
-	//// 기본 속도
-	//UPROPERTY(EditDefaultsOnly, Category="Player")
-	//float walkSpeed = 1300.f;
-
 	// 대쉬 변수
 	UPROPERTY(BlueprintReadWrite ,EditDefaultsOnly, Category = "Player")	
 	bool bIsDash = false;
+
+	// 드리프트 카트바디 회전 변수
+	UPROPERTY(BlueprintReadWrite ,EditDefaultsOnly, Category = "Player");
+	bool bIsDriftkartBody;
 
 	// 대쉬 속도
 	UPROPERTY(ReplicatedUsing = OnRep_DashSpeed ,EditDefaultsOnly, Category="Player")
@@ -161,6 +161,11 @@ public:
 	
 	UFUNCTION(Server, Reliable)
 	void ServerDashSpeed(float newdashSpeed);
+
+	// 드리프트 카트바디 회전 함수
+	UFUNCTION(BlueprintCallable, BlueprintNativeEvent)
+	void DriftkartBody(int32 DCount);
+
 
 protected:
 
@@ -212,11 +217,7 @@ private:
 	void Drift();
 
 	UFUNCTION()
-	void Drift_released();	
-
-	// 드리프트 카트바디 회전 함수
-	UFUNCTION()
-	void DriftBody(int32 DCount);
+	void Drift_released();
 
 	// 드리프트 카트바디 원래 모습으로 회전 함수
 	UFUNCTION()

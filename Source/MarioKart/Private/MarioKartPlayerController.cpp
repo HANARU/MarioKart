@@ -150,7 +150,6 @@ void AMarioKartPlayerController::BeginPlay()
 	//network role 확인
 	myLocalRole = GetLocalRole();
 	myRemoteRole = GetRemoteRole();
-
 }
 
 // 정보를 화면에 출력하는 함수
@@ -165,9 +164,10 @@ void AMarioKartPlayerController::PrintLog()
 		const FString connectionString = GetNetConnection() != nullptr ? FString("Valid Connection") : FString("Invalid Connection");
 		//AMarioKartPlayerController* pc = GetController<AMarioKartPlayerController>();
 		const FString PlayerControllerString = this != nullptr ? this->GetName() : *FString("Invalid");
-		const FString printString = FString::Printf(TEXT("PawnString : %s\nLocal Role: %s\nRemote Role: %s\nOwner Name: %s\nNet Connection : %s\nPlayerController : %s"), *PawnString, *localRoleString, *remoteRoleString, *ownerString, *connectionString, *PlayerControllerString);
+		/*const FString printString = FString::Printf(TEXT("PawnString : %s\nLocal Role: %s\nRemote Role: %s\nOwner Name: %s\nNet Connection : %s\nPlayerController : %s"), *PawnString, *localRoleString, *remoteRoleString, *ownerString, *connectionString, *PlayerControllerString);*/
 
-		//const FString printString = FString::Printf(TEXT("Time : %.2f"), timeTest);
+		const FString printString = FString::Printf(TEXT("PlayerNumber : %d"), me->PlayerNumber);
+
 		DrawDebugString(GetWorld(), me->GetActorLocation(), printString, nullptr, FColor::White, 0, true);
 		//GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Yellow, printString);
 	}
@@ -183,24 +183,65 @@ void AMarioKartPlayerController::Tick(float DeltaSeconds)
 
 	startcountTime += DeltaSeconds;
 
-	PrintLog();
-	
-	//timeTest += DeltaSeconds;
-	//if (me != nullptr)
-	//{
-	//	return;
-	//}
+	//PrintLog();
 
-	if (me != nullptr && IsLocalPlayerController())
-	{
-		//UE_LOG(LogTemp, Warning, TEXT("%.2f"), me->GetCharacterMovement()->MaxWalkSpeed);
-	}
+	//if (me != nullptr && IsLocalPlayerController())
+	//{
+	//	UE_LOG(LogTemp, Warning, TEXT("%.2f"), me->GetCharacterMovement()->MaxWalkSpeed);
+	//}
 	
+	/*if (playingdriveComp)
+	{
+		const FString printString = FString::Printf(TEXT("bGlide : %d\n glideCount : %d"), bGlide, glideCount);
+		DrawDebugString(GetWorld(), me->GetActorLocation(), printString, nullptr, FColor::White, 0, true);
+
+	}*/
+
+	/*if (me)
+	{
+		if (me->anim)
+		{
+			const FString printString = FString::Printf(TEXT("anim : %s"), *me->anim->GetName());
+			DrawDebugString(GetWorld(), me->GetActorLocation(), printString, nullptr, FColor::White, 0, true);
+		}
+		
+
+	}*/
+
 	// 글라이딩 조건
 	if (bGlide && me->GetCharacterMovement()->IsFalling() && glideCount == 0)
 	{
 		Glide();
+		
 	}
+	//else
+	//{
+	//	if (bGlide && glideCount!=0)
+	//	{
+	//		// 땅에 착지하면 글라이드 타이머 탈출
+	//		if (me!=nullptr && me->GetCharacterMovement()->IsMovingOnGround())
+	//		{
+	//			GetWorldTimerManager().ClearTimer(glideDelay);
+
+	//			me->GetCharacterMovement()->GravityScale = 1.0f;
+	//			me->GetCharacterMovement()->AirControl = 0.05f;
+	//			me->kartParachute->SetVisibility(false);
+	//			glideCount = 0;
+	//			bGlide = false;
+
+	//			// 주행 소리 pause 풀기
+	//			if (playingdriveComp)
+	//				playingdriveComp->SetPaused(false);
+
+	//		}
+	//		else
+	//		{
+	//			return;
+	//		}
+	//	}
+
+	//}
+	
 
 	if (startcountTime >= 0.0f) // 출발 카운드 사운드 재생 후 주행 startcountTime >= 6.7f
 	//if(RaceGM->Able2Play == true)
@@ -418,9 +459,9 @@ void AMarioKartPlayerController::Drift()
 		// 주행 사운드 멈추기
 		if (playingdriveComp)
 		{
-			playingdriveComp->Stop();
-			playingdriveComp->SetActive(false);
-			playingdriveComp = nullptr;
+			playingdriveComp->SetPaused(true);
+			//playingdriveComp->SetActive(false);
+			//playingdriveComp = nullptr;
 		}
 
 		if (driftSound)
@@ -442,18 +483,23 @@ void AMarioKartPlayerController::Drift()
 	}
 	else
 	{
-		//if (me)
-		//{
-		//	// 드리프트 기능
-		//	//me->Jump();
-		//}
 		// 주행 사운드 멈추기
-		if (playingdriveComp)
+		/*if (playingdriveComp)
 		{
-			playingdriveComp->Stop();
+			//playingdriveComp->Stop();
 			playingdriveComp->SetActive(false);
 			playingdriveComp = nullptr;
+		}*/
+		if (bIsDash == false)
+		{
+  			if (playingdriveComp->bIsPaused == true)
+			{
+				playingdriveComp->SetPaused(false);
+				//playingdriveComp->Play();
+
+			}
 		}
+		
 	}
 }
 
@@ -472,13 +518,25 @@ void AMarioKartPlayerController::Drift_released()
 	driftTime = 0.0f;
 
 	// 드리프트 사운드 멈추기
+	//if (playingdriftComp)
+
 	if (playingdriftComp)
 	{
-		playingdriftComp->Stop();
-		playingdriftComp->SetActive(false);
-		playingdriftComp = nullptr;
+		if (playingdriveComp->bIsPaused)
+		{
+			if(bIsDash == false)
+				playingdriveComp->SetPaused(false);
+			//playingdriftComp->Stop();
+			/*playingdriftComp->SetActive(false);
+			playingdriftComp = nullptr;*/
 
+		}
+		else
+		{
+			return;
+		}
 	}
+ 	
  //	if (bisAcc == true)
 	//{
 
@@ -543,7 +601,8 @@ void AMarioKartPlayerController::Horizontal(float value)
 					// 드리프트(Drift) 좌우 회전
 					if (me->horizontalValue >= 1.0f)
 					{
-						DriftBody(dashCount);
+						//DriftBody(dashCount);
+						DriftkartBody(dashCount);
 						//hvalue = 0.7f;
 						hvalue = FMath::Lerp(0.5f, 0.6f, 0.02f);
 						UE_LOG(LogTemp, Warning, TEXT("%.2f"), hvalue);
@@ -559,7 +618,8 @@ void AMarioKartPlayerController::Horizontal(float value)
 					}
 					else
 					{
-						DriftBody(dashCount);
+						//DriftBody(dashCount);
+						DriftkartBody(dashCount);
 						//hvalue = -0.7f;
 						hvalue = FMath::Lerp(-0.5f, -0.6f, -0.02f);
 						UE_LOG(LogTemp, Warning, TEXT("%.2f"), hvalue);
@@ -577,7 +637,8 @@ void AMarioKartPlayerController::Horizontal(float value)
 				}
 				else
 				{	
-					DriftBody(dashCount);
+					//DriftBody(dashCount);
+					DriftkartBody(dashCount);
 
 					// 전진 회전
 					hvalue = FMath::Lerp(0.0f, me->horizontalValue, 0.4f);
@@ -659,111 +720,6 @@ FVector AMarioKartPlayerController::Direction()
 	return returnDirection;
 }
 
-//// 드리프트 활성화
-//void AMarioKartPlayerController::DashActivate(float dashTime)
-//{
-//	// 플레이어 보이스 재생
-//	UGameplayStatics::PlaySound2D(GetWorld(), mariovoiceSound);
-//
-//	// 드리프트 사운드 멈추기
-//	if (playingdriftComp)
-//	{
-//		playingdriftComp->Stop();
-//		playingdriftComp->SetActive(false);
-//		playingdriftComp = nullptr;
-//	}
-//
-//	// 주행 사운드 멈추기
-//	if (playingdriveComp)
-//	{
-//		playingdriveComp->Stop();
-//		playingdriveComp->SetActive(false);
-//		playingdriveComp = nullptr;
-//	}
-//
-//	// 대쉬 사운드 재생
-//	if (dashSound)
-//	{
-//		// soundbase 대쉬 사운드 오디오 컴포넌트 생성 및 초기화
-//		playingAudioComp = UGameplayStatics::SpawnSound2D(GetWorld(), dashSound);
-//
-//		// 대쉬 사운드 유효성 검사
-//		if (playingAudioComp)
-//		{
-//			playingAudioComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
-//			playingAudioComp->bAutoDestroy = false; // 재생 완료 후 자동으로 제거하지 않는다.
-//
-//			// 대쉬 사운드 재생
-//			playingAudioComp->Play();
-//		}
-//	}
-//
-//
-//	// 대쉬 카운트 증가
-//	dashCount++;
-//
-//	// 플레이어 이동 속도 2000 으로 늘어남
-//	me->GetCharacterMovement()->MaxWalkSpeed = 2000.0f;
-//
-//	// 드리프트 시간 동안 앞으로 빠르게 전진
-//	me->AddMovementInput(Direction(), currentSpeed);
-//	
-//	// 대쉬 카메라 이펙트 설정
-//	me->kartCamComp->PostProcessSettings.bOverride_MotionBlurAmount = true;
-//	me->kartCamComp->PostProcessSettings.MotionBlurAmount = 1.0f;
-//	me->kartCamComp->PostProcessSettings.bOverride_MotionBlurMax = true;
-//	me->kartCamComp->PostProcessSettings.MotionBlurMax = 50.0f;
-//
-//	// 대쉬 dashTime초 타이머(타이머 사용)
-//	GetWorldTimerManager().SetTimer(itemDelay, FTimerDelegate::CreateLambda([this]() {
-//		DriftBody(dashCount);
-//
-//		if (me->GetCharacterMovement() != nullptr)
-//		{
-//			me->GetCharacterMovement()->MaxWalkSpeed = 1300.0f;
-//		}
-//
-//		// 대쉬 사운드 멈추기대쉬 사운드
-//		if (playingAudioComp)
-//		{
-// 			playingAudioComp->Stop();
-//			playingAudioComp->SetActive(false);
-//			playingAudioComp = nullptr;
-//		}
-//		 
-//		if(bisAcc == true)
-//		{
-//			if (driveSound)
-//			{
-//				// soundbase 주행 사운드 오디오 컴포넌트 생성 및 초기화
-//				playingdriveComp = UGameplayStatics::SpawnSound2D(GetWorld(), driveSound);
-//
-//				// 주행 사운드 유효성 검사
-//				if (playingdriveComp)
-//				{
-//					playingdriveComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
-//					playingdriveComp->bAutoDestroy = false; // 재생 완료 후 자동으로 제거하지 않는다.
-//
-//					// 주행 사운드 재생
-//					playingdriveComp->Play();
-//				}
-//			}
-//		}
-//
-//		// 대쉬 카메라 이펙트 해제
-//		me->kartCamComp->PostProcessSettings.bOverride_MotionBlurAmount = false;
-//		me->kartCamComp->PostProcessSettings.MotionBlurAmount = 0.5f;
-//		me->kartCamComp->PostProcessSettings.bOverride_MotionBlurMax = false;
-//		me->kartCamComp->PostProcessSettings.MotionBlurMax = 5.0f;
-//		
-//
-//	}), dashTime, false);
-//
-//	//// 드리프트 해제
-//	//driftTime = 0.0f;
-//
-//}
-
 void AMarioKartPlayerController::Dash_Implementation(float dashTime)
 {
 	// 플레이어 보이스 재생
@@ -780,9 +736,9 @@ void AMarioKartPlayerController::Dash_Implementation(float dashTime)
 	// 주행 사운드 멈추기
 	if (playingdriveComp)
 	{
-		playingdriveComp->Stop();
-		playingdriveComp->SetActive(false);
-		playingdriveComp = nullptr;
+		playingdriveComp->SetPaused(true);
+		//playingdriveComp->SetActive(false);
+		//playingdriveComp = nullptr;
 	}
 
 	// 대쉬 사운드 재생
@@ -809,37 +765,15 @@ void AMarioKartPlayerController::Dash_Implementation(float dashTime)
 	// 대쉬 변수 true
 	bIsDash = true;
 
-	// 플레이어 이동 속도 dashSpeed로 늘어남
-	//me->GetCharacterMovement()->MaxWalkSpeed = 2000.0f;
-	/*if (Role == ROLE_SimulatedProxy)
-	{
-		ServerDashSpeed_Implementation(2000.f);
-	}
-	else
-	{
-		me->GetCharacterMovement()->MaxWalkSpeed = 2000.f;
-	}*/
-
+	// 대쉬 속도 증가
 	ServerDashSpeed(2000.f);
-
 
 	// 드리프트 시간 동안 앞으로 빠르게 전진
 	me->AddMovementInput(Direction(), currentSpeed);
 
-	//// 대쉬 카메라 이펙트 설정
-	//FPostProcessSettings& CamComp_PostProcessSettings = me->kartCamComp->PostProcessSettings;
-
-	//if (&CamComp_PostProcessSettings)
-	//{
-	//	CamComp_PostProcessSettings.bOverride_MotionBlurAmount = true;
-	//	CamComp_PostProcessSettings.MotionBlurAmount = 1.0f;
-	//	CamComp_PostProcessSettings.bOverride_MotionBlurMax = true;
-	//	CamComp_PostProcessSettings.MotionBlurMax = 50.0f;	
-	//}
-
 	// 대쉬 dashTime초 타이머(타이머 사용)
 	GetWorldTimerManager().SetTimer(itemDelay, FTimerDelegate::CreateLambda([this]() {
-		DriftBody(dashCount);
+		DriftkartBody(dashCount);
 
 		bIsDash = false;
 
@@ -855,38 +789,32 @@ void AMarioKartPlayerController::Dash_Implementation(float dashTime)
 
 		if (bisAcc == true)
 		{
-			if (driveSound)
-			{
-				// soundbase 주행 사운드 오디오 컴포넌트 생성 및 초기화
-				playingdriveComp = UGameplayStatics::SpawnSound2D(GetWorld(), driveSound);
-
-				// 주행 사운드 유효성 검사
-				if (playingdriveComp)
+			if (playingdriveComp)
+			{	
+				// 주행 소리 플레이
+				if (playingdriveComp->bIsPaused)
 				{
-					playingdriveComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
-					playingdriveComp->bAutoDestroy = false; // 재생 완료 후 자동으로 제거하지 않는다.
-
-					// 주행 사운드 재생
-					playingdriveComp->Play();
+					playingdriveComp->SetPaused(false);
 				}
 			}
-		}		
-		//FPostProcessSettings& CamComp_PostProcessSettings = me->kartCamComp->PostProcessSettings;
-		//if(&CamComp_PostProcessSettings)
-		//{
-		//	// 대쉬 카메라 이펙트 해제
-		//	CamComp_PostProcessSettings.bOverride_MotionBlurAmount = false;
-		//	CamComp_PostProcessSettings.MotionBlurAmount = 0.5f;
-		//	CamComp_PostProcessSettings.bOverride_MotionBlurMax = false;
-		//	CamComp_PostProcessSettings.MotionBlurMax = 5.0f;
-		//}
-		
+				// soundbase 주행 사운드 오디오 컴포넌트 생성 및 초기화
+				//playingdriveComp = UGameplayStatics::SpawnSound2D(GetWorld(), driveSound);
 
+				// 주행 사운드 유효성 검사
+			//	if (playingdriveComp)
+			//	{
+			//		//playingdriveComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
+			//		//playingdriveComp->bAutoDestroy = false; // 재생 완료 후 자동으로 제거하지 않는다.
+
+			//		//// 주행 사운드 재생
+			//		//playingdriveComp->Play();
+
+			//	}
+			//}
+		}		
 
 		}), dashTime, false);
 
-	//// 드리프트 해제
-	//driftTime = 0.0f;
 }
 
 void AMarioKartPlayerController::OnRep_DashSpeed()
@@ -903,18 +831,20 @@ void AMarioKartPlayerController::ServerDashSpeed_Implementation(float newdashSpe
 	}
 }
 
-// 드리프트 카트바디 회전 함수
-void AMarioKartPlayerController::DriftBody(int32 DCount)
+void AMarioKartPlayerController::DriftkartBody_Implementation(int32 DCount)
 {
+
 	if (DCount <= 0 && bisDrift == true)
 	{
+		bIsDriftkartBody = true;
+
 		if (me->horizontalValue >= 1.0f)
 		{
 			me->kartmeshComp->SetRelativeRotation(FRotator(0, 30, 0));
 			me->kartwheelComp->SetRelativeRotation(FRotator(0, 30, 0));
 			me->kartCharacterBody->SetRelativeRotation(FRotator(0, 30, 0));
 		}
-		else if(me->horizontalValue <= -1.0f)
+		else if (me->horizontalValue <= -1.0f)
 		{
 			me->kartmeshComp->SetRelativeRotation(FRotator(0, -30, 0));
 			me->kartwheelComp->SetRelativeRotation(FRotator(0, -30, 0));
@@ -931,12 +861,13 @@ void AMarioKartPlayerController::DriftBody(int32 DCount)
 	}
 	else
 	{
+		bIsDriftkartBody = false;
+
 		me->kartmeshComp->SetRelativeRotation(FRotator(0));
 		me->kartwheelComp->SetRelativeRotation(FRotator(0));
 		me->kartCharacterBody->SetRelativeRotation(FRotator(0));
 	}
-	
-}	
+}
 
 // 드리프트 카트바디 원래 모습으로 회전 함수
 void AMarioKartPlayerController::DriftBodyReturn()
@@ -973,20 +904,21 @@ void AMarioKartPlayerController::Glide()
 {
 	velocityZ = me->GetCharacterMovement()->Velocity.Z;
 
-	/*UE_LOG(LogTemp, Warning, TEXT("%.2f, %.2f, %.2f"), me->GetCharacterMovement()->Velocity.X, me->GetCharacterMovement()->Velocity.Y, me->GetCharacterMovement()->Velocity.Z);
-	UE_LOG(LogTemp, Warning, TEXT("GlideOn"));*/
-
 	// 낙하산 kartParachute
 	me->kartParachute->SetVisibility(true);
-
 
 	// 공중에서 천천히 내려오게 한다.
 	me->GetCharacterMovement()->GravityScale = 0.2f;
 	me->GetCharacterMovement()->AirControl = 1.0f;
-	me->GetCharacterMovement()->Velocity.X += 800;
-	me->GetCharacterMovement()->Velocity.Y += 800;
-	me->GetCharacterMovement()->Velocity.Z += 300;
-	//UE_LOG(LogTemp, Warning, TEXT("%.2f, %.2f, %.2f"), me->GetCharacterMovement()->Velocity.X, me->GetCharacterMovement()->Velocity.Y, me->GetCharacterMovement()->Velocity.Z);
+	me->GetCharacterMovement()->Velocity.X += 500;
+	me->GetCharacterMovement()->Velocity.Y += 500;
+	me->GetCharacterMovement()->Velocity.Z += 500;
+
+	// 글라이드 시 주행 소리 pause
+	if (playingdriveComp)
+	{
+		playingdriveComp->SetPaused(true);
+	}
 
 	GetWorldTimerManager().SetTimer(glideDelay, FTimerDelegate::CreateLambda([&]() {
 		me->GetCharacterMovement()->GravityScale = 1.0f;
@@ -994,10 +926,10 @@ void AMarioKartPlayerController::Glide()
 		me->kartParachute->SetVisibility(false);
 		glideCount = 0;
 		bGlide = false;
-		/*UE_LOG(LogTemp, Warning, TEXT("%.2f, %.2f, %.2f"), me->GetCharacterMovement()->Velocity.X, me->GetCharacterMovement()->Velocity.Y, me->GetCharacterMovement()->Velocity.Z);
-		UE_LOG(LogTemp, Warning, TEXT("GlideOff"));*/
 
-		}), 4.5f, false);
+		}), 3.8f, false);
+
+	
 
 	glideCount++;
 	

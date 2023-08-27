@@ -201,8 +201,8 @@ void AKartPlayer::BeginPlay()
 	KartInstance = Cast<UKartInstance>(GetGameInstance());
 	KartPlayerState = Cast<AState_KartPlayer>(GetPlayerState());
 
-	//PlayerNumber = KartInstance->CurrentPlayerNum;
-	PlayerNumber = KartPlayerState->PlayerNum;
+	PlayerNumber = KartInstance->CurrentPlayerNum;
+	//PlayerNumber = KartPlayerState->PlayerNum;
 
 	if (KartInstance != nullptr)
 	{

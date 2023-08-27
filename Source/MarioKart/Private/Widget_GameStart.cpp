@@ -76,7 +76,8 @@ void UWidget_GameStart::OnClickCreateButton()
         GetWorld()->GetTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([&]()
             {
                 //UGameplayStatics::OpenLevel(this, LevelMultiStardium);
-                GetWorld()->ServerTravel("/Game/1_Level/7_Multi_Stardium?listen");
+                //GetWorld()->ServerTravel("/Game/1_Level/7_Multi_Stardium?listen");
+                GetWorld()->ServerTravel("/Game/1_Level/10_Multi_Stardium?listen");
             }
         ), 2, false);
     }
