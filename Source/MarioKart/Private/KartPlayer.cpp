@@ -20,6 +20,9 @@
 #include "GameFramework/GameState.h"
 #include "KartInstance.h"
 #include "DrawDebugHelpers.h"
+#include "Animation/AnimInstance.h"
+#include "Animation/AnimBlueprintGeneratedClass.h"
+#include "UObject/UObjectBase.h"
 
 #define NoItem 12
 
@@ -29,7 +32,7 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 {
 	PrimaryActorTick.bCanEverTick = true;
 
-	UCapsuleComponent* CapsuleComp  = GetCapsuleComponent();
+	UCapsuleComponent* CapsuleComp = GetCapsuleComponent();
 	SetRootComponent(CapsuleComp);
 
 	// self 속성
@@ -54,7 +57,7 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	kartmeshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("kartmeshComp"));
 	kartmeshComp->SetupAttachment(kartbaseSceneComp);
 	kartmeshComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
+
 	// kartmeshComp 크기
 	kartmeshComp->SetRelativeScale3D(FVector(1.5f));
 
@@ -130,14 +133,17 @@ AKartPlayer::AKartPlayer(const FObjectInitializer& ObjectInitializer)
 	// kartSpringComp 위치, 크기
 	kartSpringComp->SetRelativeLocation(FVector(0, 0, 50));
 	kartSpringComp->SetRelativeRotation(FRotator(-15, 90, 0));
-	kartSpringComp->TargetArmLength=350;
+	kartSpringComp->TargetArmLength = 350;
 	kartSpringComp->bEnableCameraLag = true;
 	kartSpringComp->bEnableCameraRotationLag = true;
+	//kartSpringComp->CameraRotationLagSpeed.X = 20;
+	//kartSpringComp->CameraRotationLagSpeed.Y = 20;
+	//kartSpringComp->CameraRotationLagSpeed.Z = 0;
 
 	// kartCameraComp 컴포넌트 추가
 	kartCameraComp = CreateDefaultSubobject<UCameraComponent>(TEXT("kartCameraComp"));
 	kartCameraComp->SetupAttachment(kartSpringComp);
-	
+
 	// kartCamComp 위치, 크기
 	kartCameraComp->SetRelativeRotation(FRotator(5, 0, 0));
 
@@ -182,7 +188,7 @@ void AKartPlayer::BeginPlay()
 
 	FTimerHandle DelayHandle;
 
-	/*GetWorldTimerManager().SetTimer(DelayHandle,FTimerDelegate::CreateLambda([this]() 
+	/*GetWorldTimerManager().SetTimer(DelayHandle,FTimerDelegate::CreateLambda([this]()
 		{
 			TArray<APlayerState*> players = GetWorld()->GetGameState()->PlayerArray;
 
@@ -201,38 +207,64 @@ void AKartPlayer::BeginPlay()
 	KartInstance = Cast<UKartInstance>(GetGameInstance());
 	KartPlayerState = Cast<AState_KartPlayer>(GetPlayerState());
 
+	// 캐릭터 setInitInfo
+	//ServerSetInfo(GetGameInstance<UKartInstance>()->playerInfo);
+
 	PlayerNumber = KartInstance->CurrentPlayerNum;
-	//PlayerNumber = KartPlayerState->PlayerNum;
+	ServerSetInfo(PlayerNumber);
+	//KartInstance->playerInfo.Set(PlayerNumber);
+
+	//PlayerNumber = KartPlayerState->PlayerNum;    
 
 	if (KartInstance != nullptr)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("PlayerState is not NULL"));
-		switch (PlayerNumber)
+		switch (myMeshNumber)
 		{
 		case 0:			// 첫번째 플레이어 = 마리오
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Player has 0 num"));
+			InitializePlayer();
+
+			/*if (kartCharacterBody)
+			{
+				anim = Cast<UKartPlayerAnimInstance>(kartCharacterBody->GetAnimInstance());
+				if (anim)
+				{
+					anim->SetAnimation(myMeshNumber);
+				}
+			}*/
+			/*UE_LOG(LogTemp, Warning, TEXT("Player has 0 num"));
 			kartCharacterBody->SetSkeletalMesh(SK_Mario);
 			kartCharacterBody->SetRelativeLocation(FVector(0, -10, -20));
-			kartCharacterBody->SetRelativeScale3D(FVector(5));
+			kartCharacterBody->SetRelativeScale3D(FVector(5));*/
 			break;
 		}
 		case 1:			// 두번째 플레이어 = 루이지
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Player has 1 num"));
+			InitializePlayer();
+			/*UE_LOG(LogTemp, Warning, TEXT("Player has 1 num"));
 			kartCharacterBody->SetSkeletalMesh(SK_Luige);
 			kartCharacterBody->SetRelativeLocation(FVector(0, -10, -30));
-			kartCharacterBody->SetRelativeScale3D(FVector(5));
+			kartCharacterBody->SetRelativeScale3D(FVector(5));*/
 			break;
 		}
 		case 2:
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Player has 2 num"));
+			InitializePlayer();
+			//UE_LOG(LogTemp, Warning, TEXT("Player has 2 num"));
+			//kartCharacterBody->SetSkeletalMesh(SK_Mario);
+			//kartCharacterBody->SetRelativeLocation(FVector(0, -10, -20));
+			//kartCharacterBody->SetRelativeScale3D(FVector(5));
 			break;
 		}
 		case 3:			// 네번째 플레이어 = 요시
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Player has 3 num"));
+			InitializePlayer();
+
+			//UE_LOG(LogTemp, Warning, TEXT("Player has 3 num"));
+			//kartCharacterBody->SetSkeletalMesh(SK_Luige);
+			//kartCharacterBody->SetRelativeLocation(FVector(0, -10, -30));
+			//kartCharacterBody->SetRelativeScale3D(FVector(5));
 			break;
 		}
 		default:
@@ -246,6 +278,7 @@ void AKartPlayer::BeginPlay()
 	if (kartCharacterBody)
 	{
 		anim = Cast<UKartPlayerAnimInstance>(kartCharacterBody->GetAnimInstance());
+
 	}
 	else
 	{
@@ -262,14 +295,17 @@ void AKartPlayer::BeginPlay()
 	}
 	LocalItemDataMessage = FString::Printf(TEXT("Your First Item : %d, Second Item : %d"), Current1stItem, Current2ndItem);
 
-	
+	// 캐릭터 초기화 지연 실행
+	FTimerHandle initHandler;
+	GetWorldTimerManager().SetTimer(initHandler, this, &AKartPlayer::InitializePlayer, 2.0f, false);
+
 }
 
 
 void AKartPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
+
 	//PrintStringAtPlayer();
 
 	if (!HasAuthority())
@@ -277,7 +313,7 @@ void AKartPlayer::Tick(float DeltaTime)
 		ServerHorizontal_Implementation();
 	}
 
-	
+
 	//PlayAnimationMontage();
 
 	//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Magenta, kart);
@@ -319,7 +355,7 @@ void AKartPlayer::OnCurrentItemDataUpdate()
 }
 
 void AKartPlayer::ReceiveItem(int32 ItemNum)
-{	
+{
 	if (GetLocalRole() == ROLE_Authority)
 	{
 		if (Current1stItem == NoItem && Current2ndItem == NoItem)
@@ -480,6 +516,51 @@ void AKartPlayer::MulticastHorizontal_Implementation()
 	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Yellow, FString::Printf(TEXT("server Value: %.2f"), horizontalValue));
 }
 
+void AKartPlayer::ServerSetInfo_Implementation(int32 playernumber)
+{
+	myMeshNumber = playernumber;
+}
+
+// 플레이어 초기화 함수
+void AKartPlayer::InitializePlayer()
+{
+	// 메쉬 설정
+	USkeletalMesh* selectedMesh = LoadObject<USkeletalMesh>(NULL, *meshPathList[myMeshNumber], NULL, LOAD_None, NULL);
+	//UAnimBlueprint* selectedAnim = LoadObject<UAnimBlueprint>(NULL, *animPathList[myMeshNumber], NULL, LOAD_None, NULL);
+
+	if (selectedMesh != nullptr)
+	{
+		//GetMesh()->SetSkeletalMesh(selectedMesh);
+		kartCharacterBody->SetSkeletalMesh(selectedMesh);
+		kartCharacterBody->SetRelativeLocation(FVector(0, -10, -20));
+		kartCharacterBody->SetRelativeScale3D(FVector(5));
+
+		if (kartCharacterBody)
+		{
+			anim = Cast<UKartPlayerAnimInstance>(kartCharacterBody->GetAnimInstance());
+			if (anim)
+			{
+				anim->SetAnimation(myMeshNumber);
+			}
+		}
+		/*kartCharacterBody->SetAnimInstanceClass()*/
+		//if (selectedAnim != nullptr)
+		//{
+		//	UAnimInstance* AnimInstance = kartCharacterBody->GetAnimInstance();
+		//	if (AnimInstance !=nullptr)
+		//	{
+		//		UE_LOG(LogTemp,Warning,TEXT("AnimInstance!"));
+		//		UAnimBlueprintGeneratedClass* generatedClass = Cast<UAnimBlueprintGeneratedClass>(selectedAnim->GeneratedClass);
+		//		if (generatedClass)
+		//		{
+		//			/*AnimInstance->UObjectBase::SetClass(generatedClass);*/
+		//		}
+		//	}
+		//}
+
+	}
+}
+
 void AKartPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifetimeProps) const
 {
 	Super::GetLifetimeReplicatedProps(OutLifetimeProps);
@@ -487,4 +568,5 @@ void AKartPlayer::GetLifetimeReplicatedProps(TArray<FLifetimeProperty>& OutLifet
 	DOREPLIFETIME(AKartPlayer, horizontalValue);
 	DOREPLIFETIME(AKartPlayer, Current1stItem);
 	DOREPLIFETIME(AKartPlayer, Current2ndItem);
+	DOREPLIFETIME(AKartPlayer, myMeshNumber);
 }

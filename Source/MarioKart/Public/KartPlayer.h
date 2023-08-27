@@ -74,23 +74,38 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class USpringArmComponent* kartSpringComp;
 
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
-	//class UCameraComponent* kartCamComp;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class UCameraComponent* kartCameraComp;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class UStaticMeshComponent* kartParachute;
-
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
-	//class UStaticMeshComponent* kartParachute;
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class USoundBase* playerDashSound;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Player)
 	class UAudioComponent* playingDashSound = nullptr;
+	
+	// 캐릭터 메쉬 번호
+	UPROPERTY(Replicated, EditDefaultsOnly, BlueprintReadWrite, Category="CharacterMesh")
+	int32 myMeshNumber = 0;
+
+	// 메쉬 list
+	/*TArray<FString> meshPathList = {TEXT("/Game/4_SK/Mario/Mesh/Mario"),
+									TEXT("/Game/4_SK/Mario/Mesh/Mario_Blue"), 
+									TEXT("/Game/4_SK/Luige/Mesh/Luige"),
+									TEXT("/Game/4_SK/Luige/Mesh/Luige_Yellow")};*/
+	TArray<FString> meshPathList = {TEXT("/Game/4_SK/Mario/Mesh/Luige"),
+									TEXT("/Game/4_SK/Mario/Mesh/Luige_Yellow"), 
+									TEXT("/Game/4_SK/Luige/Mesh/Mario"),
+									TEXT("/Game/4_SK/Luige/Mesh/Mario_Blue")};
+
+
+	//// 애니메이션 블루프린트 list
+	//TArray<FString> animPathList = { TEXT("/Game/4_SK/Mario/Animation/ABP_Mario"),
+	//								TEXT("/Game/4_SK/Mario/Animation/ABP_MarioPlayerBlue"),
+	//								TEXT("/Game/4_SK/Luige/Animation/ABP_Luige"),
+	//								TEXT("/Game/4_SK/Luige/Animation/ABP_LuigeYellow") };
 
 	UPROPERTY(EditDefaultsOnly, Category = Player)
 		TSubclassOf<class UWidget_Player> InGamePlayerWidget;
@@ -114,7 +129,7 @@ public:
 	class AGM_Race* GameMode;
 	class AState_KartPlayer* KartPlayerState;
 	class UKartInstance* KartInstance;
-	int PlayerNumber = 12;
+	int32 PlayerNumber = 12;
 
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentItemData, VisibleAnywhere, BlueprintReadWrite, Category = Item)
 		int32 Current1stItem = 12;
@@ -155,4 +170,13 @@ public:
 		void PlayAnimationMontage();
 
 	void ResetSpeedToNormal();
+	
+	// 캐릭터 메쉬 설정 함수
+	UFUNCTION(Server, Reliable)
+	void ServerSetInfo(int32 playernumber);
+
+private:
+
+	void InitializePlayer();
+
 };

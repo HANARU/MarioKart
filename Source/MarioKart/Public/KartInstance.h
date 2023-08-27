@@ -24,7 +24,6 @@ public:
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FSearchSignature, FSessionSlotInfo, sessionInfo);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FFindButtonSignature, bool, bIsActivation);
 
-
 UCLASS()
 class MARIOKART_API UKartInstance : public UGameInstance
 {

@@ -28,7 +28,7 @@ AMarioKartPlayerController::AMarioKartPlayerController()
 	// 기본값으로 PlayerID를 0으로 설정
 	//PlayerID = 0;
 
-	
+
 
 	// 주행 사운드 가져오기
 	ConstructorHelpers::FObjectFinder<USoundBase> TempdriveSound(TEXT("SoundWave'/Game/5_FX/Audio/play_drive_kart.play_drive_kart'"));
@@ -61,7 +61,7 @@ AMarioKartPlayerController::AMarioKartPlayerController()
 	{
 		mariovoiceSound = TempmariovoiceSound.Object;
 	}
-	
+
 	// 출발 카운드 사운드 가져오기
 	ConstructorHelpers::FObjectFinder<USoundBase> TempstartcountSound(TEXT("SoundWave'/Game/5_FX/Audio/play_Start-Sound-Effect_.play_Start-Sound-Effect_'"));
 
@@ -84,7 +84,7 @@ void AMarioKartPlayerController::BeginPlay()
 
 	// 게임모드
 	RaceGM = Cast<AGM_Race>(UGameplayStatics::GetGameMode(GetWorld()));
-		
+
 
 	//if (HasAuthority())
 	//{
@@ -113,7 +113,7 @@ void AMarioKartPlayerController::BeginPlay()
 	//	//Possess(me);
 	//	this->SetOwner(me);
 	//}
-	
+
 	// playercontroller가 possess 하는 캐릭터
 	//me = Cast<AKartPlayer>(this->GetPawn());
 	////meOwner = Cast<AKartPlayer>(GetOwner());
@@ -189,7 +189,7 @@ void AMarioKartPlayerController::Tick(float DeltaSeconds)
 	//{
 	//	UE_LOG(LogTemp, Warning, TEXT("%.2f"), me->GetCharacterMovement()->MaxWalkSpeed);
 	//}
-	
+
 	/*if (playingdriveComp)
 	{
 		const FString printString = FString::Printf(TEXT("bGlide : %d\n glideCount : %d"), bGlide, glideCount);
@@ -204,7 +204,7 @@ void AMarioKartPlayerController::Tick(float DeltaSeconds)
 			const FString printString = FString::Printf(TEXT("anim : %s"), *me->anim->GetName());
 			DrawDebugString(GetWorld(), me->GetActorLocation(), printString, nullptr, FColor::White, 0, true);
 		}
-		
+
 
 	}*/
 
@@ -212,7 +212,7 @@ void AMarioKartPlayerController::Tick(float DeltaSeconds)
 	if (bGlide && me->GetCharacterMovement()->IsFalling() && glideCount == 0)
 	{
 		Glide();
-		
+
 	}
 	//else
 	//{
@@ -241,7 +241,7 @@ void AMarioKartPlayerController::Tick(float DeltaSeconds)
 	//	}
 
 	//}
-	
+
 
 	if (startcountTime >= 0.0f) // 출발 카운드 사운드 재생 후 주행 startcountTime >= 6.7f
 	//if(RaceGM->Able2Play == true)
@@ -279,8 +279,8 @@ void AMarioKartPlayerController::Tick(float DeltaSeconds)
 					// 드리프트 시간 리셋
 					//driftTime = 0.0f;
 				}
-			}				
-			else if(bisAcc == true && bisDrift == false)
+			}
+			else if (bisAcc == true && bisDrift == false)
 			{
 				// 드리프트 사운드 멈추기
 				if (playingdriftComp)
@@ -309,7 +309,7 @@ void AMarioKartPlayerController::Tick(float DeltaSeconds)
 					// 가속키 누르지 않았을 때 서서히 감속
 					me->AddMovementInput(Direction(), currentSpeed);
 				}
-			
+
 			}
 		}
 	}
@@ -375,7 +375,7 @@ void AMarioKartPlayerController::Acc()
 		}
 	}
 
-	
+
 }
 
 void AMarioKartPlayerController::Acc_released()
@@ -492,14 +492,14 @@ void AMarioKartPlayerController::Drift()
 		}*/
 		if (bIsDash == false)
 		{
-  			if (playingdriveComp->bIsPaused == true)
+			if (playingdriveComp->bIsPaused == true)
 			{
 				playingdriveComp->SetPaused(false);
 				//playingdriveComp->Play();
 
 			}
 		}
-		
+
 	}
 }
 
@@ -524,7 +524,7 @@ void AMarioKartPlayerController::Drift_released()
 	{
 		if (playingdriveComp->bIsPaused)
 		{
-			if(bIsDash == false)
+			if (bIsDash == false)
 				playingdriveComp->SetPaused(false);
 			//playingdriftComp->Stop();
 			/*playingdriftComp->SetActive(false);
@@ -536,35 +536,35 @@ void AMarioKartPlayerController::Drift_released()
 			return;
 		}
 	}
- 	
- //	if (bisAcc == true)
-	//{
 
-	//	if (driveSound)
-	//	{
-	//		// soundbase 사운드 오디오 컴포넌트 생성 및 초기화
-	//		playingdriveComp = UGameplayStatics::SpawnSound2D(GetWorld(), driveSound);
+	//	if (bisAcc == true)
+	   //{
 
-	//		// 주행 사운드 & 플레이어 보이스 유효성 검사
-	//		if (playingdriveComp)
-	//		{
-	//			playingdriveComp->SetSound(driveSound);
-	//			playingdriveComp->bIsUISound = false; 
-	//			playingdriveComp->bAutoDestroy = true;
+	   //	if (driveSound)
+	   //	{
+	   //		// soundbase 사운드 오디오 컴포넌트 생성 및 초기화
+	   //		playingdriveComp = UGameplayStatics::SpawnSound2D(GetWorld(), driveSound);
 
-	//			// 사운드 재생
- //				playingdriveComp->Play();
-	//		}
-	//	}
-	//}
-	//else
-	//{
-	//	driftTime = 0.0f;
-	//}
-	
+	   //		// 주행 사운드 & 플레이어 보이스 유효성 검사
+	   //		if (playingdriveComp)
+	   //		{
+	   //			playingdriveComp->SetSound(driveSound);
+	   //			playingdriveComp->bIsUISound = false; 
+	   //			playingdriveComp->bAutoDestroy = true;
+
+	   //			// 사운드 재생
+	//				playingdriveComp->Play();
+	   //		}
+	   //	}
+	   //}
+	   //else
+	   //{
+	   //	driftTime = 0.0f;
+	   //}
+
 }
 
- // 좌우 키를 눌렀을 때 실행
+// 좌우 키를 눌렀을 때 실행
 void AMarioKartPlayerController::Horizontal(float value)
 {
 	if (me == nullptr)
@@ -576,7 +576,7 @@ void AMarioKartPlayerController::Horizontal(float value)
 	me->horizontalValue = value;
 
 	// 좌우 입력 들어왔을 때(회전)
-	if (me->horizontalValue && FMath::Abs(currentSpeed)>0.9f)
+	if (me->horizontalValue && FMath::Abs(currentSpeed) > 0.9f)
 	{
 		if (bisMovingback == true)
 		{
@@ -632,17 +632,17 @@ void AMarioKartPlayerController::Horizontal(float value)
 						{
 							AddYawInput(hvalue);
 						}
-					}					
-						
+					}
+
 				}
 				else
-				{	
+				{
 					//DriftBody(dashCount);
 					DriftkartBody(dashCount);
 
 					// 전진 회전
 					hvalue = FMath::Lerp(0.0f, me->horizontalValue, 0.4f);
-						
+
 					if (FMath::IsNearlyZero(currentSpeed))
 					{
 						return;
@@ -672,10 +672,10 @@ void AMarioKartPlayerController::Horizontal(float value)
 						AddYawInput(hvalue);
 					}
 				}
-				
+
 			}
 		}
-	} 
+	}
 	else
 	{
 		AddYawInput(0.0f);
@@ -790,28 +790,28 @@ void AMarioKartPlayerController::Dash_Implementation(float dashTime)
 		if (bisAcc == true)
 		{
 			if (playingdriveComp)
-			{	
+			{
 				// 주행 소리 플레이
 				if (playingdriveComp->bIsPaused)
 				{
 					playingdriveComp->SetPaused(false);
 				}
 			}
-				// soundbase 주행 사운드 오디오 컴포넌트 생성 및 초기화
-				//playingdriveComp = UGameplayStatics::SpawnSound2D(GetWorld(), driveSound);
+			// soundbase 주행 사운드 오디오 컴포넌트 생성 및 초기화
+			//playingdriveComp = UGameplayStatics::SpawnSound2D(GetWorld(), driveSound);
 
-				// 주행 사운드 유효성 검사
-			//	if (playingdriveComp)
-			//	{
-			//		//playingdriveComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
-			//		//playingdriveComp->bAutoDestroy = false; // 재생 완료 후 자동으로 제거하지 않는다.
+			// 주행 사운드 유효성 검사
+		//	if (playingdriveComp)
+		//	{
+		//		//playingdriveComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
+		//		//playingdriveComp->bAutoDestroy = false; // 재생 완료 후 자동으로 제거하지 않는다.
 
-			//		//// 주행 사운드 재생
-			//		//playingdriveComp->Play();
+		//		//// 주행 사운드 재생
+		//		//playingdriveComp->Play();
 
-			//	}
-			//}
-		}		
+		//	}
+		//}
+		}
 
 		}), dashTime, false);
 
@@ -929,10 +929,10 @@ void AMarioKartPlayerController::Glide()
 
 		}), 3.8f, false);
 
-	
+
 
 	glideCount++;
-	
+
 }
 
 void AMarioKartPlayerController::OnPossess(APawn* aPawn)

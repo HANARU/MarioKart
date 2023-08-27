@@ -133,7 +133,7 @@ void UKartInstance::OnFindOtherSessions(bool bWasSuccessful)
 			int32 maxNumber = searchResults[i].Session.SessionSettings.NumPublicConnections;
 			int32 pingSpeed = searchResults[i].PingInMs;
 
-			UE_LOG(LogTemp, Warning, TEXT("User Name: %s, Room Name: %s, HostName: %s, OpenNumber: %d, MaxNumber: %d, Ping Speed: %d"),*userName, *roomName, *hostName, openNumber, maxNumber, pingSpeed);
+			UE_LOG(LogTemp, Warning, TEXT("User Name: %s, Room Name: %s, HostName: %s, OpenNumber: %d, MaxNumber: %d, Ping Speed: %d"), *userName, *roomName, *hostName, openNumber, maxNumber, pingSpeed);
 
 			// 구조체 변수에 찾은 세션 정보를 입력한다.
 			FSessionSlotInfo slotInfo;

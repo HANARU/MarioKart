@@ -42,6 +42,11 @@ void UKartPlayerAnimInstance::OnRep_HorizontalValue()
 	//GEngine->AddOnScreenDebugMessage(-1, 1.0f, FColor::Blue, FString::Printf(TEXT("anim Value: %.2f"), HorizontalValue));
 }
 
+void UKartPlayerAnimInstance::SetAnimation(int32 animNum)
+{
+	ABP_anim = LoadObject<UAnimBlueprint>(NULL, *animPathList[animNum], NULL, LOAD_None, NULL);;
+}
+
 //void UKartPlayerAnimInstance::OnRep_HorizontalValue()
 //{
 //	HorizontalValue = kartPlayer->horizontalValue;

@@ -20,8 +20,26 @@ public:
 	UPROPERTY(ReplicatedUsing = OnRep_HorizontalValue, EditDefaultsOnly, BlueprintReadWrite)
 	float HorizontalValue;
 
+	// 애니메이션 블루프린트 list
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
+	//TArray<FString> animPathList = {TEXT("/Game/4_SK/Mario/Animation/ABP_Mario"),
+	//								TEXT("/Game/4_SK/Mario/Animation/ABP_MarioPlayerBlue"),
+	//								TEXT("/Game/4_SK/Luige/Animation/ABP_Luige"),
+	//								TEXT("/Game/4_SK/Luige/Animation/ABP_LuigeYellow") };
+
+		TArray<FString> animPathList = { TEXT("/Game/4_SK/Luige/Animation/ABP_Luige"),
+									TEXT("/Game/4_SK/Luige/Animation/ABP_LuigeYellow"),
+									TEXT("/Game/4_SK/Mario/Animation/ABP_Mario"),
+									TEXT("/Game/4_SK/Mario/Animation/ABP_MarioPlayerBlue")};
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Animation")
+	UAnimBlueprint* ABP_anim;
+
 	UFUNCTION()
 	void OnRep_HorizontalValue();
+
+	UFUNCTION()
+	void SetAnimation(int32 animNum);
 
 private:
 	UPROPERTY()
