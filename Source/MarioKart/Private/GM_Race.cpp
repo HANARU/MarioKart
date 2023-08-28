@@ -20,7 +20,6 @@ AGM_Race::AGM_Race()
 
 int32 AGM_Race::GetNumberOfPlayersInLevel()
 {
-	int32 PlayerCount = 0;
 	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
 	{
 		APlayerController* PlayerController = It->Get();

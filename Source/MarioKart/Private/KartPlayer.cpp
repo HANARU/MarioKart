@@ -211,6 +211,8 @@ void AKartPlayer::BeginPlay()
 	//ServerSetInfo(GetGameInstance<UKartInstance>()->playerInfo);
 
 	PlayerNumber = KartInstance->CurrentPlayerNum;
+
+	int32 pNum = GameMode->PlayerCount;
 	ServerSetInfo(PlayerNumber);
 	//KartInstance->playerInfo.Set(PlayerNumber);
 

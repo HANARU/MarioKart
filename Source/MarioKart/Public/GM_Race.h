@@ -19,6 +19,7 @@ public:
 	
 	int32 RandomItem();
 	int32 ItemName;
+	int32 PlayerCount = 0;
 
 	bool Able2Play = false;
 public:

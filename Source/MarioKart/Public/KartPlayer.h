@@ -95,10 +95,10 @@ public:
 									TEXT("/Game/4_SK/Mario/Mesh/Mario_Blue"), 
 									TEXT("/Game/4_SK/Luige/Mesh/Luige"),
 									TEXT("/Game/4_SK/Luige/Mesh/Luige_Yellow")};*/
-	TArray<FString> meshPathList = {TEXT("/Game/4_SK/Mario/Mesh/Luige"),
-									TEXT("/Game/4_SK/Mario/Mesh/Luige_Yellow"), 
-									TEXT("/Game/4_SK/Luige/Mesh/Mario"),
-									TEXT("/Game/4_SK/Luige/Mesh/Mario_Blue")};
+	TArray<FString> meshPathList = {TEXT("/Game/4_SK/Luige/Mesh/Mario_Blue"),
+									TEXT("/Game/4_SK/Luige/Mesh/Mario"), 
+									TEXT("Game/4_SK/Luige/Mesh/Mario_Blue"),
+									TEXT("Game/4_SK/Luige/Mesh/Mario")};
 
 
 	//// 애니메이션 블루프린트 list
