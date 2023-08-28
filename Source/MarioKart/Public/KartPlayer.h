@@ -131,6 +131,7 @@ public:
 	class UKartInstance* KartInstance;
 	int32 PlayerNumber = 12;
 
+
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentItemData, VisibleAnywhere, BlueprintReadWrite, Category = Item)
 		int32 Current1stItem = 12;
 	UPROPERTY(ReplicatedUsing = OnRep_CurrentItemData, VisibleAnywhere, BlueprintReadWrite, Category = Item)

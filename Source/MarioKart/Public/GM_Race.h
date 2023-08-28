@@ -22,13 +22,15 @@ public:
 	int32 PlayerCount = 0;
 
 	bool Able2Play = false;
+	int MaxPlayerNum = 4;
+	
 public:
     AGM_Race();
 
-	UFUNCTION(BlueprintCallable)
-	int32 GetNumberOfPlayersInLevel();
-
 	void CheckAble2Play();
+
+	UFUNCTION(BlueprintNativeEvent)
+		void StartCountDown();
 
 	void ItemOverlaped(class AKartPlayer* Player);
 	void ItemOverlaped(class UItemComponent* ItemComp);

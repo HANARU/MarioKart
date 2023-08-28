@@ -5,6 +5,7 @@
 #include "Kismet/KismetStringLibrary.h"
 #include "UObject/ConstructorHelpers.h"
 #include "ItemInfo.h"
+#include "Kismet/GameplayStatics.h"
 
 
 AGM_Race::AGM_Race()
@@ -17,20 +18,6 @@ AGM_Race::AGM_Race()
 		ItemDataTable = DataTable.Object;
 	}
 }
-
-int32 AGM_Race::GetNumberOfPlayersInLevel()
-{
-	for (FConstPlayerControllerIterator It = GetWorld()->GetPlayerControllerIterator(); It; ++It)
-	{
-		APlayerController* PlayerController = It->Get();
-		if (PlayerController && PlayerController->GetPawn())
-		{
-			PlayerCount++;
-		}
-	}
-	return PlayerCount;
-}
-
 
 void AGM_Race::Tick(float Deltatime)
 {
@@ -54,21 +41,21 @@ void AGM_Race::BeginPlay()
 
 void AGM_Race::CheckAble2Play()
 {
-	if (Able2Play)
+	int PlayerNums = GetNumPlayers();
+	if (PlayerNums == 2)
 	{
-		return;
+		//GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Blue, TEXT("True"));
+		Able2Play = true;
+		StartCountDown();
 	}
 	else
 	{
-		if (GetNumberOfPlayersInLevel() == 2)
-		{
-			Able2Play = true;
-		}
-		else
-		{
-			Able2Play = false;
-		}
+		//GEngine->AddOnScreenDebugMessage(-1, 0.01f, FColor::Blue, TEXT("False"));
 	}
+}
+
+void AGM_Race::StartCountDown_Implementation()
+{
 }
 
 void AGM_Race::ItemOverlaped(AKartPlayer* Player)

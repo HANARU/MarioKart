@@ -307,8 +307,10 @@ void AKartPlayer::BeginPlay()
 void AKartPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+	
 
 	//PrintStringAtPlayer();
+	
 
 	if (!HasAuthority())
 	{
