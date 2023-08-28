@@ -85,68 +85,6 @@ void AMarioKartPlayerController::BeginPlay()
 	// 게임모드
 	RaceGM = Cast<AGM_Race>(UGameplayStatics::GetGameMode(GetWorld()));
 
-
-	//if (HasAuthority())
-	//{
-	//	gm = GetWorld()->GetAuthGameMode<AGM_Race>();
-	//}
-
-	//FActorSpawnParameters param;
-	//param.SpawnCollisionHandlingOverride = ESpawnActorCollisionHandlingMethod::AlwaysSpawn;
-
-	//me = GetWorld()->SpawnActor<AKartPlayer>(kartPlayer, param);	
-
-	//if (me!=nullptr && this->IsLocalPlayerController())// && this->IsLocalPlayerController()
-	//{
-	//	ServerOnPossess(me);
-	//}
-	//else
-	//{
-	//	OnPossess(me);
-	//}
-	//// playercontroller에 캐릭터 possess
-	//if (this->GetPawn() == nullptr)
-	//{
-	//	
-
-	//	me = GetWorld()->SpawnActor<AKartPlayer>(kartPlayer, param);
-	//	//Possess(me);
-	//	this->SetOwner(me);
-	//}
-
-	// playercontroller가 possess 하는 캐릭터
-	//me = Cast<AKartPlayer>(this->GetPawn());
-	////meOwner = Cast<AKartPlayer>(GetOwner());
-	//
-	//if (me != nullptr)
-	//{
-	//	// 플레이어 기본 속도 설정
-	//	me->GetCharacterMovement()->MaxWalkSpeed = 1300.0f;	
-	//}
-	//
-	// 플레이어 확인 디버그 메시지
-	/*FString NameString = UKismetStringLibrary::Conv_ObjectToString(me);
-	GEngine->AddOnScreenDebugMessage(-1, 2.f, FColor::Red, NameString);*/
-
-	//// 출발 카운트 사운드 재생
-	//FTimerHandle DelayHandle;
-
-	//GetWorldTimerManager().SetTimer(DelayHandle, FTimerDelegate::CreateLambda([this]() {
-	//	if (startcountSound)
-	//	{
-	//		playingstartComp = UGameplayStatics::SpawnSound2D(GetWorld(), startcountSound);
-
-	//		// 출발 카운트 사운드 유효성 검사
-	//		if (playingstartComp)
-	//		{
-	//			playingstartComp->bIsUISound = false; // 루프 걸었다면 ui 사운드로 설정하지 않는다.
-	//			playingstartComp->bAutoDestroy = true; // false : 재생 완료 후 자동으로 제거하지 않는다.
-
-	//			playingstartComp->Play();
-	//		}
-	//	}
-	//			}), 3.f, false);
-
 	//network role 확인
 	myLocalRole = GetLocalRole();
 	myRemoteRole = GetRemoteRole();
@@ -183,65 +121,12 @@ void AMarioKartPlayerController::Tick(float DeltaSeconds)
 
 	startcountTime += DeltaSeconds;
 
-	//PrintLog();
-
-	//if (me != nullptr && IsLocalPlayerController())
-	//{
-	//	UE_LOG(LogTemp, Warning, TEXT("%.2f"), me->GetCharacterMovement()->MaxWalkSpeed);
-	//}
-
-	/*if (playingdriveComp)
-	{
-		const FString printString = FString::Printf(TEXT("bGlide : %d\n glideCount : %d"), bGlide, glideCount);
-		DrawDebugString(GetWorld(), me->GetActorLocation(), printString, nullptr, FColor::White, 0, true);
-
-	}*/
-
-	/*if (me)
-	{
-		if (me->anim)
-		{
-			const FString printString = FString::Printf(TEXT("anim : %s"), *me->anim->GetName());
-			DrawDebugString(GetWorld(), me->GetActorLocation(), printString, nullptr, FColor::White, 0, true);
-		}
-
-
-	}*/
-
 	// 글라이딩 조건
 	if (bGlide && me->GetCharacterMovement()->IsFalling() && glideCount == 0)
 	{
 		Glide();
 
 	}
-	//else
-	//{
-	//	if (bGlide && glideCount!=0)
-	//	{
-	//		// 땅에 착지하면 글라이드 타이머 탈출
-	//		if (me!=nullptr && me->GetCharacterMovement()->IsMovingOnGround())
-	//		{
-	//			GetWorldTimerManager().ClearTimer(glideDelay);
-
-	//			me->GetCharacterMovement()->GravityScale = 1.0f;
-	//			me->GetCharacterMovement()->AirControl = 0.05f;
-	//			me->kartParachute->SetVisibility(false);
-	//			glideCount = 0;
-	//			bGlide = false;
-
-	//			// 주행 소리 pause 풀기
-	//			if (playingdriveComp)
-	//				playingdriveComp->SetPaused(false);
-
-	//		}
-	//		else
-	//		{
-	//			return;
-	//		}
-	//	}
-
-	//}
-
 
 	if (startcountTime >= 0.0f) // 출발 카운드 사운드 재생 후 주행 startcountTime >= 6.7f
 	//if(RaceGM->Able2Play == true)
@@ -581,7 +466,7 @@ void AMarioKartPlayerController::Horizontal(float value)
 		if (bisMovingback == true)
 		{
 			// 후진 회전
-			hvalue = FMath::Lerp(me->horizontalValue, 0.0f, 0.4f);
+			hvalue = FMath::Lerp(me->horizontalValue, 0.0f, 0.5f);
 			if (FMath::IsNearlyZero(currentSpeed))
 			{
 				return AddYawInput(0.0f);
@@ -604,7 +489,7 @@ void AMarioKartPlayerController::Horizontal(float value)
 						//DriftBody(dashCount);
 						DriftkartBody(dashCount);
 						//hvalue = 0.7f;
-						hvalue = FMath::Lerp(0.5f, 0.6f, 0.02f);
+						hvalue = FMath::Lerp(0.5f, 0.6f, 0.05f);
 						UE_LOG(LogTemp, Warning, TEXT("%.2f"), hvalue);
 						if (FMath::IsNearlyZero(currentSpeed))
 						{
@@ -621,7 +506,7 @@ void AMarioKartPlayerController::Horizontal(float value)
 						//DriftBody(dashCount);
 						DriftkartBody(dashCount);
 						//hvalue = -0.7f;
-						hvalue = FMath::Lerp(-0.5f, -0.6f, -0.02f);
+						hvalue = FMath::Lerp(-0.5f, -0.6f, -0.05f);
 						UE_LOG(LogTemp, Warning, TEXT("%.2f"), hvalue);
 
 						if (FMath::IsNearlyZero(currentSpeed))
@@ -641,7 +526,7 @@ void AMarioKartPlayerController::Horizontal(float value)
 					DriftkartBody(dashCount);
 
 					// 전진 회전
-					hvalue = FMath::Lerp(0.0f, me->horizontalValue, 0.4f);
+					hvalue = FMath::Lerp(0.0f, me->horizontalValue, 0.5f);
 
 					if (FMath::IsNearlyZero(currentSpeed))
 					{
@@ -657,12 +542,12 @@ void AMarioKartPlayerController::Horizontal(float value)
 			{
 				if (me->horizontalValue >= 1.0f)
 				{
-					hvalue = FMath::Lerp(0.0f, me->horizontalValue, 0.4f);
+					hvalue = FMath::Lerp(0.0f, me->horizontalValue, 0.5f);
 					AddYawInput(hvalue);
 				}
 				else
 				{
-					hvalue = FMath::Lerp(me->horizontalValue, 0.0f, 0.4f);
+					hvalue = FMath::Lerp(me->horizontalValue, 0.0f, 0.5f);
 					if (FMath::IsNearlyZero(currentSpeed))
 					{
 						return AddYawInput(0.0f);
